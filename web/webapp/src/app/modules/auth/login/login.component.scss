@@ -1,0 +1,16 @@
+.sign-in-btn{
+    margin: 0;
+    display: inline-flex;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    align-items: center;
+    vertical-align: bottom;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.sign-in-btn:enabled:hover{
+    background-color: #cc5200 !important; /* Darker shade on hover */
+}
