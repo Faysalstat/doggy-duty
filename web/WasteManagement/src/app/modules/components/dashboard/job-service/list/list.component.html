@@ -1,0 +1,27 @@
+<div class="container bg-white mt-3">
+  <div class="mt-4 p-5 rounded">
+    <div class="d-flex align-items-center justify-content-between">
+      <h3>Service List</h3>
+      <button (click)="addNew()" class="btn-bg-primary">Add Service</button>
+    </div>
+    <hr>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>SN</th>
+            <th>Service Name</th>
+            <th class="text-right">Service Charge Per Unit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let service of serviceList; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ service.serviceName }}</td>
+            <td class="text-right">{{ service.pricePerUnit }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

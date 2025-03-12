@@ -1,0 +1,31 @@
+<div class="container bg-white mt-4">
+    <div class="mt-4 p-5 rounded">
+        <div class="d-flex align-items-center justify-content-between">
+            <h4>Add Service</h4>
+            <button (click)="goBack()" class="btn btn-default">Go to List</button>
+        </div>
+        <hr>
+        <div class="row">
+            <form [formGroup]="serviceCreateForm" (keydown.enter)="$event.preventDefault()">
+                <div class="row">
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Service Name</mat-label>
+                            <input placeholder="Service Name" formControlName="serviceName" matInput>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Service Charge</mat-label>
+                            <input placeholder="Service Charge" formControlName="serviceCharge" matInput>
+                        </mat-form-field>
+                    </div>
+                    <!-- Submit Button Positioned to the Right -->
+                    <div class="col-12 d-flex justify-content-end mt-3" style="width: 100%;">
+                        <button class="btn-bg-primary">Add Service</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>

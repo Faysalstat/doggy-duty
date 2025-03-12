@@ -1,0 +1,45 @@
+{
+    "message": "Communities Retrieved",
+    "body": [
+        {
+            "id": 7,
+            "communityName": "16010 Barkly Rdg Ct",
+            "address": "16010 Barkly Rdg Ct, Winter Garden, FL 34787, USA",
+            "latitude": "28.51113884923617",
+            "longitude": "-81.629164",
+            "createdAt": "2025-03-11T18:50:48.000Z",
+            "updatedAt": "2025-03-11T18:50:48.000Z",
+            "distance": 18.37661587750328
+        },
+        {
+            "id": 6,
+            "communityName": "Westbrook Apartments",
+            "address": "4932 Eaglesmere Dr, Orlando, FL 32819, United States",
+            "latitude": "28.489957891801623",
+            "longitude": "-81.4653286288353",
+            "createdAt": "2025-03-11T18:50:38.000Z",
+            "updatedAt": "2025-03-11T18:50:38.000Z",
+            "distance": 16.18221895613177
+        },
+        {
+            "id": 9,
+            "communityName": "Reedy Reserve Townhomes - Taylor Morrison",
+            "address": "3617 Anibal St, Kissimmee, FL 34746, United States",
+            "latitude": "28.18773950954966",
+            "longitude": "-81.46244675440774",
+            "createdAt": "2025-03-11T18:51:12.000Z",
+            "updatedAt": "2025-03-11T18:51:12.000Z",
+            "distance": 33.60633441443079
+        },
+        {
+            "id": 8,
+            "communityName": "Stepping Stone - Taylor Morrison",
+            "address": "64 Citrine Lp, Kissimmee, FL 34758, United States",
+            "latitude": "28.15455872833383",
+            "longitude": "-81.4821315423294",
+            "createdAt": "2025-03-11T18:51:03.000Z",
+            "updatedAt": "2025-03-11T18:51:03.000Z",
+            "distance": 4.1636364039904095
+        }
+    ]
+}

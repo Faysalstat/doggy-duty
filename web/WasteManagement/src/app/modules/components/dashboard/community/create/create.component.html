@@ -1,0 +1,129 @@
+<div class="container bg-white mt-4">
+    <p-toast  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
+    <div class="mt-4 p-5 rounded">
+        <div class="d-flex align-items-center justify-content-between">
+            <h4>Add Community</h4>
+            <button (click)="goBack()" class="btn btn-default">Go to List</button>
+        </div>
+        <hr>
+        <div class="row">
+            <form [formGroup]="communityCreateForm" (keydown.enter)="$event.preventDefault()">
+                <div class="row">
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Community Name</mat-label>
+                            <input placeholder="Community Name" formControlName="communityName" matInput>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Community Address</mat-label>
+                            <input placeholder="Community Address" formControlName="communityAddress" matInput>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Latitude</mat-label>
+                            <input placeholder="Latitude" formControlName="latitude" matInput>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Longitude</mat-label>
+                            <input placeholder="Longitude" formControlName="longitude" matInput>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>CAM of Community</mat-label>
+                            <input placeholder="CAM of Community" formControlName="camOfcommunity" matInput>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Gate Code</mat-label>
+                            <input placeholder="Gate Code" formControlName="gateCode" matInput>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Phone</mat-label>
+                            <input placeholder="Phone" formControlName="phone" matInput type="tel">
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Email</mat-label>
+                            <input placeholder="Email" formControlName="email" matInput type="email">
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Lock Box Code</mat-label>
+                            <input placeholder="Lock Box Code" formControlName="lockBoxCode" matInput>
+                        </mat-form-field>
+                    </div>
+
+
+
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Number of Pet Stations</mat-label>
+                            <input  placeholder="Number of Pet Stations" formControlName="noOfPetStation" matInput
+                                type="number">
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Number of Garbage Bins</mat-label>
+                            <input placeholder="Number of Garbage Bins" formControlName="noOfGarbageBin" matInput
+                                type="number">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-12">
+                        <mat-form-field class="input-field full-width" appearance="outline">
+                            <mat-label>Special Request</mat-label>
+                            <textarea placeholder="Special Request" formControlName="specialRequest" matInput
+                                rows="3"></textarea>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-12">
+                        <h4>Add Services</h4>
+                        <hr>
+                    </div>
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field full-width" appearance="outline">
+                            <mat-label>Services</mat-label>
+                            <mat-select formControlName="selectedServices" multiple>
+                                <mat-option *ngFor="let service  of serviceList" [value]="service">{{service.serviceName}}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Frequency</mat-label>
+                            <input type="number" placeholder="Frequency" formControlName="frequency" matInput>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Start Date</mat-label>
+                            <input formControlName="startingDate" matInput [matDatepicker]="startDate">
+                            <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
+                            <mat-datepicker #startDate></mat-datepicker>
+                        </mat-form-field>
+                    </div>
+                    <!-- Submit Button Positioned to the Right -->
+                    <div class="col-12 d-flex justify-content-end mt-3" style="width: 100%;">
+                        <button (click)="onSave()" class="btn-bg-primary">Add Community</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
