@@ -9,29 +9,41 @@
         <div class="row">
             <form [formGroup]="communityCreateForm" (keydown.enter)="$event.preventDefault()">
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Community Name</mat-label>
                             <input placeholder="Community Name" formControlName="communityName" matInput>
                         </mat-form-field>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Community Address</mat-label>
                             <input placeholder="Community Address" formControlName="communityAddress" matInput>
                         </mat-form-field>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Latitude</mat-label>
                             <input placeholder="Latitude" formControlName="latitude" matInput>
                         </mat-form-field>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Longitude</mat-label>
                             <input placeholder="Longitude" formControlName="longitude" matInput>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Gate Code</mat-label>
+                            <input placeholder="Gate Code" formControlName="gateCode" matInput>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Lock Box Code</mat-label>
+                            <input placeholder="Lock Box Code" formControlName="lockBoxCode" matInput>
                         </mat-form-field>
                     </div>
                     <div class="col-md-4">
@@ -41,12 +53,7 @@
                         </mat-form-field>
                     </div>
 
-                    <div class="col-md-4">
-                        <mat-form-field class="input-field" appearance="outline">
-                            <mat-label>Gate Code</mat-label>
-                            <input placeholder="Gate Code" formControlName="gateCode" matInput>
-                        </mat-form-field>
-                    </div>
+                    
 
                     <div class="col-md-4">
                         <mat-form-field class="input-field" appearance="outline">
@@ -61,28 +68,31 @@
                             <input placeholder="Email" formControlName="email" matInput type="email">
                         </mat-form-field>
                     </div>
-
-                    <div class="col-md-4">
-                        <mat-form-field class="input-field" appearance="outline">
-                            <mat-label>Lock Box Code</mat-label>
-                            <input placeholder="Lock Box Code" formControlName="lockBoxCode" matInput>
-                        </mat-form-field>
-                    </div>
-
-
-
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Number of Pet Stations</mat-label>
                             <input  placeholder="Number of Pet Stations" formControlName="noOfPetStation" matInput
                                 type="number">
                         </mat-form-field>
                     </div>
-
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Price per Pet Stations</mat-label>
+                            <input  placeholder="Price" formControlName="chargePerPetStation" matInput
+                                type="number">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Number of Garbage Bins</mat-label>
                             <input placeholder="Number of Garbage Bins" formControlName="noOfGarbageBin" matInput
+                                type="number">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Price per Garbage Bin</mat-label>
+                            <input placeholder="Price" formControlName="chargePerGarbageBin" matInput
                                 type="number">
                         </mat-form-field>
                     </div>
@@ -94,16 +104,8 @@
                         </mat-form-field>
                     </div>
                     <div class="col-md-12">
-                        <h4>Add Services</h4>
+                        <h4>Add Schedule</h4>
                         <hr>
-                    </div>
-                    <div class="col-md-4">
-                        <mat-form-field class="input-field full-width" appearance="outline">
-                            <mat-label>Services</mat-label>
-                            <mat-select formControlName="selectedServices" multiple>
-                                <mat-option *ngFor="let service  of serviceList" [value]="service">{{service.serviceName}}</mat-option>
-                            </mat-select>
-                        </mat-form-field>
                     </div>
                     <div class="col-md-4">
                         <mat-form-field class="input-field" appearance="outline">
@@ -119,9 +121,17 @@
                             <mat-datepicker #startDate></mat-datepicker>
                         </mat-form-field>
                     </div>
+                    <div *ngIf="isEdit" class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Next Scheduled Date</mat-label>
+                            <input formControlName="startingDate" matInput [matDatepicker]="startDate">
+                            <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
+                            <mat-datepicker #startDate></mat-datepicker>
+                        </mat-form-field>
+                    </div>
                     <!-- Submit Button Positioned to the Right -->
                     <div class="col-12 d-flex justify-content-end mt-3" style="width: 100%;">
-                        <button (click)="onSave()" class="btn-bg-primary">Add Community</button>
+                        <button (click)="onSubmit()" class="btn-bg-primary">{{isEdit?"Update Community":"Add Community"}}</button>
                     </div>
                 </div>
             </form>

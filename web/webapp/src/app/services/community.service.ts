@@ -8,7 +8,14 @@ import { CommunityUrls, ServiceUrls } from '../utils/urls.const';
 })
 export class CommunityService {
   constructor(private http: HttpClient) {}
-
+  public getCommunityById(id:number): Observable<any> {
+    let params = new HttpParams();
+    params = params.append('id', id);
+    return this.http.get(CommunityUrls.GET_BY_ID, { params: params });
+  }
+  public getAllCommunity(): Observable<any> {
+    return this.http.get(CommunityUrls.GETALL_BY_DISTANCE_ORDER);
+  }
   public getAllService(): Observable<any> {
       return this.http.get(ServiceUrls.GETALL);
     }
@@ -16,7 +23,9 @@ export class CommunityService {
   public createCommunityService(payload:any): Observable<any> {
     return this.http.post(CommunityUrls.CREATE_COM_SCHED,payload);
   }
-
+  public updateCommunityService(payload:any): Observable<any> {
+    return this.http.post(CommunityUrls.UPDATE_COM_SCHED,payload);
+  }
   public getJobOrderByDate(): Observable<any> {
     let params = new HttpParams();
     // let today = new Date();

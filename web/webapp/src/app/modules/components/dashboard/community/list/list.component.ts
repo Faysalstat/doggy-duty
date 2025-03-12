@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { CommunityDTO } from 'src/app/modules/dto/models';
+import { CommunityService } from 'src/app/services/community.service';
 
 @Component({
   selector: 'app-list',
@@ -8,45 +10,30 @@ import { CommunityDTO } from 'src/app/modules/dto/models';
   styleUrls: ['./list.component.scss'],
 })
 export class ListComponent implements OnInit {
-  communityList: CommunityDTO[] = [];
-  constructor(private router:Router){
+  communityList: any[] = [];
+  constructor(private router:Router,private communityService:CommunityService,private messageService: MessageService){
 
   }
   ngOnInit(): void {
-    // Dummy data for testing
-    this.communityList = [
-      {
-        communityName: 'Green Valley',
-        communityAddress: '123 Green St',
-        camOfcommunity: 'John Doe',
-        gateCode: 'GV123',
-        phone: '123-456-7890',
-        email: 'admin@greenvalley.com',
-        lockBoxCode: 'LB123',
-        specialRequest: 'No pets allowed',
-        noOfPetStation: 5,
-        noOfGarbageBin: 10,
+    this.getAllCommunity();
+  }
+  getAllCommunity(){
+    this.communityService.getAllCommunity().subscribe({
+      next: (res) => {
+        this.communityList = res.body;
       },
-      {
-        communityName: 'Blue Ridge',
-        communityAddress: '456 Blue St',
-        camOfcommunity: 'Jane Smith',
-        gateCode: 'BR456',
-        phone: '987-654-3210',
-        email: 'admin@blueridge.com',
-        lockBoxCode: 'LB456',
-        specialRequest: 'Install extra bins',
-        noOfPetStation: 3,
-        noOfGarbageBin: 7,
+      error:(err)=>{
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.measse });
       },
-    ];
+
+    })
   }
   addNew() {
     this.router.navigate(['community/add'])
   }
 
-  editCommunity(community: CommunityDTO) {
-    // this.serviceCreateForm.patchValue(community);
+  editCommunity(communityId: any) {
+    this.router.navigate(['community/edit', communityId]); // Navigate to the edit route with the item ID
   }
 
   deleteCommunity(community: CommunityDTO) {

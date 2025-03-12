@@ -22,6 +22,7 @@ import { MessageService } from 'primeng/api';
       RouterModule.forChild([
               { path: 'list', component: ListComponent },
               { path: 'add', component: CreateComponent },
+              { path: 'edit/:id', component: CreateComponent },
           ])
     ],
     providers:[MessageService]

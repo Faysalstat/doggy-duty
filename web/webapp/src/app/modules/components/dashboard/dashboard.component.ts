@@ -26,6 +26,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             ...community, // Spread the existing properties of the community
             isReplaceBagRoll: false, // Add your first extra property
             numberOfRolls: 0, // Add your second extra property
+            pricePerUnit:8.5
           };
         });
       },

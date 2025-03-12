@@ -16,7 +16,9 @@ export const ServiceUrls = {
 }
 
 export const CommunityUrls = {
-  GETALL_BY_DISTANCE_ORDER : BASE_URL + "/community/getall",
+  GET_BY_ID : BASE_URL + "/community/getbyid",
+  GETALL_BY_DISTANCE_ORDER : BASE_URL + "/community/getallbydistance",
   GETALL_JOB_ORDER : BASE_URL + "/job-order/getallbydate",
   CREATE_COM_SCHED : BASE_URL + "/community/create",
+  UPDATE_COM_SCHED : BASE_URL + "/community/update",
 }

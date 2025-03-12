@@ -34,8 +34,7 @@ exports.generateDailyTasks = async (req, res, next) => {
   try {
     let response = await taskService.generateDailyTasks(req, res, next);
     return res.status(200).json({
-      message: "Task and Job order created",
-      body: response,
+      message: response
     });
   } catch (error) {
     return res.status(404).json({

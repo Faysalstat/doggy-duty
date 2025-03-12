@@ -19,12 +19,12 @@ exports.generateDailyTasks = async (req,res) => {
     // Fetch schedules matching today's day
     const schedules = await CommunityServiceSchedule.findAll({
       where: query,
-      include: [{ model: Community }, { model: Service }],
+      include: [{ model: Community }],
     });
 
     if (schedules.length === 0) {
       console.log("No scheduled services for today.");
-      return;
+      return "No scheduled services for today.";
     }
 
     let jobOrders = [];
@@ -38,7 +38,6 @@ exports.generateDailyTasks = async (req,res) => {
 
       let task = {
         communityId,
-        serviceId,
         scheduledDate: new Date(),
         status: "pending",
       };
@@ -68,6 +67,7 @@ exports.generateDailyTasks = async (req,res) => {
     }
 
     console.log(`Created ${jobOrders.length} job orders with tasks.`);
+    return `Created ${jobOrders.length} job orders with tasks.`;
   } catch (error) {
     console.error("Error in task generation:", error.message);
   }

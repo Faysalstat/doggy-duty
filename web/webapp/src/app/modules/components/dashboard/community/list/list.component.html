@@ -17,9 +17,10 @@
                         <th>Phone</th>
                         <th>Email</th>
                         <th>Lock Box Code</th>
-                        <th>Special Request</th>
                         <th>Pet Stations</th>
+                        <th>Price/Unit</th>
                         <th>Garbage Bins</th>
+                        <th>Price/Unit</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -33,11 +34,12 @@
                         <td>{{ community.phone }}</td>
                         <td>{{ community.email }}</td>
                         <td>{{ community.lockBoxCode }}</td>
-                        <td>{{ community.specialRequest }}</td>
                         <td>{{ community.noOfPetStation }}</td>
-                        <td>{{ community.noOfGarbageBin }}</td>
+                        <td>{{ community.chargePerPetStation }}</td>
+                        <td>{{ community.noOfPetStation }}</td>
+                        <td>{{ community.chargePerGarbageBin }}</td>
                         <td>
-                            <button (click)="editCommunity(community)" class="btn btn-sm btn-warning">Edit</button>
+                            <button (click)="editCommunity(community.id)" class="btn btn-sm btn-warning">Edit</button>
                             <!-- <button (click)="deleteCommunity(community)" class="btn btn-sm btn-danger">Delete</button> -->
                         </td>
                     </tr>

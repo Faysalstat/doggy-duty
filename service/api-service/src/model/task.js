@@ -17,7 +17,7 @@ const Task = db.sequelize.define(
       type: Sequelize.ENUM("pending", "completed"),
       defaultValue: "pending",
     },
-    scheduledTime: Sequelize.DATEONLY,
+    scheduledDate: Sequelize.DATEONLY,
   },
   {
     freezeTableName: true,

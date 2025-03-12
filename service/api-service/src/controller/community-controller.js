@@ -14,6 +14,20 @@ exports.addCommunity = async (req, res, next) => {
     });
   }
 };
+exports.updateCommunity = async (req, res, next) => {
+  try {
+    let response = await communityService.updateCommunity(req, res, next);
+    return res.status(201).json({
+      message: "Community Updated",
+      body: response,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: "Operation Failed: " + error.message,
+      isSuccess: false,
+    });
+  }
+};
 
 exports.getAllCommunitiesWithDistanceFromBase = async (req, res, next) => {
   try {

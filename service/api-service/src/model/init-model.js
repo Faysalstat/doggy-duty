@@ -9,17 +9,14 @@ const Billing = require("./billing");
 const AppConfig = require("./app-config");
 
 // Define Relationships
-Community.hasMany(CommunityServiceSchedule);
+Community.hasOne(CommunityServiceSchedule);
 CommunityServiceSchedule.belongsTo(Community);
-CommunityServiceSchedule.belongsTo(Service);
 
 Task.belongsTo(JobOrder);
 Task.belongsTo(Community);
-Task.belongsTo(Service);
 
 JobOrder.hasMany(Task);
-Community.hasMany(Task);
-Service.hasMany(Task);
+Community.hasOne(Task);
 
 Billing.belongsTo(Community);
 Community.hasMany(Billing);

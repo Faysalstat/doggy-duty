@@ -42,14 +42,6 @@ const Community = db.sequelize.define(
       type: Sequelize.STRING,
       allowNull: true,
     },
-    noOfPetStation: {
-      type: Sequelize.INTEGER,
-      allowNull: true,
-    },
-    noOfGarbageBin: {
-      type: Sequelize.INTEGER,
-      allowNull: true,
-    },
     latitude: {
       type: Sequelize.STRING,
       allowNull: false,

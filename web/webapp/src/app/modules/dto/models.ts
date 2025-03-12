@@ -3,8 +3,11 @@ export class JobServiceDTO {
     serviceName?: string;
 }
 export class CommunityDTO {
+    id?: number;
     communityName?: string;
     communityAddress?: string;
+    latitude?: number;
+    longitude?: number;
     camOfcommunity?: string;
     gateCode?: string;
     phone?: string;
@@ -13,4 +16,10 @@ export class CommunityDTO {
     specialRequest?: string;
     noOfPetStation?: number;
     noOfGarbageBin?: number;
+    chargePerPetStation?: number;
+    chargePerGarbageBin?: number;
+    frequency?: string;
+    startingDate?: Date;
+    lastServedDate?: Date;
+    scheduledDate?: Date;
 }
