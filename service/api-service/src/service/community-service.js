@@ -1,5 +1,5 @@
 const Community = require("../model/community");
-const { BaseLocation } = require("../model/enums");
+const { BaseLocation, TASK_STATUS } = require("../model/enums");
 const CommonService = require("../service/common-service");
 const db = require("../connector/db-connector");
 const CommunityServiceSchedule = require("../model/communityServiceSchedule");
@@ -138,11 +138,16 @@ exports.getAllCommunitiesWithDistanceFromBase = async (req, res) => {
 
 exports.getAllJobOrderByDate = async (req, res) => {
   let params = req.query;
-  let query = {};
+  let jobquery = {};
+  let taskquery = {};
   if(params.date && params.date != ""){
-    query.date = params.date;
+    jobquery.date = params.date;
   }else{
-    query.date = new Date();
+    jobquery.date = new Date();
+  }
+
+  if(params.status && params.status != ""){
+    jobquery.status = params.status;
   }
   let sortedCommunities = [];
   try {
@@ -152,10 +157,11 @@ exports.getAllJobOrderByDate = async (req, res) => {
         {
           model: Task,
           required: true,
+          where:{status:taskquery},
           include: [
             {
               model: JobOrder,
-              where: query,
+              where: jobquery,
               required: true,
             },
           ],
@@ -178,6 +184,7 @@ exports.getAllJobOrderByDate = async (req, res) => {
         noOfPetStation: community.communityServiceSchedule.noOfPetStation,
         noOfGarbageBin: community.communityServiceSchedule.noOfGarbageBin,
         distance: community.distance.toFixed(3),
+        taskId:community.task.id,
         taskStatus: community.task.status
       };
 

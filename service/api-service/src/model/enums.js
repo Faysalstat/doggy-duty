@@ -2,9 +2,25 @@ const SERVICE_TYPES = Object.freeze({
   GARBAGE_BIN:"Garbage Bin Collection",
   PET_STATION:"Pet Waste Bag Disposal"
 })
+const CONFIG_NAMES = Object.freeze({
+  PRICE_PER_BAG_ROLL:"PRICE_PER_BAG_ROLL",
+  PET_STATION:"Pet Waste Bag Disposal",
+  LATITUDE: "28.652035446998084",
+  LONGITUDE:"-81.53080236001611"
+})
 
+const TASK_STATUS = Object.freeze({
+  PENDING:"pending",
+  COMPLETED:"completed",
+  CANCELED:"canceled"
+})
+const PAYMENT_STATUS = Object.freeze({
+  PENDING:"pending",
+  PAID:"paid",
+  CANCELED:"canceled"
+})
 const BaseLocation = Object.freeze({
   LATITUDE: 28.652035446998084,
   LONGITUDE:-81.53080236001611
 })
-module.exports = {BaseLocation};
+module.exports = {BaseLocation,CONFIG_NAMES,TASK_STATUS,PAYMENT_STATUS};

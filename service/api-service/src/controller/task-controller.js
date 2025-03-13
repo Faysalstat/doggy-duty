@@ -46,9 +46,9 @@ exports.generateDailyTasks = async (req, res, next) => {
 
 exports.completeTask = async (req, res, next) => {
   try {
-    let response = await taskService.generateDailyTasks(req, res, next);
+    let response = await taskService.completeTask(req, res, next);
     return res.status(200).json({
-      message: "Task and Job order created",
+      message: "Task completed and Bill Created",
       body: response,
     });
   } catch (error) {

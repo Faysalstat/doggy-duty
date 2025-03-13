@@ -124,6 +124,7 @@ export class CreateComponent implements OnInit {
     this.communityService.createCommunityService(payload).subscribe({
       next:(res)=>{
         console.log(res);
+        this.messageService.add({ severity: 'success', summary: 'Created', detail:"Successfully Created"});
         this.prepareForm();
       },
       error:(err)=>{
@@ -136,6 +137,7 @@ export class CreateComponent implements OnInit {
     this.communityService.updateCommunityService(payload).subscribe({
       next:(res)=>{
         console.log(res);
+        this.messageService.add({ severity: 'success', summary: 'Updated', detail:"Successfully Updated"});
         this.fetchComunityDetails(this.communityId); // Load the item data for editing
       },
       error:(err)=>{

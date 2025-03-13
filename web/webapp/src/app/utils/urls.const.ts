@@ -22,3 +22,7 @@ export const CommunityUrls = {
   CREATE_COM_SCHED : BASE_URL + "/community/create",
   UPDATE_COM_SCHED : BASE_URL + "/community/update",
 }
+
+export const TaskUrls = {
+  COMPLETE_TASK : BASE_URL + "/task/complete",
+}

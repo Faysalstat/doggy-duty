@@ -23,3 +23,9 @@ export class CommunityDTO {
     lastServedDate?: Date;
     scheduledDate?: Date;
 }
+
+export enum TaskStatus {
+    PENDING = "pending",
+    COMPLETED = "completed",
+    CANCELLED = "cancelled"
+  }

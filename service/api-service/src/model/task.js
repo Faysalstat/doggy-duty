@@ -1,8 +1,5 @@
 const Sequelize = require("sequelize");
 const db = require("../connector/db-connector");
-const JobOrder = require("./job-order");
-const Community = require("./community");
-const Service = require("./service");
 
 const Task = db.sequelize.define(
   "task",
@@ -13,11 +10,15 @@ const Task = db.sequelize.define(
       allowNull: false,
       primaryKey: true,
     },
-    status: {
-      type: Sequelize.ENUM("pending", "completed"),
-      defaultValue: "pending",
-    },
+    status: Sequelize.STRING,
     scheduledDate: Sequelize.DATEONLY,
+    isBagRollReplaced:Sequelize.BOOLEAN,
+    noOfPetStation: Sequelize.INTEGER,
+    noOfGarbageBin: Sequelize.INTEGER,
+    noOfBagRollReplaced: Sequelize.INTEGER,
+    chargePerPetStation: Sequelize.DOUBLE,
+    chargePerGarbageBin: Sequelize.DOUBLE,
+    chargePerBagRoll: Sequelize.DOUBLE,
   },
   {
     freezeTableName: true,

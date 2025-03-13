@@ -124,7 +124,7 @@
                     <div *ngIf="isEdit" class="col-md-4">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Next Scheduled Date</mat-label>
-                            <input formControlName="startingDate" matInput [matDatepicker]="startDate">
+                            <input formControlName="scheduledDate" matInput [matDatepicker]="startDate">
                             <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
                             <mat-datepicker #startDate></mat-datepicker>
                         </mat-form-field>

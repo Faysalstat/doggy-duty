@@ -11,7 +11,7 @@ import { PanelMenuModule } from 'primeng/panelmenu';
 import { DashboardsRoutingModule } from './dashboard-routing.module';
 import { MaterialModule } from 'src/material.module';
 import { MessageService } from 'primeng/api';
-
+import { ToastModule } from 'primeng/toast';
 @NgModule({
     imports: [
         CommonModule,
@@ -23,7 +23,8 @@ import { MessageService } from 'primeng/api';
         PanelMenuModule,
         ButtonModule,
         DashboardsRoutingModule,
-        MaterialModule
+        MaterialModule,
+        ToastModule
     ],
     declarations: [DashboardComponent],
     providers:[MessageService]

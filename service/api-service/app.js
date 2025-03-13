@@ -50,6 +50,7 @@ connector.sequelize
   });
 
 const authRoute = require("./src/router/auth-route");
+const configRoute = require("./src/router/app-config-route");
 const serviceRoute = require("./src/router/service-route");
 const communityRoute = require("./src/router/community-route");
 const taskRoute = require("./src/router/task-rote");
@@ -60,6 +61,7 @@ app.get("/api", (req, res) => {
 });
 
 app.use("/api/auth", authRoute);
+app.use("/api/config", configRoute);
 app.use("/api/service", serviceRoute);
 app.use("/api/community", communityRoute);
 app.use("/api/task", taskRoute);

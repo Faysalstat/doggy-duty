@@ -9,6 +9,11 @@ export const MENUITEM = [
       label: 'Modules',
       items: [
         {
+          label: 'Community',
+          icon: 'pi pi-fw pi-users',
+          routerLink: ['/community/list']
+        },
+        {
           label: 'Work Order',
           icon: 'pi pi-fw pi-cart-plus',
           items: [
@@ -24,16 +29,12 @@ export const MENUITEM = [
             },
           ],
         },
-        {
-          label: 'Services',
-          icon: 'pi pi-fw pi-truck',
-          routerLink: ['/service/list']
-        },
-        {
-          label: 'Community',
-          icon: 'pi pi-fw pi-users',
-          routerLink: ['/community/list']
-        }
+        // {
+        //   label: 'Services',
+        //   icon: 'pi pi-fw pi-truck',
+        //   routerLink: ['/service/list']
+        // },
+
       ],
     },
     {

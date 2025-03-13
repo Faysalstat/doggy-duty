@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CommunityUrls, ServiceUrls } from '../utils/urls.const';
+import { CommunityUrls, ServiceUrls, TaskUrls } from '../utils/urls.const';
 
 @Injectable({
   providedIn: 'root'
@@ -26,10 +26,14 @@ export class CommunityService {
   public updateCommunityService(payload:any): Observable<any> {
     return this.http.post(CommunityUrls.UPDATE_COM_SCHED,payload);
   }
-  public getJobOrderByDate(): Observable<any> {
+  public getJobOrderByDate(queryParams: Map<string, any>): Observable<any> {
     let params = new HttpParams();
-    // let today = new Date();
-    // params = params.append('date', today.);
-    return this.http.get(CommunityUrls.GETALL_JOB_ORDER);
+    params = params.append('date',queryParams.get('date'));
+    params = params.append('status',queryParams.get('status'));
+    return this.http.get(CommunityUrls.GETALL_JOB_ORDER,{params:params});
+  }
+
+  public completeTask(payload:any): Observable<any> {
+    return this.http.post(TaskUrls.COMPLETE_TASK,payload);
   }
 }
