@@ -32,7 +32,8 @@ exports.getAllTasks = async (req, res, next) => {
 
 exports.generateDailyTasks = async (req, res, next) => {
   try {
-    let response = await taskService.generateDailyTasks(req, res, next);
+    let params = req.query;
+    let response = await taskService.generateDailyTasks(params);
     return res.status(200).json({
       message: response
     });

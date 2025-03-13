@@ -136,8 +136,7 @@ exports.getAllCommunitiesWithDistanceFromBase = async (req, res) => {
   }
 };
 
-exports.getAllJobOrderByDate = async (req, res) => {
-  let params = req.query;
+exports.getAllJobOrderByDate = async (params) => {
   let jobquery = {};
   let taskquery = {};
   if(params.date && params.date != ""){
@@ -147,7 +146,7 @@ exports.getAllJobOrderByDate = async (req, res) => {
   }
 
   if(params.status && params.status != ""){
-    jobquery.status = params.status;
+    taskquery.status = params.status;
   }
   let sortedCommunities = [];
   try {
@@ -157,7 +156,7 @@ exports.getAllJobOrderByDate = async (req, res) => {
         {
           model: Task,
           required: true,
-          where:{status:taskquery},
+          where:taskquery,
           include: [
             {
               model: JobOrder,

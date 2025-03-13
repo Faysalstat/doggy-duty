@@ -24,10 +24,6 @@ Community.hasMany(Billing);
 Billing.belongsTo(Task);
 Task.hasOne(Billing);
 
-db.sequelize.sync({ force: false }).then(() => {
-  console.log("Database synchronized.");
-});
-
 module.exports = {
   User,
   Community,

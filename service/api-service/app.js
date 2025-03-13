@@ -5,7 +5,7 @@ var port = process.env.SERVER_PORT || 3000;
 const app = express();
 const sessions = require("express-session");
 const dbModels = require("./src/model/init-model");
-
+const cron = require("node-cron");
 var http = require("http").Server(app);
 app.use(bodyParser.json());
 
@@ -55,7 +55,16 @@ const serviceRoute = require("./src/router/service-route");
 const communityRoute = require("./src/router/community-route");
 const taskRoute = require("./src/router/task-rote");
 const jobOrderRoute = require("./src/router/job-order-route");
+const taskScheduler = require("./src/scheduler/task-scheduler");
 
+// Run every day at 07:00 AM in Florida (Eastern Time)
+// cron.schedule("0 7 * * *", async () => {
+
+// running a task every two minutes
+cron.schedule("*/1 * * * *", async () => {
+  console.log("Cron job running...");
+  taskScheduler.generateDailyTasks();
+});
 app.get("/api", (req, res) => {
   res.send("Welcome to my Node API!");
 });

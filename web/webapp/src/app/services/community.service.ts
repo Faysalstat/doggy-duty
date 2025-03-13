@@ -28,7 +28,7 @@ export class CommunityService {
   }
   public getJobOrderByDate(queryParams: Map<string, any>): Observable<any> {
     let params = new HttpParams();
-    params = params.append('date',queryParams.get('date'));
+    // params = params.append('date',null);
     params = params.append('status',queryParams.get('status'));
     return this.http.get(CommunityUrls.GETALL_JOB_ORDER,{params:params});
   }

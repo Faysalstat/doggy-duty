@@ -6,13 +6,11 @@ const Service = require("../model/service");
 const commonService = require("../service/common-service");
 const AppConfig = require("../model/app-config");
 const { CONFIG_NAMES, TASK_STATUS, PAYMENT_STATUS } = require("../model/enums");
-const { raw } = require("body-parser");
 const Billing = require("../model/billing");
 
 // Function to generate job orders and tasks
-exports.generateDailyTasks = async (req,res) => {
+exports.generateDailyTasks = async (params) => {
   try {
-    let params = req.query;
     let query = {};
     if(params.scheduledDate && params.scheduledDate != ""){
       query.scheduledDate = params.scheduledDate;

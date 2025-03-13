@@ -3,7 +3,8 @@ const communityService = require("../service/community-service");
 
 exports.getAllJobOrderByDate = async (req, res, next) => {
   try {
-    let response = await communityService.getAllJobOrderByDate(req, res, next);
+    let params = req.query;
+    let response = await communityService.getAllJobOrderByDate(params);
     return res.status(200).json({
       message: "Job Order Retrieved",
       body: response,
