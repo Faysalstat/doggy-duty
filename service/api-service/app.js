@@ -56,12 +56,13 @@ const communityRoute = require("./src/router/community-route");
 const taskRoute = require("./src/router/task-rote");
 const jobOrderRoute = require("./src/router/job-order-route");
 const taskScheduler = require("./src/scheduler/task-scheduler");
+const billingRoute = require("./src/router/billing-route");
 
 // Run every day at 07:00 AM in Florida (Eastern Time)
-// cron.schedule("0 7 * * *", async () => {
+cron.schedule("0 7 * * *", async () => {
 
 // running a task every two minutes
-cron.schedule("*/1 * * * *", async () => {
+// cron.schedule("*/1 * * * *", async () => {
   console.log("Cron job running...");
   taskScheduler.generateDailyTasks();
 });
@@ -75,3 +76,4 @@ app.use("/api/service", serviceRoute);
 app.use("/api/community", communityRoute);
 app.use("/api/task", taskRoute);
 app.use("/api/job-order", jobOrderRoute);
+app.use("/api/billing", billingRoute);

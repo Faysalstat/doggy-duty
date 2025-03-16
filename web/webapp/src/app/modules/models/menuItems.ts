@@ -29,11 +29,11 @@ export const MENUITEM = [
             },
           ],
         },
-        // {
-        //   label: 'Services',
-        //   icon: 'pi pi-fw pi-truck',
-        //   routerLink: ['/service/list']
-        // },
+        {
+          label: 'Configs',
+          icon: 'pi pi-fw pi-truck',
+          routerLink: ['/config']
+        },
 
       ],
     },

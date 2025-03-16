@@ -93,9 +93,7 @@ exports.getAllTasks = async (req, res) => {
 exports.completeTask = async (req, res) => {
   let payload = req.body;
   try {
-    // Get today's date
-    //Remove date value after demo
-    const today = new Date(payload.date);
+    
     
     // Calculate new scheduled date
     //Remove date value after demo
@@ -110,6 +108,9 @@ exports.completeTask = async (req, res) => {
     });
     // Parse frequency as a number
     const frequency = Number(task.community.communityServiceSchedule.frequency) || 0;
+    // Get today's date
+    //Remove date value after demo
+    const today = new Date(task.community.communityServiceSchedule.scheduledDate);
     scheduledDate.setDate(today.getDate() + frequency); // Add frequency days
     let scheduleUpdateModel = {
       lastServedDate: today,

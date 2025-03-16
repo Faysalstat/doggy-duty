@@ -19,9 +19,7 @@ export class CommunityDTO {
     chargePerPetStation?: number;
     chargePerGarbageBin?: number;
     frequency?: string;
-    startingDate?: Date;
-    lastServedDate?: Date;
-    scheduledDate?: Date;
+
 }
 
 export enum TaskStatus {

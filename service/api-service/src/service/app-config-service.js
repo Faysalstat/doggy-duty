@@ -20,3 +20,18 @@ exports.addConfig = async (req, res) => {
     });
   }
 };
+
+exports.getAll = async (req, res, next) => {
+  try {
+    let response = await AppConfig.findAll();
+    return res.status(200).json({
+      message: "App config Retrieved",
+      body: response,
+    });
+  } catch (error) {
+    return res.status(404).json({
+      message: "Not Found: " + error.message,
+      isSuccess: false,
+    });
+  }
+};

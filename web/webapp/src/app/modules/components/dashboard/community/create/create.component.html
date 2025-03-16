@@ -116,7 +116,7 @@
                     <div class="col-md-4">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Start Date</mat-label>
-                            <input formControlName="startingDate" matInput [matDatepicker]="startDate">
+                            <input [ngModelOptions]="{standalone:true}" [(ngModel)]="startingDate" matInput [matDatepicker]="startDate">
                             <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
                             <mat-datepicker #startDate></mat-datepicker>
                         </mat-form-field>
@@ -124,9 +124,9 @@
                     <div *ngIf="isEdit" class="col-md-4">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Next Scheduled Date</mat-label>
-                            <input formControlName="scheduledDate" matInput [matDatepicker]="startDate">
-                            <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
-                            <mat-datepicker #startDate></mat-datepicker>
+                            <input [ngModelOptions]="{standalone:true}" [(ngModel)]="scheduledDate" matInput [matDatepicker]="nextScheduleDate">
+                            <mat-datepicker-toggle matIconSuffix [for]="nextScheduleDate"></mat-datepicker-toggle>
+                            <mat-datepicker #nextScheduleDate></mat-datepicker>
                         </mat-form-field>
                     </div>
                     <!-- Submit Button Positioned to the Right -->

@@ -1,3 +1,5 @@
+const AppConfig = require("../model/app-config");
+
 const BaseLocation = Object.freeze({
     LATITUDE: 28.652035446998084,
     LONGITUDE: -81.53080236001611,
@@ -40,15 +42,18 @@ const BaseLocation = Object.freeze({
   };
   
   // Order communities by proximity
-  exports.orderCommunitiesByProximity = (communities) => {
+  exports.orderCommunitiesByProximity = async (communities) => {
     if (!communities || communities.length === 0) return [];
+
+    let LATITUDE = await AppConfig.findOne({where:{configName:"LATITUDE"}});
+    let LONGITUDE = await AppConfig.findOne({where:{configName:"LONGITUDE"}});
   
     let remainingCommunities = [...communities];
     let orderedCommunities = [];
   
     // Step 1: Find the closest community to the base location
     let closestToBase = findClosestCommunity(
-      { lat: BaseLocation.LATITUDE, lon: BaseLocation.LONGITUDE },
+      { lat: LATITUDE.value, lon: LONGITUDE.value },
       remainingCommunities
     );
   
@@ -73,8 +78,10 @@ const BaseLocation = Object.freeze({
     return orderedCommunities;
   };
 
-  exports.getSortedListByDistance = (communities) => {
+  exports.getSortedListByDistance = async (communities) => {
     // Add distance property and sort the list
+    let LATITUDE = await AppConfig.findOne({where:{configName:"LATITUDE"}});
+    let LONGITUDE = await AppConfig.findOne({where:{configName:"LONGITUDE"}});
     const sortedCommunities = communities
       .map((community) => {
         const lat = parseFloat(community.latitude);
@@ -82,8 +89,8 @@ const BaseLocation = Object.freeze({
 
         // Calculate distance from the base location
         const distance = haversineDistance(
-          BaseLocation.LATITUDE,
-          BaseLocation.LONGITUDE,
+          LATITUDE.value,
+          LONGITUDE.value,
           lat,
           lon
         );
@@ -100,7 +107,9 @@ const BaseLocation = Object.freeze({
     return sortedCommunities;
   }
 
-  exports.getSortedScheduledListByDistance = (schedules) => {
+  exports.getSortedScheduledListByDistance = async (schedules) => {
+    let LATITUDE = await AppConfig.findOne({where:{configName:"LATITUDE"}});
+    let LONGITUDE = await AppConfig.findOne({where:{configName:"LONGITUDE"}});
     // Add distance property and sort the list
     const sortedSchedule = schedules
       .map((schedule) => {
@@ -109,8 +118,8 @@ const BaseLocation = Object.freeze({
 
         // Calculate distance from the base location
         const distance = haversineDistance(
-          BaseLocation.LATITUDE,
-          BaseLocation.LONGITUDE,
+          LATITUDE.value,
+          LONGITUDE.value,
           lat,
           lon
         );

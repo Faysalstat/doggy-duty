@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CommunityUrls, ServiceUrls, TaskUrls } from '../utils/urls.const';
+import { BillingUrls, CommunityUrls, ConfigUrls, ServiceUrls, TaskUrls } from '../utils/urls.const';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +16,9 @@ export class CommunityService {
   public getAllCommunity(): Observable<any> {
     return this.http.get(CommunityUrls.GETALL_BY_DISTANCE_ORDER);
   }
+  public getAllCommunityDropdownList(): Observable<any> {
+    return this.http.get(CommunityUrls.GETALL);
+  }
   public getAllService(): Observable<any> {
       return this.http.get(ServiceUrls.GETALL);
     }
@@ -28,12 +31,28 @@ export class CommunityService {
   }
   public getJobOrderByDate(queryParams: Map<string, any>): Observable<any> {
     let params = new HttpParams();
-    // params = params.append('date',null);
     params = params.append('status',queryParams.get('status'));
     return this.http.get(CommunityUrls.GETALL_JOB_ORDER,{params:params});
   }
 
+  public getBillByCommunity(queryParams: Map<string, any>): Observable<any> {
+    let params = new HttpParams();
+    params = params.append('communityId',queryParams.get('communityId'));
+    params = params.append('status',queryParams.get('status'));
+    params = params.append('startDate',queryParams.get('startDate'));
+    params = params.append('endDate',queryParams.get('endDate'));
+    return this.http.get(BillingUrls.GET_ALL,{params:params});
+  }
+
   public completeTask(payload:any): Observable<any> {
     return this.http.post(TaskUrls.COMPLETE_TASK,payload);
+  }
+
+  public getAllConfig(): Observable<any> {
+    return this.http.get(ConfigUrls.GET_ALL);
+  }
+
+  public updateConfig(payload:any): Observable<any> {
+    return this.http.post(ConfigUrls.UPDATE,payload);
   }
 }

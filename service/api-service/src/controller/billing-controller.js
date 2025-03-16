@@ -30,11 +30,12 @@ exports.getAllInvoices = async (req, res, next) => {
   }
 };
 
-exports.getInvoiceById = async (req, res, next) => {
+exports.getBillByCommunityId = async (req, res, next) => {
   try {
-    let response = await billingService.getInvoiceById(req, res, next);
+    let response = await billingService.getBillByCommunityId(req, res, next);
     return res.status(200).json({
       message: "Invoice Retrieved",
+      count:response.length,
       body: response,
     });
   } catch (error) {

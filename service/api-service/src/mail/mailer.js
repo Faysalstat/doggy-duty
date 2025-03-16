@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
 const sendMail = async (to, subject, html) => {
     try {
       const info = await transporter.sendMail({
-        from: `"Task Scheduler" <${transporter.options.auth.user}>`,
+        from: `"New Dog Task" <${transporter.options.auth.user}>`,
         to,
         subject,
         html, // Send HTML content

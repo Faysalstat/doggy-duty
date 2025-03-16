@@ -71,7 +71,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.communityService.completeTask(taskCompleteModel).subscribe({
       next:(res)=>{
         console.log(res);
-        this.messageService.add({ severity: 'success', summary: 'Updated', detail:"Successfully Updated"});
+        this.messageService.add({ severity: 'success', summary: 'Completed', detail:"Task Completed"});
         this.fetchJobOrder();
       },
       error:(err)=>{

@@ -1,0 +1,114 @@
+<div class="container mt-4">
+    <div *ngIf="invoices?.length" class="header">
+        <span class="download-text">Download Invoice</span>
+        <button mat-icon-button color="default" (click)="downloadInvoice()" matTooltip="Download">
+            <mat-icon>download</mat-icon>
+        </button>
+    </div>
+    <!-- <button *ngIf="invoices?.length" (click)="downloadInvoice()" class="btn-bg-primary">Download</button> -->
+    <div class="mt-4 p-5 rounded">
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <h2>Generate Invoice</h2>
+
+        </div>
+
+        <form [formGroup]="queryForm" (keydown.enter)="$event.preventDefault()">
+            <div class="row">
+                <div class="col-md-3">
+                    <mat-form-field appearance="outline" class="input-field">
+                        <mat-label>Select Community</mat-label>
+                        <mat-select formControlName="communityId">
+                            <mat-option *ngFor="let community of communities"
+                                [value]="community.id">{{community?.communityName}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="col-md-3">
+                    <mat-form-field class="input-field" appearance="outline">
+                        <mat-label>Start Date</mat-label>
+                        <input formControlName="startDate" matInput [matDatepicker]="startDate">
+                        <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
+                        <mat-datepicker #startDate></mat-datepicker>
+                    </mat-form-field>
+                </div>
+                <div class="col-md-3">
+                    <mat-form-field class="input-field" appearance="outline">
+                        <mat-label>EndDate Date</mat-label>
+                        <input formControlName="endDate" matInput [matDatepicker]="endDate">
+                        <mat-datepicker-toggle matIconSuffix [for]="endDate"></mat-datepicker-toggle>
+                        <mat-datepicker #endDate></mat-datepicker>
+                    </mat-form-field>
+                </div>
+                <div class="col-md-3">
+                    <button (click)="fetchJobOrder()" class="btn-bg-primary">Generate Invoice</button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+    <div *ngIf="invoices?.length" class="card shadow p-4 mb-4">
+        <div class="row">
+            <div class="col-6">
+                <h2 class="text-primary">Invoice</h2>
+                <p><strong>Date:</strong> {{ invoices[0].taskCompletionDate }}</p>
+            </div>
+            <div class="col-6 text-end">
+                <h4 class="text-secondary">{{ invoices[0].task.community.communityName }}</h4>
+                <p>{{ invoices[0].task.community.communityAddress }}</p>
+                <p><strong>Phone:</strong> {{ invoices[0].task.community.phone }}</p>
+                <p><strong>Email:</strong> {{ invoices[0].task.community.email }}</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <h5 class="text-dark">Task Details</h5>
+        <table class="table table-bordered mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th rowspan="2">Community Name</th>
+                    <th rowspan="2">Date</th>
+                    <th colspan="2">Garbage Bin</th>
+                    <th colspan="2">Pet Station</th>
+                    <th colspan="2">Bag Roll Replaced</th>
+                    <th rowspan="2">Total</th>
+                </tr>
+                <tr>
+                    <th>QNT</th>
+                    <th>Rate</th>
+                    <th>QNT</th>
+                    <th>Rate</th>
+                    <th>QNT</th>
+                    <th>Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let invoice of invoices">
+                    <td>{{invoice.task.community.communityName}}</td>
+                    <td>{{invoice.taskCompletionDate}}</td>
+                    <td>{{ invoice.task.noOfGarbageBin }}</td>
+                    <td>${{ invoice.task.chargePerGarbageBin }}</td>
+                    <td>{{ invoice.task.noOfPetStation }}</td>
+                    <td>${{ invoice.task.chargePerPetStation }}</td>
+                    <td>{{ invoice.task.noOfBagRollReplaced }}</td>
+                    <td>${{ invoice.task.chargePerBagRoll }}</td>
+                    <td>${{getTotalPerTask(invoice)}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="row mt-3">
+            <div class="col-6">
+                <p><strong>Gate Code:</strong> {{ invoices[0].task.community.gateCode }}</p>
+                <p><strong>Lock Box Code:</strong> {{ invoices[0].task.community.lockBoxCode }}</p>
+                <p><strong>Special Request:</strong> {{ invoices[0].task.community.specialRequest }}</p>
+            </div>
+            <div class="col-6 text-end">
+                <h4 class="text-dark">Total Amount: <span class="text-success">\${{ getTotalAmount() }}</span></h4>
+                <p><strong>Status:</strong> <span class="badge" [ngClass]="getStatusClass()">{{ getInvoiceStatus()
+                        }}</span></p>
+            </div>
+        </div>
+    </div>
+</div>

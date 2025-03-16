@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DashboardComponent } from './dashboard.component';
 import { ChartModule } from 'primeng/chart';
 import { MenuModule } from 'primeng/menu';
@@ -12,9 +12,11 @@ import { DashboardsRoutingModule } from './dashboard-routing.module';
 import { MaterialModule } from 'src/material.module';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { AppConfigComponent } from './app-config/app-config.component';
 @NgModule({
     imports: [
         CommonModule,
+        // ReactiveFormsModule,
         FormsModule,
         ChartModule,
         MenuModule,
@@ -26,7 +28,7 @@ import { ToastModule } from 'primeng/toast';
         MaterialModule,
         ToastModule
     ],
-    declarations: [DashboardComponent],
+    declarations: [DashboardComponent, AppConfigComponent],
     providers:[MessageService]
 })
 export class DashboardModule { }
