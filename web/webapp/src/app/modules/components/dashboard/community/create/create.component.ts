@@ -190,7 +190,7 @@ export class CreateComponent implements OnInit {
     let timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     if (!date) return null;
     // Converts UTC date to local date
-    return moment.utc(date).local().startOf('day').toDate(); // Ensure it's set to midnight in local timezone
+    return moment.utc(date).tz(timeZone).startOf('day').toDate(); // Ensure it's set to midnight in local timezone
   }
 
   convertLocalToUTC(date: Date | null): string | null {
