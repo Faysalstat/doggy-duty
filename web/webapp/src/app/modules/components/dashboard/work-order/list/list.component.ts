@@ -18,9 +18,9 @@ export class ListComponent implements OnInit {
   }
   fetchJobOrder() {
     const params: Map<string, any> = new Map();
-    params.set('date', '');
+    // params.set('date', '');
     params.set('status','');
-    this.communityService.getJobOrderByDate(params).subscribe({
+    this.communityService.getAllTask(params).subscribe({
       next: (res) => {
         this.communityList = res.body;
         // this.communityList = this.communityList.map((community: any) => {
@@ -40,5 +40,11 @@ export class ListComponent implements OnInit {
         });
       },
     });
+  }
+  applyFilter(date: any) {
+    let newDate = new Date(date);
+    return (
+      (newDate.getDate()) +"/"+(newDate.getMonth()+1) + '/' + newDate.getFullYear()
+    );
   }
 }

@@ -1,8 +1,8 @@
 const Sequelize = require("sequelize");
 const db = require("../connector/db-connector");
 
-const Billing = db.sequelize.define(
-  "billing",
+const Invoice = db.sequelize.define(
+  "invoice",
   {
     id: {
       type: Sequelize.INTEGER,
@@ -11,13 +11,18 @@ const Billing = db.sequelize.define(
       primaryKey: true,
     },
     totalAmount: Sequelize.FLOAT,
-    taskCompletionDate: Sequelize.DATEONLY,
-    status: Sequelize.STRING,
-    invoiceGenerated: Sequelize.BOOLEAN,
+    totalGarbageBins: Sequelize.INTEGER,
+    totalPetStations: Sequelize.INTEGER,
+    totalBagReplaced: Sequelize.INTEGER,
+    invoiceDate: {
+      type: Sequelize.DATEONLY,
+      allowNull: false,
+    },
   },
   {
     freezeTableName: true,
   }
 );
 
-module.exports = Billing;
+
+module.exports = Invoice;

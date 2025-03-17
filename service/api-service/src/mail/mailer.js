@@ -28,8 +28,13 @@ const sendMail = async (to, subject, html) => {
       });
   
       console.log("Email sent: ", info.messageId);
+      return {
+        isSuccess:true,
+        info: info
+      };
     } catch (error) {
       console.error("Error sending email:", error);
+      return 
     }
   };
 

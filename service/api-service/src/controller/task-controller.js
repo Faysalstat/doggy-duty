@@ -59,3 +59,18 @@ exports.completeTask = async (req, res, next) => {
     });
   }
 };
+
+exports.generateDailyTasks = async (req, res, next) => {
+  try {
+    let params = req.query;
+    let response = await taskService.generateDailyTasks(params);
+    return res.status(200).json({
+      message: response
+    });
+  } catch (error) {
+    return res.status(404).json({
+      message: "Not Found: " + error.message,
+      isSuccess: false,
+    });
+  }
+};

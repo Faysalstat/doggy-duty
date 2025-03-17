@@ -28,12 +28,12 @@
                         <td>{{ community.communityName }}</td>
                         <td>{{ community.communityAddress }}</td>
                         <td>{{ community.noOfPetStation }}</td>
-                        <td>{{ community.chargePerPetStation }}</td>
+                        <td>${{ community.chargePerPetStation }}</td>
                         <td>{{ community.noOfGarbageBin }}</td>
-                        <td>{{ community.chargePerGarbageBin }}</td>
+                        <td>${{ community.chargePerGarbageBin }}</td>
                         <td>{{ community.noOfBagRollReplaced }}</td>
-                        <td>{{ community.chargePerBagRoll }}</td>
-                        <td>{{ community.scheduledDate }}</td>
+                        <td>${{ community.chargePerBagRoll }}</td>
+                        <td>{{ applyFilter(community.scheduledDate) }}</td>
                         <td>{{ community.taskStatus }}</td>
                     </tr>
                 </tbody>

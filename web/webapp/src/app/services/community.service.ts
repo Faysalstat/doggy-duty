@@ -55,4 +55,10 @@ export class CommunityService {
   public updateConfig(payload:any): Observable<any> {
     return this.http.post(ConfigUrls.UPDATE,payload);
   }
+
+  public getAllTask(queryParams: Map<string, any>): Observable<any> {
+    let params = new HttpParams();
+    params = params.append('status',queryParams.get('status'));
+    return this.http.get(TaskUrls.GETALL,{params:params});
+  }
 }

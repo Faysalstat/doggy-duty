@@ -81,7 +81,7 @@ export class PdfMakeService {
       body: [
         [
           {
-            content: `Date: ${invoices[0].taskCompletionDate}`,
+            content: `Date: ${this.applyFilter(invoices[0].taskCompletionDate)}`,
             styles: {
               halign: 'left',
             },
@@ -132,7 +132,7 @@ export class PdfMakeService {
     // Prepare the rows for the table
     const rows = invoices.map((invoice: any) => ({
       communityName: invoice.task.community.communityName,
-      date: invoice.taskCompletionDate,
+      date: this.applyFilter(invoice.taskCompletionDate),
       garbageBinQnt: invoice.task.noOfGarbageBin,
       garbageBinRate: `$${invoice.task.chargePerGarbageBin}`,
       petStationQnt: invoice.task.noOfPetStation,
@@ -207,5 +207,12 @@ export class PdfMakeService {
     return invoices?.some((inv) => inv.status === 'pending')
       ? 'pending'
       : 'completed';
+  }
+
+  applyFilter(date: any) {
+    let newDate = new Date(date);
+    return (
+      (newDate.getDate()) +"/"+(newDate.getMonth()+1) + '/' + newDate.getFullYear()
+    );
   }
 }

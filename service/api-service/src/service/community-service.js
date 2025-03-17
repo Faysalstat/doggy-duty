@@ -92,9 +92,7 @@ exports.updateCommunity = async (req, res) => {
     // Update Community Service Schedule
     let communityServiceScheduleModel = {
       frequency: payload.frequency,
-      startingDate: setToMidnightUTC(payload.startingDate),
-      scheduledDate: setToMidnightUTC(payload.scheduledDate),
-      lastServedDate: setToMidnightUTC(new Date()), // Assuming you want the current date as midnight
+      startingDate: payload.startingDate,
       noOfPetStation: payload.noOfPetStation,
       noOfGarbageBin: payload.noOfGarbageBin,
       chargePerPetStation: payload.chargePerPetStation,
@@ -210,13 +208,9 @@ exports.getAllJobOrderByDate = async (params,userTimeZone) => {
     sortedCommunities = await CommonService.orderCommunitiesByProximity(JSON.parse(JSON.stringify(communities)));
     const result = sortedCommunities.map(community => {
       let scheduledDate;
-      if(userTimeZone){
-        scheduledDate = moment.utc(community.communityServiceSchedule.scheduledDate).tz(userTimeZone).format('YYYY-MM-DD HH:mm:ss');
-      }else{
-        scheduledDate = community.communityServiceSchedule.scheduledDate;
-      }
+      scheduledDate = community.communityServiceSchedule.scheduledDate;
       const communityData = {
-        jobOrderId: community.task.jobOrder?.id, // Get jobOrderId from the first task or set to null
+        jobOrderId: community.tasks[0].jobOrderId, // Get jobOrderId from the first task or set to null
         communityId: community.id,
         communityName: community.communityName,
         communityAddress: community.communityAddress,
@@ -226,16 +220,16 @@ exports.getAllJobOrderByDate = async (params,userTimeZone) => {
         email: community.email,
         lockBoxCode: community.lockBoxCode,
         specialRequest: community.specialRequest,
-        noOfPetStation: community.task.noOfPetStation,
-        chargePerPetStation: community.task.chargePerPetStation,
-        noOfGarbageBin: community.task.noOfGarbageBin,
-        chargePerGarbageBin: community.task.chargePerGarbageBin,
-        noOfBagRollReplaced: community.task.noOfBagRollReplaced,
-        chargePerBagRoll: community.task.chargePerBagRoll,
+        noOfPetStation: community.communityServiceSchedule.noOfPetStation,
+        chargePerPetStation: community.communityServiceSchedule.chargePerPetStation,
+        noOfGarbageBin: community.communityServiceSchedule.noOfGarbageBin,
+        chargePerGarbageBin: community.communityServiceSchedule.chargePerGarbageBin,
+        noOfBagRollReplaced: community.tasks[0].noOfBagRollReplaced,
+        chargePerBagRoll: community.tasks[0].chargePerBagRoll,
         distance: community.distance.toFixed(3),
         scheduledDate:  scheduledDate ,
-        taskId:community.task.id,
-        taskStatus: community.task.status
+        taskId:community.tasks[0].id,
+        taskStatus: community.tasks[0].status
       };
 
       return communityData;

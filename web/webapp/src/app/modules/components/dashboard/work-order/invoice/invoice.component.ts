@@ -113,4 +113,11 @@ export class InvoiceComponent implements OnInit {
     if (!input) return '';
     return moment(input).format('YYYY-MM-DD');
   }
+
+  applyFilter(date: any) {
+    let newDate = new Date(date);
+    return (
+      (newDate.getDate()) +"/"+(newDate.getMonth()+1) + '/' + newDate.getFullYear()
+    );
+  }
 }

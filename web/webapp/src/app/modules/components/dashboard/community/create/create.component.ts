@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 import { MessageService } from 'primeng/api';
 import { CommunityDTO } from 'src/app/modules/dto/models';
 import { CommunityService } from 'src/app/services/community.service';
@@ -44,15 +44,7 @@ export class CreateComponent implements OnInit {
       next: (res) => {
         console.log(res);
         let communityDetails = res.body;
-        this.startingDate = this.convertUTCtoLocal(
-          communityDetails.startingDate
-        );
-        this.lastServedDate = this.convertUTCtoLocal(
-          communityDetails.lastServedDate
-        );
-        this.scheduledDate = this.convertUTCtoLocal(
-          communityDetails.scheduledDate
-        );
+        this.startingDate = communityDetails.startingDate;
         this.prepareForm(communityDetails);
       },
       error: (err) => {
@@ -115,6 +107,7 @@ export class CreateComponent implements OnInit {
       chargePerPetStation: [communityData.chargePerPetStation],
       chargePerGarbageBin: [communityData.chargePerGarbageBin],
       frequency: [communityData.frequency],
+      startingDate: [communityData.startingDate],
     });
   }
 
@@ -133,9 +126,7 @@ export class CreateComponent implements OnInit {
     }
     let payload = this.communityCreateForm.value;
     // Convert local datepicker values to UTC before sending
-    payload.startingDate = this.convertLocalToUTC(this.startingDate);
-    payload.lastServedDate = this.convertLocalToUTC(this.lastServedDate);
-    payload.scheduledDate = this.convertLocalToUTC(this.scheduledDate);
+    // payload.startingDate = this.startingDate;
     if (this.isEdit) {
       this.onUpdate(payload);
     } else {
@@ -186,16 +177,17 @@ export class CreateComponent implements OnInit {
     });
   }
 
-  convertUTCtoLocal(date: string | null): Date | null {
-    let timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // Function to add one day to the date
+  addDays(date: Date | null): Date | null {
     if (!date) return null;
-    // Converts UTC date to local date
-    return moment.utc(date).tz(timeZone).startOf('day').toDate(); // Ensure it's set to midnight in local timezone
+    let result = new Date(date);
+    result.setDate(result.getDate() + 1); // Add specified number of days
+    return result;
   }
 
-  convertLocalToUTC(date: Date | null): string | null {
-    if (!date) return null;
-    // Set time to midnight UTC
-    return moment(date).utc().startOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
+  onSelectStartingDate() {
+    this.communityCreateForm
+      .get('startingDate')
+      ?.setValue(this.addDays(this.startingDate));
   }
 }

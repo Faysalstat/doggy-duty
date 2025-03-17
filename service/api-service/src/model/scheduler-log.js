@@ -1,8 +1,8 @@
 const Sequelize = require("sequelize");
 const db = require("../connector/db-connector");
 
-const Billing = db.sequelize.define(
-  "billing",
+const SchedulerLog = db.sequelize.define(
+  "scheduler_logs",
   {
     id: {
       type: Sequelize.INTEGER,
@@ -10,14 +10,14 @@ const Billing = db.sequelize.define(
       allowNull: false,
       primaryKey: true,
     },
-    totalAmount: Sequelize.FLOAT,
-    taskCompletionDate: Sequelize.DATEONLY,
+    job_name: Sequelize.STRING,
+    job_type: Sequelize.STRING,
     status: Sequelize.STRING,
-    invoiceGenerated: Sequelize.BOOLEAN,
+    error_message: Sequelize.STRING
   },
   {
     freezeTableName: true,
   }
 );
 
-module.exports = Billing;
+module.exports = SchedulerLog;

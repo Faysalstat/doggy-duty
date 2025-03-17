@@ -12,9 +12,9 @@ const Billing = require("../model/billing");
 exports.generateDailyTasks = async (params) => {
   try {
     let query = {};
-    if(params.scheduledDate && params.scheduledDate != ""){
+    if (params.scheduledDate && params.scheduledDate != "") {
       query.scheduledDate = params.scheduledDate;
-    }else{
+    } else {
       query.scheduledDate = new Date();
     }
 
@@ -33,28 +33,30 @@ exports.generateDailyTasks = async (params) => {
     let currentTasks = [];
 
     // Sort communities by distance (assume each community has a distance field)
-    let sortedSchedule = commonService.getSortedScheduledListByDistance(schedules);
+    let sortedSchedule = await commonService.getSortedScheduledListByDistance(
+      schedules
+    );
 
     for (const schedule of sortedSchedule) {
-      const communitySchedule= schedule.dataValues;
+      const communitySchedule = schedule.dataValues;
       let task = {
-        communityId:communitySchedule.communityId,
+        communityId: communitySchedule.communityId,
         scheduledDate: new Date(),
         status: "pending",
-        isBagRollReplaced:false,
+        isBagRollReplaced: false,
         noOfPetStation: communitySchedule.noOfPetStation,
         noOfGarbageBin: communitySchedule.noOfGarbageBin,
         noOfBagRollReplaced: 0,
         chargePerPetStation: communitySchedule.chargePerPetStation,
-        chargePerGarbageBin:communitySchedule.chargePerGarbageBin,
-        chargePerBagRoll:0,
+        chargePerGarbageBin: communitySchedule.chargePerGarbageBin,
+        chargePerBagRoll: 0,
       };
 
       currentTasks.push(task);
 
       // Create a job order for every 4 tasks
       if (currentTasks.length === 4) {
-        let jobOrder = await JobOrder.create({date:new Date()});
+        let jobOrder = await JobOrder.create({ date: new Date() });
         for (let task of currentTasks) {
           task.jobOrderId = jobOrder.id;
           await Task.create(task);
@@ -66,7 +68,7 @@ exports.generateDailyTasks = async (params) => {
 
     // Create remaining tasks if any
     if (currentTasks.length > 0) {
-      let jobOrder = await JobOrder.create({date:new Date()});
+      let jobOrder = await JobOrder.create({ date: new Date() });
       for (let task of currentTasks) {
         task.jobOrderId = jobOrder.id;
         await Task.create(task);
@@ -82,9 +84,40 @@ exports.generateDailyTasks = async (params) => {
 };
 
 exports.getAllTasks = async (req, res) => {
+  let params = req.query;
+  let query = {};
   try {
-    let tasks = Task.findAll({where:{status:'pending'},include:[Community,Service]});
-    return tasks;
+    if (params.status && params.status != "") {
+      query.status = params.status;
+    }
+    let tasks = await Task.findAll({ where: query, include: [Community,JobOrder] });
+    let taskList = JSON.parse(JSON.stringify(tasks));
+    const result = taskList.map(task => {
+          const taskModel = {
+            jobOrderId: task.jobOrder?.id, // Get jobOrderId from the first task or set to null
+            communityId: task.community.id,
+            communityName: task.community.communityName,
+            communityAddress: task.community.communityAddress,
+            gateCode: task.community.gateCode,
+            camOfcommunity: task.community.camOfcommunity,
+            phone: task.community.phone,
+            email: task.community.email,
+            lockBoxCode: task.community.lockBoxCode,
+            specialRequest: task.community.specialRequest,
+            noOfPetStation: task.noOfPetStation,
+            chargePerPetStation: task.chargePerPetStation,
+            noOfGarbageBin: task.noOfGarbageBin,
+            chargePerGarbageBin: task.chargePerGarbageBin,
+            noOfBagRollReplaced: task.noOfBagRollReplaced,
+            chargePerBagRoll: task.chargePerBagRoll,
+            scheduledDate:  task.scheduledDate ,
+            taskId:task.id,
+            taskStatus: task.status
+          };
+    
+          return taskModel;
+        });
+        return result;
   } catch (error) {
     throw new Error("Error Occured " + error.message);
   }
@@ -93,12 +126,10 @@ exports.getAllTasks = async (req, res) => {
 exports.completeTask = async (req, res) => {
   let payload = req.body;
   try {
-    
-    
     // Calculate new scheduled date
     //Remove date value after demo
     const scheduledDate = new Date(payload.date);
-    
+
     let task = await Task.findOne({
       where: { id: payload.taskId },
       include: [{ model: Community, include: CommunityServiceSchedule }],
@@ -107,16 +138,22 @@ exports.completeTask = async (req, res) => {
       where: { configName: CONFIG_NAMES.PRICE_PER_BAG_ROLL },
     });
     // Parse frequency as a number
-    const frequency = Number(task.community.communityServiceSchedule.frequency) || 0;
+    const frequency =
+      Number(task.community.communityServiceSchedule.frequency) || 0;
     // Get today's date
     //Remove date value after demo
-    const today = new Date(task.community.communityServiceSchedule.scheduledDate);
+    const today = new Date(
+      task.community.communityServiceSchedule.scheduledDate
+    );
     scheduledDate.setDate(today.getDate() + frequency); // Add frequency days
     let scheduleUpdateModel = {
       lastServedDate: today,
       scheduledDate: scheduledDate,
     };
-    let updatedSchedule = await CommunityServiceSchedule.update(scheduleUpdateModel,{where:{id:task.community.communityServiceSchedule.id}});
+    let updatedSchedule = await CommunityServiceSchedule.update(
+      scheduleUpdateModel,
+      { where: { id: task.community.communityServiceSchedule.id } }
+    );
     let taskUpdateModel = {
       isBagRollReplaced: payload.isBagRollReplaced,
       status: TASK_STATUS.COMPLETED,
@@ -135,6 +172,7 @@ exports.completeTask = async (req, res) => {
       status: PAYMENT_STATUS.PENDING,
       communityId: task.communityId,
       taskId: task.id,
+      invoiceGenerated: false,
     };
     let createdBill = await Billing.create(billModel);
     return createdBill;
@@ -143,10 +181,9 @@ exports.completeTask = async (req, res) => {
   }
 };
 
-const calculateTotalBill= (task) => {
+const calculateTotalBill = (task) => {
   const petStationCost = task.noOfPetStation * task.chargePerPetStation;
   const garbageBinCost = task.noOfGarbageBin * task.chargePerGarbageBin;
   const bagRollCost = task.noOfBagRollReplaced * task.chargePerBagRoll;
-
   return petStationCost + garbageBinCost + bagRollCost;
-}
+};
