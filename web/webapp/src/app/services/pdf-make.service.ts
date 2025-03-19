@@ -52,74 +52,154 @@ export class PdfMakeService {
 
   generateInvoicePDF(invoiceData: any) {
     const doc = new jsPDF();
+    doc.addImage("assets/img/logo.png", "PNG", 5, 5, 50, 50); // Increased the size of the logo
+    doc.line(5, 40, 200,40); // Adjusted the line position to be below the larger logo
 
-  // Add title
-  doc.setFontSize(22);
-  doc.text('Invoice', 14, 20);
+    // doc.text('', 10, 55); // Adding a line break before the autoTable
 
-  // Add invoice details
-  doc.setFontSize(12);
-  doc.text(`Invoice ID: ${invoiceData.id}`, 14, 40);
-  doc.text(`Date: ${invoiceData.invoiceDate}`, 14, 50);
-  doc.text(`Status: ${invoiceData.status}`, 14, 60);
+    autoTable(doc, {
+      startY: 50, // Start the table below the line
+      body: [
+      [
+        {
+        content:
+          'Reference: #INV' +
+          invoiceData.id +
+          '\nDate: ' +
+          invoiceData.invoiceDate,
+        styles: {
+          halign: 'left',
+        },
+        },
+      ],
+      ],
+      theme: 'plain',
+    });
 
-  // Define the community details
-  const communityDetails = [
-    { label: 'Community Name', value: invoiceData.community.communityName },
-    { label: 'Address', value: invoiceData.community.communityAddress },
-    { label: 'Phone', value: invoiceData.community.phone },
-    { label: 'Email', value: invoiceData.community.email },
-    { label: 'Gate Code', value: invoiceData.community.gateCode },
-    { label: 'CAM', value: invoiceData.community.camOfcommunity },
-    { label: 'Lock Box Code', value: invoiceData.community.lockBoxCode },
-    { label: 'Special Request', value: invoiceData.community.specialRequest },
-  ];
+    autoTable(doc, {
+      startY: 50, // Start the table below the line
+      body: [
+        [
+          {
+            content:
+              '\n' +invoiceData.community.communityName+
+              '\n' +invoiceData.community.communityAddress+
+               '\nPhone:' + invoiceData.community.phone +
+              '\nEmail: ' + invoiceData.community.email,
+            styles: {
+              halign: 'right',
+            },
+          },
+        ],
+      ],
+      theme: 'plain',
+    });
 
-  // Add community details to the table
-  autoTable(doc, {
-    head: [['Description', 'Details']],
-    body: communityDetails.map(item => [item.label, item.value]),
-    startY: 70,
-    theme: 'grid',
-    columnStyles: {
-      0: { halign: 'left', cellWidth: 80 },
-      1: { halign: 'right', cellWidth: 100 },
-    },
-    styles: {
-      fontSize: 12,
-    },
-  });
+    
 
-  // Itemized costs
-  const items = [
-    { label: 'Total Garbage Bins', amount: invoiceData.totalGarbageBins * invoiceData.costPerGarbageBins },
-    { label: 'Total Pet Stations', amount: invoiceData.totalPetStations * invoiceData.costPerPetStations },
-    { label: 'Total Bags Replaced', amount: invoiceData.totalBagReplaced * invoiceData.costPerBagReplaced },
-  ];
+    autoTable(doc, {
+      body: [
+        [
+          {
+            content: 'Services',
+            styles: {
+              halign: 'left',
+              fontSize: 14,
+            },
+          },
+        ],
+      ],
+      theme: 'plain',
+    });
 
-  // Add itemized costs to table
-  // autoTable(doc, {
-  //   head: [['Description', 'Amount']],
-  //   body: items.map(item => [item.label, `$${item.amount.toFixed(2)}`]),
-  //   startY: doc.lastAutoTable.finalY + 10,
-  //   theme: 'grid',
-  //   styles: {
-  //     fontSize: 12,
-  //   },
-  // });
+    autoTable(doc, {
+      head: [['Name of the Service', 'Rate', 'Quantity','Amount']],
+      body: [
+        ['Garbage Bin', '$'+invoiceData.costPerGarbageBins, invoiceData.totalGarbageBins, invoiceData.costPerGarbageBins * invoiceData.totalGarbageBins],
+        ['Replacement of 10 Gal. Bin','$'+ invoiceData.costPerPetStations, invoiceData.totalPetStations, invoiceData.costPerPetStations * invoiceData.totalPetStations],
+        ['Pet Waste Station Dispenser Bag Refills (200 rolls)','$'+ invoiceData.costPerBagReplaced, invoiceData.totalBagReplaced, invoiceData.costPerBagReplaced * invoiceData.totalBagReplaced],
+        // ['Product or service name', 'Category', '2', '$450', '$50', '$1000'],
+      ],
+      theme: 'striped',
+      headStyles: {
+        fillColor: '#343a40',
+      },
+    });
 
-  // Calculate the Y position after the table
-  // const finalY = doc.lastAutoTable.finalY;
+    autoTable(doc, {
+      body: [
+        [
+          {
+            content: 'Amount due:',
+            styles: {
+              halign: 'right',
+              fontSize: 14,
+            },
+          },
+        ],
+        [
+          {
+            content: '$'+invoiceData.totalAmount,
+            styles: {
+              halign: 'right',
+              fontSize: 20,
+              textColor: '#3366ff',
+            },
+          },
+        ],
+        [
+          {
+            content: 'status: ' + invoiceData.status,
+            styles: {
+              halign: 'right',
+            },
+          },
+        ],
+      ],
+      theme: 'plain',
+    });
 
-  // // Total Amount
-  // doc.setFontSize(14);
-  // doc.text(`Total Amount: $${invoiceData.totalAmount.toFixed(2)}`, 14, finalY + 20);
+    // autoTable(doc, {
+    //   body: [
+    //     [
+    //       {
+    //         content: 'Terms & notes',
+    //         styles: {
+    //           halign: 'left',
+    //           fontSize: 14,
+    //         },
+    //       },
+    //     ],
+    //     [
+    //       {
+    //         content:
+    //           'orem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia' +
+    //           'molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum' +
+    //           'numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium',
+    //         styles: {
+    //           halign: 'left',
+    //         },
+    //       },
+    //     ],
+    //   ],
+    //   theme: 'plain',
+    // });
 
-  // Footer
-  // doc.text(`Thank you for your business!`, 14, finalY + 40);
+    // autoTable(doc, {
+    //   body: [
+    //     [
+    //       {
+    //         content: 'This is a centered footer',
+    //         styles: {
+    //           halign: 'center',
+    //         },
+    //       },
+    //     ],
+    //   ],
+    //   theme: 'plain',
+    // });
 
-  // Save the PDF
-  doc.save(`Invoice_${invoiceData.id}.pdf`);
+    doc.save(`Invoice_${invoiceData.id}.pdf`);
   }
 
   getTotalAmount(invoices:any[]): number {
