@@ -1,5 +1,7 @@
 const Billing = require("../model/billing");
 const Community = require("../model/community");
+const Invoice = require("../model/invoice");
+const InvoiceBillMapping = require("../model/invoice-bill");
 const Task = require("../model/task");
 const { Op } = require("sequelize");
 
@@ -32,3 +34,55 @@ exports.getBillByCommunityId = async (req, res, next) => {
     throw new Error("Error Occurred: " + error.message);
   }
 };
+
+exports.getAllInvoices = async (req, res, next) => {
+  try {
+    let invoices = await Invoice.findAll({
+      include: [
+        {
+          model: InvoiceBillMapping,
+          include: [
+            {
+              model: Billing,include: [Task, Community]
+            },
+          ],
+        },
+      ],
+    });
+    const formattedInvoices = invoices.map(invoiceModel => {
+      let invoice = invoiceModel.dataValues;
+      // Extract required properties
+      const invoiceData = {
+        id: invoice.id,
+        totalAmount: invoice.totalAmount,
+        totalGarbageBins: invoice.totalGarbageBins,
+        totalPetStations: invoice.totalPetStations,
+        totalBagReplaced: invoice.totalBagReplaced,
+        costPerGarbageBins: invoice.costPerGarbageBins,
+        costPerPetStations: invoice.costPerPetStations,
+        costPerBagReplaced: invoice.costPerBagReplaced,
+        status: invoice.status,
+        invoiceDate: invoice.invoiceDate,
+        totalAmount: (invoice.totalGarbageBins * invoice.costPerGarbageBins) + (invoice.totalPetStations * invoice.costPerPetStations) + (invoice.totalBagReplaced * invoice.costPerBagReplaced),
+      };
+
+      // Extract community details (assuming communities are the same for the invoice)
+      const billings = invoice.invoice_bill_mappings 
+        ?.map((mapping) => {
+         console.log(mapping);
+          return mapping.billing;
+        })
+        .filter(Boolean); // Remove null/undefined values
+
+      if (billings.length > 0) {
+        let bill = billings[0].dataValues;
+        invoiceData.isBagRollReplaced = bill.task.isBagRollReplaced;
+        invoiceData.community = billings[0].community; // Take the first one since they're all the same
+      } 
+      return invoiceData;
+    });
+    return formattedInvoices;
+  } catch (error) {
+    throw new Error("Error Occurred: " + error.message);
+  }
+}

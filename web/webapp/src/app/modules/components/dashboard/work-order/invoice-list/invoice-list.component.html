@@ -1,0 +1,57 @@
+<div class="container mt-4">
+    <p-toast [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
+    <div class="mt-4 p-5 rounded">
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <h2>Generated Invoice</h2>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>SN</th>
+                                <th>Community Name</th>
+                                <th>Community Address</th>
+                                <th>Total Pet Stations</th>
+                                <th>Price/Unit</th>
+                                <th>Total Garbage Bins</th>
+                                <th>Price/Unit</th>
+                                <th>Total Bag Roll Replaced</th>
+                                <th>Price/Unit</th>
+                                <th>Total Amount</th>
+                                <th>status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngIf="invoiceList.length==0">
+                                <td colspan="10">No Invoice Ready</td>
+                            </tr>
+                            <tr *ngFor="let invoice of invoiceList; let i = index">
+                                <td>{{ i + 1 }}</td>
+                                <td>{{ invoice.community.communityName }}</td>
+                                <td>{{ invoice.community.communityAddress }}</td>
+                                <td>{{ invoice.totalPetStations }}</td>
+                                <td>${{ invoice.costPerPetStations }}</td>
+                                <td>{{ invoice.totalGarbageBins }}</td>
+                                <td>${{ invoice.costPerGarbageBins }}</td>
+                                <td>{{ invoice.totalBagReplaced }}</td>
+                                <td>${{ invoice.costPerBagReplaced }}</td>
+                                <td>${{ invoice.totalAmount }}</td>
+                                <td>{{ invoice.status }}</td>
+                                <td>
+                                    <button class="btn-default" (click)="showInvoice(invoice)" style="color: #cc5200" mat-flat-button>
+                                        <i class="fas fa-eye
+                                        "></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

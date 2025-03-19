@@ -60,12 +60,12 @@ const billingRoute = require("./src/router/billing-route");
 const smsRoute = require("./src/router/sms-route");
 
 // Run every day at 07:00 AM in Florida (Eastern Time)
-// cron.schedule(
-//   "0 6 * * *", 
-//   async () => {
-cron.schedule("*/1 * * * *", async () => {
+cron.schedule(
+  "12 16 * * *", 
+  async () => {
+// cron.schedule("*/1 * * * *", async () => {
     // console.log(`Cron job running at ${moment().tz("America/New_York").format()}`);
-    await taskScheduler.generateInvoice();
+    await taskScheduler.generateDailyTasks();
   }, 
   {
     timezone: "America/New_York" // EDT/EST handled automatically

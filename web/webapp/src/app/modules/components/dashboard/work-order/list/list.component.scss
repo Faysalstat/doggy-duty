@@ -1,0 +1,34 @@
+.bg-white{
+    background-color: #FFF;
+}
+.bg-task-box{
+    background-color: #f9b184;
+}
+h4{
+    font-size: 1em;
+}
+strong,i{
+    margin-right: 10px;
+}
+.toggle-btn{
+    display: flex;
+    align-content: center;
+    align-items: center;
+    height: 60px;
+}
+
+.active-header {
+    background-color: #f88b42 !important; /* Change this color to your desired active header color */
+    color: white !important; /* Change the text color if needed */
+}
+.active-header .mat-expansion-panel-header-title,.active-header .mat-expansion-panel-header-description{
+    color: white;
+}
+.mat-expansion-panel-header {
+    transition: background-color 0.3s; /* Smooth transition for the background color */
+}
+
+.mat-accordion .mat-expansion-panel{
+    margin-bottom: 10px;
+    font-size: large;
+}

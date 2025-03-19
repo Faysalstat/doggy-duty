@@ -12,12 +12,12 @@ const CONFIG_NAMES = Object.freeze({
 const TASK_STATUS = Object.freeze({
   PENDING:"pending",
   COMPLETED:"completed",
-  CANCELED:"canceled"
+  CANCELED:"cancelled"
 })
 const PAYMENT_STATUS = Object.freeze({
   PENDING:"pending",
   PAID:"paid",
-  CANCELED:"canceled"
+  CANCELED:"cancelled"
 })
 const BaseLocation = Object.freeze({
   LATITUDE: 28.652035446998084,

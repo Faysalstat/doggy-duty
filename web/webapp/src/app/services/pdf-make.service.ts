@@ -50,154 +50,76 @@ export class PdfMakeService {
     });
   }
 
-  generateInvoicePDF(invoices: any) {
-    // Create a new jsPDF instance
+  generateInvoicePDF(invoiceData: any) {
     const doc = new jsPDF();
-    autoTable(doc, {
-      body: [
-        [
-          {
-            content: 'Invoice',
-            styles: {
-              halign: 'left',
-              fontSize: 16,
-            },
-          },
-          {
-            content: invoices[0].task.community.communityName,
 
-            styles: {
-              halign: 'right',
-              fontSize: 16,
-              cellWidth: 100, // Set a fixed width for this cell
-              overflow: 'linebreak', // Allow text to wrap
-            },
-          },
-        ],
-      ],
-      theme: 'plain',
-    });
-    autoTable(doc, {
-      body: [
-        [
-          {
-            content: `Date: ${this.applyFilter(invoices[0].taskCompletionDate)}`,
-            styles: {
-              halign: 'left',
-            },
-          },
-          {
-            content:
-              'Address:' +
-              invoices[0].task.community.communityAddress +
-              '\n' +
-              `Phone: ${invoices[0].task.community.phone}` +
-              '\n' +
-              `Email: ${invoices[0].task.community.email}` +
-              '\n',
+  // Add title
+  doc.setFontSize(22);
+  doc.text('Invoice', 14, 20);
 
-            styles: {
-              halign: 'right',
-              cellWidth: 100, // Set a fixed width for this cell
-              overflow: 'linebreak', // Allow text to wrap
-            },
-          },
-        ],
-      ],
-      theme: 'plain',
-    });
+  // Add invoice details
+  doc.setFontSize(12);
+  doc.text(`Invoice ID: ${invoiceData.id}`, 14, 40);
+  doc.text(`Date: ${invoiceData.invoiceDate}`, 14, 50);
+  doc.text(`Status: ${invoiceData.status}`, 14, 60);
 
-    // Add a horizontal line
-    doc.setDrawColor(0);
-    doc.line(14, 52, 196, 52); // Draw line from (x1, y1) to (x2, y2)
+  // Define the community details
+  const communityDetails = [
+    { label: 'Community Name', value: invoiceData.community.communityName },
+    { label: 'Address', value: invoiceData.community.communityAddress },
+    { label: 'Phone', value: invoiceData.community.phone },
+    { label: 'Email', value: invoiceData.community.email },
+    { label: 'Gate Code', value: invoiceData.community.gateCode },
+    { label: 'CAM', value: invoiceData.community.camOfcommunity },
+    { label: 'Lock Box Code', value: invoiceData.community.lockBoxCode },
+    { label: 'Special Request', value: invoiceData.community.specialRequest },
+  ];
 
-    // Add Task Details header
-    doc.setFontSize(10);
-    doc.setTextColor(0);
-    doc.text('Task Details', 14, 60);
+  // Add community details to the table
+  autoTable(doc, {
+    head: [['Description', 'Details']],
+    body: communityDetails.map(item => [item.label, item.value]),
+    startY: 70,
+    theme: 'grid',
+    columnStyles: {
+      0: { halign: 'left', cellWidth: 80 },
+      1: { halign: 'right', cellWidth: 100 },
+    },
+    styles: {
+      fontSize: 12,
+    },
+  });
 
-    // Define the columns for the table
-    const columns = [
-      { title: 'Community Name', dataKey: 'communityName' },
-      { title: 'Date', dataKey: 'date' },
-      { title: 'Garbage Bin QNT', dataKey: 'garbageBinQnt' },
-      { title: 'Garbage Bin Rate', dataKey: 'garbageBinRate' },
-      { title: 'Pet Station QNT', dataKey: 'petStationQnt' },
-      { title: 'Pet Station Rate', dataKey: 'petStationRate' },
-      { title: 'Bag Roll Replaced QNT', dataKey: 'bagRollQnt' },
-      { title: 'Bag Roll Rate', dataKey: 'bagRollRate' },
-      { title: 'Total', dataKey: 'total' },
-    ];
+  // Itemized costs
+  const items = [
+    { label: 'Total Garbage Bins', amount: invoiceData.totalGarbageBins * invoiceData.costPerGarbageBins },
+    { label: 'Total Pet Stations', amount: invoiceData.totalPetStations * invoiceData.costPerPetStations },
+    { label: 'Total Bags Replaced', amount: invoiceData.totalBagReplaced * invoiceData.costPerBagReplaced },
+  ];
 
-    // Prepare the rows for the table
-    const rows = invoices.map((invoice: any) => ({
-      communityName: invoice.task.community.communityName,
-      date: this.applyFilter(invoice.taskCompletionDate),
-      garbageBinQnt: invoice.task.noOfGarbageBin,
-      garbageBinRate: `$${invoice.task.chargePerGarbageBin}`,
-      petStationQnt: invoice.task.noOfPetStation,
-      petStationRate: `$${invoice.task.chargePerPetStation}`,
-      bagRollQnt: invoice.task.noOfBagRollReplaced,
-      bagRollRate: `$${invoice.task.chargePerBagRoll}`,
-      total:
-        `$` +
-        (invoice.task.noOfGarbageBin * invoice.task.chargePerGarbageBin +
-          invoice.task.noOfPetStation * invoice.task.chargePerPetStation +
-          invoice.task.noOfBagRollReplaced * invoice.task.chargePerBagRoll), // Ensure this function is defined to calculate the total
-    }));
+  // Add itemized costs to table
+  // autoTable(doc, {
+  //   head: [['Description', 'Amount']],
+  //   body: items.map(item => [item.label, `$${item.amount.toFixed(2)}`]),
+  //   startY: doc.lastAutoTable.finalY + 10,
+  //   theme: 'grid',
+  //   styles: {
+  //     fontSize: 12,
+  //   },
+  // });
 
-    // Add the table to the PDF
-    autoTable(doc, {
-      head: [columns.map((col) => col.title)],
-      body: rows.map((row: any) => columns.map((col) => row[col.dataKey])),
-      startY: 70, // Start Y position for the table
-      theme: 'grid', // Use a grid theme
-      headStyles: { fillColor: [40, 40, 40] }, // Dark header
-      styles: { cellPadding: 2, fontSize: 8 },
-    });
+  // Calculate the Y position after the table
+  // const finalY = doc.lastAutoTable.finalY;
 
-    // Add additional community details below the table
+  // // Total Amount
+  // doc.setFontSize(14);
+  // doc.text(`Total Amount: $${invoiceData.totalAmount.toFixed(2)}`, 14, finalY + 20);
 
-    // Ensure additionalY is calculated safely
-    autoTable(doc, {
-      // startY: doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 30, // Start after previous table
-      body: [
-        [
-          { content: 'Gate Code:', styles: { fontStyle: 'bold' } },
-          { content: invoices[0].task.community.gateCode },
-        ],
-        [
-          { content: 'Lock Box Code:', styles: { fontStyle: 'bold' } },
-          { content: invoices[0].task.community.lockBoxCode },
-        ],
-        [
-          {
-            content: 'Total Amount:',
-            styles: { fontStyle: 'bold', fontSize: 14 },
-          },
-          {
-            content: `$${this.getTotalAmount(invoices)}`,
-            styles: { fontSize: 14, textColor: '#28a745' },
-          },
-        ],
-        [
-          { content: 'Status:', styles: { fontStyle: 'bold', fontSize: 14 } },
-          {
-            content: this.getInvoiceStatus(invoices),
-            styles: { fontSize: 14, textColor: '#dc3545' },
-          },
-        ],
-      ],
-      
-      theme: 'plain', // No borders, just clean formatting
-      columnStyles: {
-        0: { cellWidth: 50 }, // First column fixed width
-        1: { cellWidth: 'auto' }, // Let content wrap
-      },
-    });
+  // Footer
+  // doc.text(`Thank you for your business!`, 14, finalY + 40);
 
-    // Save the PDF
-    doc.save('invoice.pdf');
+  // Save the PDF
+  doc.save(`Invoice_${invoiceData.id}.pdf`);
   }
 
   getTotalAmount(invoices:any[]): number {
@@ -215,4 +137,45 @@ export class PdfMakeService {
       (newDate.getDate()) +"/"+(newDate.getMonth()+1) + '/' + newDate.getFullYear()
     );
   }
+
+//   generatePDF(invoice: any) {
+//     const doc = new jsPDF();
+
+//     // Title
+//     doc.setFontSize(22);
+//     doc.text('Invoice', 14, 22);
+
+//     // Add invoice details
+//     doc.setFontSize(12);
+//     doc.text(`Invoice Date: ${invoice.invoiceDate}`, 14, 40);
+//     doc.text(`Status: ${invoice.status}`, 14, 50);
+    
+//     // Community details
+//     doc.text('Community Details:', 14, 70);
+//     doc.text(`Community Name: ${invoice.community.communityName}`, 14, 80);
+//     doc.text(`Address: ${invoice.community.communityAddress}`, 14, 90);
+//     doc.text(`Phone: ${invoice.community.phone}`, 14, 100);
+//     doc.text(`Email: ${invoice.community.email}`, 14, 110);
+
+//     // Add a horizontal line
+//     doc.line(14, 115, 200, 115);
+
+//     // Table of Costs
+//     autoTable(doc, {
+//       head: [['Item', 'Quantity', 'Cost per Unit', 'Total']],
+//       body: [
+//         ['Garbage Bins', invoice.totalGarbageBins, invoice.costPerGarbageBins, invoice.totalGarbageBins * invoice.costPerGarbageBins],
+//         ['Pet Stations', invoice.totalPetStations, invoice.costPerPetStations, invoice.totalPetStations * invoice.costPerPetStations],
+//         ['Bag Replacements', invoice.totalBagReplaced, invoice.costPerBagReplaced, invoice.totalBagReplaced * invoice.costPerBagReplaced],
+//       ],
+//       startY: 120,
+//     });
+
+//     // Total Amount
+//     doc.setFontSize(12);
+//     doc.text(`Total Amount: $${invoice.totalAmount}`, 14, doc.autoTable.previous.finalY + 10);
+
+//     // Save the PDF
+//     doc.save('invoice.pdf');
+//   }
 }

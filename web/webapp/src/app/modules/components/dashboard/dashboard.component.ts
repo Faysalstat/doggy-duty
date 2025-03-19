@@ -54,20 +54,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   onToggleChange(event: any,index:number) {
-    // Handle any additional logic when the toggle changes, if necessary
     console.log('Toggle state changed:', event.checked);
   }
   togglePanel(index: number) {
     this.expandedPanelIndex = this.expandedPanelIndex === index ? null : index; // Toggle the panel index
   }
-  completeTask(community:any){
+  completeTask(community:any,isCancel:boolean){
     let taskCompleteModel = {
       taskId:community.taskId,
       isBagRollReplaced:community.isBagRollReplaced,
       noOfBagRollReplaced:community.noOfBagRollReplaced,
-      date: new Date()
+      date: new Date(),
+      isCancel:isCancel
     }
-
     this.communityService.completeTask(taskCompleteModel).subscribe({
       next:(res)=>{
         console.log(res);

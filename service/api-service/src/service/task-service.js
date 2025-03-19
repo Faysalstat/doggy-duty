@@ -2,7 +2,7 @@ const CommunityServiceSchedule = require("../model/communityServiceSchedule");
 const Task = require("../model/task");
 const JobOrder = require("../model/job-order");
 const Community = require("../model/community");
-const Service = require("../model/service");
+const { Op } = require("sequelize");
 const commonService = require("../service/common-service");
 const AppConfig = require("../model/app-config");
 const { CONFIG_NAMES, TASK_STATUS, PAYMENT_STATUS } = require("../model/enums");
@@ -12,10 +12,11 @@ const Billing = require("../model/billing");
 exports.generateDailyTasks = async (params) => {
   try {
     let query = {};
+    let taskDate = new Date();
+    let nextScheduledDate = new Date();
     if (params.scheduledDate && params.scheduledDate != "") {
-      query.scheduledDate = params.scheduledDate;
-    } else {
-      query.scheduledDate = new Date();
+      query.scheduledDate = new Date(params.scheduledDate);
+      taskDate = new Date(params.scheduledDate);
     }
 
     // Fetch schedules matching today's day
@@ -39,9 +40,19 @@ exports.generateDailyTasks = async (params) => {
 
     for (const schedule of sortedSchedule) {
       const communitySchedule = schedule.dataValues;
+      const frequency = Number(communitySchedule.frequency) || 0;
+      const today = new Date(communitySchedule.scheduledDate);
+      nextScheduledDate.setDate(today.getDate() + frequency); // Add frequency days
+      let scheduleUpdateModel = {
+        scheduledDate: nextScheduledDate,
+      };
+      let updatedSchedule = await CommunityServiceSchedule.update(
+        scheduleUpdateModel,
+        { where: { id: communitySchedule.id } }
+      );
       let task = {
         communityId: communitySchedule.communityId,
-        scheduledDate: new Date(),
+        scheduledDate: taskDate,
         status: "pending",
         isBagRollReplaced: false,
         noOfPetStation: communitySchedule.noOfPetStation,
@@ -56,7 +67,7 @@ exports.generateDailyTasks = async (params) => {
 
       // Create a job order for every 4 tasks
       if (currentTasks.length === 4) {
-        let jobOrder = await JobOrder.create({ date: new Date() });
+        let jobOrder = await JobOrder.create({ date: taskDate });
         for (let task of currentTasks) {
           task.jobOrderId = jobOrder.id;
           await Task.create(task);
@@ -68,7 +79,7 @@ exports.generateDailyTasks = async (params) => {
 
     // Create remaining tasks if any
     if (currentTasks.length > 0) {
-      let jobOrder = await JobOrder.create({ date: new Date() });
+      let jobOrder = await JobOrder.create({ date: taskDate });
       for (let task of currentTasks) {
         task.jobOrderId = jobOrder.id;
         await Task.create(task);
@@ -87,37 +98,40 @@ exports.getAllTasks = async (req, res) => {
   let params = req.query;
   let query = {};
   try {
-    if (params.status && params.status != "") {
-      query.status = params.status;
+    if (params.status) {
+      const statuses = Array.isArray(params.status) ? params.status : params.status.split(",");
+      query.status = { [Op.in]: statuses };
     }
-    let tasks = await Task.findAll({ where: query, include: [Community,JobOrder] });
+    let tasks = await Task.findAll({
+      where: query,
+      include: [Community, JobOrder],
+    });
     let taskList = JSON.parse(JSON.stringify(tasks));
-    const result = taskList.map(task => {
-          const taskModel = {
-            jobOrderId: task.jobOrder?.id, // Get jobOrderId from the first task or set to null
-            communityId: task.community.id,
-            communityName: task.community.communityName,
-            communityAddress: task.community.communityAddress,
-            gateCode: task.community.gateCode,
-            camOfcommunity: task.community.camOfcommunity,
-            phone: task.community.phone,
-            email: task.community.email,
-            lockBoxCode: task.community.lockBoxCode,
-            specialRequest: task.community.specialRequest,
-            noOfPetStation: task.noOfPetStation,
-            chargePerPetStation: task.chargePerPetStation,
-            noOfGarbageBin: task.noOfGarbageBin,
-            chargePerGarbageBin: task.chargePerGarbageBin,
-            noOfBagRollReplaced: task.noOfBagRollReplaced,
-            chargePerBagRoll: task.chargePerBagRoll,
-            scheduledDate:  task.scheduledDate ,
-            taskId:task.id,
-            taskStatus: task.status
-          };
-    
-          return taskModel;
-        });
-        return result;
+    const result = taskList.map((task) => {
+      const taskModel = {
+        jobOrderId: task.jobOrder?.id, // Get jobOrderId from the first task or set to null
+        communityId: task.community.id,
+        communityName: task.community.communityName,
+        communityAddress: task.community.communityAddress,
+        gateCode: task.community.gateCode,
+        camOfcommunity: task.community.camOfcommunity,
+        phone: task.community.phone,
+        email: task.community.email,
+        lockBoxCode: task.community.lockBoxCode,
+        specialRequest: task.community.specialRequest,
+        noOfPetStation: task.noOfPetStation,
+        chargePerPetStation: task.chargePerPetStation,
+        noOfGarbageBin: task.noOfGarbageBin,
+        chargePerGarbageBin: task.chargePerGarbageBin,
+        noOfBagRollReplaced: task.noOfBagRollReplaced,
+        chargePerBagRoll: task.chargePerBagRoll,
+        scheduledDate: task.scheduledDate,
+        taskId: task.id,
+        taskStatus: task.status,
+      };
+      return taskModel;
+    });
+    return result;
   } catch (error) {
     throw new Error("Error Occured " + error.message);
   }
@@ -156,7 +170,7 @@ exports.completeTask = async (req, res) => {
     );
     let taskUpdateModel = {
       isBagRollReplaced: payload.isBagRollReplaced,
-      status: TASK_STATUS.COMPLETED,
+      status: payload.isCancel?TASK_STATUS.CANCELED:TASK_STATUS.COMPLETED,
       chargePerBagRoll: config.value,
       noOfBagRollReplaced: payload.isBagRollReplaced
         ? payload.noOfBagRollReplaced
@@ -165,6 +179,9 @@ exports.completeTask = async (req, res) => {
     let updatedTask = await Task.update(taskUpdateModel, {
       where: { id: payload.taskId },
     });
+    if(payload.isCancel){
+      return "Task Cancelled";
+    }
     let totalBill = calculateTotalBill(task);
     let billModel = {
       totalAmount: totalBill,

@@ -18,6 +18,11 @@ export const MENUITEM = [
           icon: 'pi pi-fw pi-cart-plus',
           items: [
             {
+              label: 'Due Task',
+              icon: 'pi pi-fw pi-list',
+              routerLink: ['/work-order/due-list'],
+            },
+            {
               label: 'History',
               icon: 'pi pi-fw pi-list',
               routerLink: ['/work-order/history'],

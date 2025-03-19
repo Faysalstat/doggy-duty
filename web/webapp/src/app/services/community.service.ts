@@ -61,4 +61,11 @@ export class CommunityService {
     params = params.append('status',queryParams.get('status'));
     return this.http.get(TaskUrls.GETALL,{params:params});
   }
+
+  public getAllInvoice(queryParams: Map<string, any>): Observable<any> {
+    let params = new HttpParams();
+    params = params.append('communityId',queryParams.get('communityId'));
+    params = params.append('status',queryParams.get('status'));
+    return this.http.get(BillingUrls.GET_ALL_INVOICE,{params:params});
+  }
 }

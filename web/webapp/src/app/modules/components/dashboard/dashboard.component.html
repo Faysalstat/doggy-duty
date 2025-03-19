@@ -90,20 +90,25 @@
             <div *ngIf="community.isBagRollReplaced" class="col-md-3">
                 <mat-form-field class="input-field" appearance="outline">
                     <mat-label>Price Per Rolls</mat-label>
-                    <input [disabled]="true" type="number" placeholder="Price Per Rolls"
+                    <span matTextPrefix>$ &nbsp;</span>
+                    <input [readonly]="true" type="number" placeholder="Price Per Rolls"
                         [(ngModel)]="community.pricePerUnit" matInput />
                 </mat-form-field>
             </div>
             <div *ngIf="community.isBagRollReplaced" class="col-md-3">
                 <mat-form-field class="input-field" appearance="outline">
                     <mat-label>Total Bill</mat-label>
-                    <input [disabled]="true" type="number" placeholder="Total Bill" [(ngModel)]="community.total"
+                    <span matTextPrefix>$ &nbsp;</span>
+                    <input [readonly]="true" type="number" placeholder="Total Bill" [(ngModel)]="community.total"
                         matInput />
                 </mat-form-field>
             </div>
             <div class="col-md-12 d-flex justify-content-end">
-                <button (click)="completeTask(community)" class="btn-bg-primary">
+                <button (click)="completeTask(community,false)" class="mr-3 btn-bg-primary">
                     Complete Task
+                </button>
+                <button (click)="completeTask(community,true)" class="btn-bg-warn">
+                    Cancel
                 </button>
             </div>
         </div>
