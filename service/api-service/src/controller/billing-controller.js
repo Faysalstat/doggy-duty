@@ -46,4 +46,19 @@ exports.getBillByCommunityId = async (req, res, next) => {
   }
 };
 
+exports.payInvoice = async (req, res, next) => {
+  try {
+    let response = await billingService.payInvoice(req, res, next);
+    return res.status(200).json({
+      message: "Invoice Paid",
+      body: response,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: "Operation Failed: " + error.message,
+      isSuccess: false,
+    });
+  }
+}
+
 

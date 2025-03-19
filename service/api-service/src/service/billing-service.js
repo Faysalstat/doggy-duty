@@ -86,3 +86,22 @@ exports.getAllInvoices = async (req, res, next) => {
     throw new Error("Error Occurred: " + error.message);
   }
 }
+exports.payInvoice = async (req, res, next) => {
+  let params = req.body;
+  try {
+    let invoice = await Invoice.findOne({where:{id:params.invoiceId},include: [{model:InvoiceBillMapping,include:Billing}]});
+    if (invoice) {
+      invoice.status = "paid";
+      for (let i = 0; i < invoice.invoice_bill_mappings.length; i++) {
+        let bill = invoice.invoice_bill_mappings[i].billing;
+        await Billing.update({status:"paid"},{where:{id:bill.id}});
+      }
+      await Invoice.update({status:"paid"},{where:{id:params.invoiceId}});
+      return invoice;
+    } else {
+      throw new Error("Invoice not found");
+    }
+  } catch (error) {
+    throw new Error("Error Occurred: " + error.message);
+  }
+}
