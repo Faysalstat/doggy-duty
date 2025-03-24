@@ -1,10 +1,5 @@
 const AppConfig = require("../model/app-config");
 
-const BaseLocation = Object.freeze({
-    LATITUDE: 28.652035446998084,
-    LONGITUDE: -81.53080236001611,
-  });
-  
   // Function to calculate Haversine distance
   const haversineDistance = (lat1, lon1, lat2, lon2) => {
     const toRad = (value) => (Math.PI / 180) * value;

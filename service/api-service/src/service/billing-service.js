@@ -58,14 +58,21 @@ exports.getAllInvoices = async (req, res, next) => {
         totalGarbageBins: invoice.totalGarbageBins,
         totalPetStations: invoice.totalPetStations,
         totalBagReplaced: invoice.totalBagReplaced,
+        totalBinReplaced: invoice.totalBinReplaced,
+        totalNewInstallment: invoice.totalNewInstallment,
+        totalHandSanitizerReplaced: invoice.totalHandSanitizerReplaced,
         costPerGarbageBins: invoice.costPerGarbageBins,
         costPerPetStations: invoice.costPerPetStations,
         costPerBagReplaced: invoice.costPerBagReplaced,
+        costPerBinReplaced: invoice.costPerBinReplaced,
+        costPerNewStationInstalled: invoice.costPerNewStationInstalled,
+        costPerHandSanitizer: invoice.costPerHandSanitizer,
         status: invoice.status,
         invoiceDate: invoice.invoiceDate,
-        totalAmount: (invoice.totalGarbageBins * invoice.costPerGarbageBins) + (invoice.totalPetStations * invoice.costPerPetStations) + (invoice.totalBagReplaced * invoice.costPerBagReplaced),
+        totalAmount: (invoice.totalGarbageBins * invoice.costPerGarbageBins) 
+        + (invoice.totalPetStations * invoice.costPerPetStations) 
+        + (invoice.totalBagReplaced * invoice.costPerBagReplaced) + (invoice.costPerHandSanitizer * invoice.totalHandSanitizerReplaced),
       };
-
       // Extract community details (assuming communities are the same for the invoice)
       const billings = invoice.invoice_bill_mappings 
         ?.map((mapping) => {

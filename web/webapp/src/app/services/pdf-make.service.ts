@@ -113,17 +113,23 @@ export class PdfMakeService {
     });
 
     autoTable(doc, {
-      head: [['Name of the Service', 'Rate', 'Quantity','Amount']],
+      head: [['Name of the Service', 'Rate', { content: 'Quantity', styles: { halign: 'center' } }, { content: 'Amount', styles: { halign: 'right' } }]],
       body: [
-        ['Garbage Bin', '$'+invoiceData.costPerGarbageBins, invoiceData.totalGarbageBins, invoiceData.costPerGarbageBins * invoiceData.totalGarbageBins],
-        ['Replacement of 10 Gal. Bin','$'+ invoiceData.costPerPetStations, invoiceData.totalPetStations, invoiceData.costPerPetStations * invoiceData.totalPetStations],
-        ['Pet Waste Station Dispenser Bag Refills (200 rolls)','$'+ invoiceData.costPerBagReplaced, invoiceData.totalBagReplaced, invoiceData.costPerBagReplaced * invoiceData.totalBagReplaced],
-        // ['Product or service name', 'Category', '2', '$450', '$50', '$1000'],
+      ['Service of Pet Waste Station', '$' + invoiceData.costPerPetStations, invoiceData.totalPetStations, '$' + (invoiceData.costPerPetStations * invoiceData.totalPetStations).toFixed(2)],
+      ['Garbage Bins', '$' + invoiceData.costPerGarbageBins, invoiceData.totalGarbageBins, '$' + (invoiceData.costPerGarbageBins * invoiceData.totalGarbageBins).toFixed(2)],
+      ['Replacement of 10 Gal. Bin', '$' + invoiceData.costPerBinReplaced, invoiceData.totalBinReplaced, '$' + (invoiceData.costPerBinReplaced * invoiceData.totalBinReplaced).toFixed(2)],
+      ['Hand Sanitizer Bottle Refill', '$' + invoiceData.costPerHandSanitizer, invoiceData.totalHandSanitizerReplaced, '$' + (invoiceData.costPerHandSanitizer * invoiceData.totalHandSanitizerReplaced).toFixed(2)],
+      ['Pet Waste Station Dispenser Bag Refills (200 rolls)', '$' + invoiceData.costPerBagReplaced, invoiceData.totalBagReplaced, '$' + (invoiceData.costPerBagReplaced * invoiceData.totalBagReplaced).toFixed(2)],
+      ['Tax (7%)', '--', '--', '$' + invoiceData.taxAmount.toFixed(2)],
       ],
       theme: 'striped',
       headStyles: {
-        fillColor: '#343a40',
+      fillColor: '#343a40',
       },
+      columnStyles: {
+      2: { halign: 'center' }, // Right align the quantity column
+      3: { halign: 'right' }, // Right align the amount column
+      }
     });
 
     autoTable(doc, {
@@ -139,7 +145,7 @@ export class PdfMakeService {
         ],
         [
           {
-            content: '$'+invoiceData.totalAmount,
+            content: '$'+(invoiceData.totalAmount +invoiceData.taxAmount).toFixed(2),
             styles: {
               halign: 'right',
               fontSize: 20,
@@ -158,53 +164,12 @@ export class PdfMakeService {
       ],
       theme: 'plain',
     });
-
-    // autoTable(doc, {
-    //   body: [
-    //     [
-    //       {
-    //         content: 'Terms & notes',
-    //         styles: {
-    //           halign: 'left',
-    //           fontSize: 14,
-    //         },
-    //       },
-    //     ],
-    //     [
-    //       {
-    //         content:
-    //           'orem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia' +
-    //           'molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum' +
-    //           'numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium',
-    //         styles: {
-    //           halign: 'left',
-    //         },
-    //       },
-    //     ],
-    //   ],
-    //   theme: 'plain',
-    // });
-
-    // autoTable(doc, {
-    //   body: [
-    //     [
-    //       {
-    //         content: 'This is a centered footer',
-    //         styles: {
-    //           halign: 'center',
-    //         },
-    //       },
-    //     ],
-    //   ],
-    //   theme: 'plain',
-    // });
-
     doc.save(`Invoice_${invoiceData.id}.pdf`);
   }
 
-  getTotalAmount(invoices:any[]): number {
-    return invoices?.reduce((sum, inv) => sum + inv.totalAmount, 0) || 0;
-  }
+  // getTotalAmount(invoices:any[]): number {
+  //   return invoices?.reduce((sum, inv) => sum + inv.totalAmount, 0) || 0;
+  // }
   getInvoiceStatus(invoices:any[]): string {
     return invoices?.some((inv) => inv.status === 'pending')
       ? 'pending'
@@ -214,7 +179,7 @@ export class PdfMakeService {
   applyFilter(date: any) {
     let newDate = new Date(date);
     return (
-      (newDate.getDate()) +"/"+(newDate.getMonth()+1) + '/' + newDate.getFullYear()
+      (newDate.getMonth()+1)+"/"+(newDate.getDate()) + '/' + newDate.getFullYear()
     );
   }
 
@@ -258,4 +223,6 @@ export class PdfMakeService {
 //     // Save the PDF
 //     doc.save('invoice.pdf');
 //   }
+
+
 }

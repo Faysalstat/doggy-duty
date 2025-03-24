@@ -13,7 +13,7 @@ const CommunityServiceSchedule = db.sequelize.define(
     frequency:Sequelize.INTEGER,
     startingDate:Sequelize.DATE,
     lastServedDate:Sequelize.DATE,
-    lastInvoiceGenerated:Sequelize.DATE,
+    lastInvoiceGenerated:Sequelize.DATEONLY,
     scheduledDate:Sequelize.DATEONLY,
     noOfPetStation:Sequelize.INTEGER,
     noOfGarbageBin:Sequelize.INTEGER,

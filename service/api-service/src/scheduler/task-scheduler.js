@@ -12,17 +12,16 @@ const Invoice = require("../model/invoice");
 const InvoiceBillMapping = require("../model/invoice-bill");
 const moment = require("moment");
 exports.generateDailyTasks = async () => {
-  let today = new Date();
+  let today = new Date().toLocaleString("en-US", {
+    timeZone: "America/New_York",
+  });
   let smsLog = {};
   let mailLog = {};
   try {
-    // await taskService.generateDailyTasks({ scheduledDate: today });
-    let param = {
-      status: TASK_STATUS.PENDING,
-    };
-    // await sendSMS();
+    await taskService.generateDailyTasks({ scheduledDate: today });
+    await sendSMS();
     // await generateMail();
-    await generateInvoice();
+    // await generateInvoice();
   } catch (error) {
     let errorLog = await SchedulerLog.create({
       job_name: "Job Scheduler",
@@ -34,22 +33,7 @@ exports.generateDailyTasks = async () => {
 };
 const sendSMS = async () => {
   try {
-    const smsBody =
-      "Doggy Duty, LLC\n\nNew Doggy Duty Work Order Created Today. Please visit www.DoggyDuty.Live to review and print your schedule.\n\nThank you!";
-    const smsPayload = {
-      messages: [
-        {
-          body: smsBody,
-          to: "+14074174915",
-        },
-        {
-          body: smsBody,
-          to: "+18633995176",
-        },
-      ],
-    };
-    const { messages } = smsPayload;
-    const smsResponse = await smsService.sendSms(messages);
+    const smsResponse = await smsService.sendSms();
     console.log(smsResponse);
   } catch (error) {
     let errorLog = await SchedulerLog.create({
@@ -58,17 +42,25 @@ const sendSMS = async () => {
       status: "FAILED",
       error_message: error.message,
     });
-    throw new Error("Mail Sending Failed." + error.message);
+    throw new Error("SMS Sending Failed." + error.message);
   }
 };
 
 const generateMail = async () => {
   try {
-    let response = await communityService.getAllJobOrderByDate(param, null);
-    const emailBody = generateTaskListEmailBody(response);
-    sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
-    sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
-    sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
+    let response = await communityService.getAllJobOrderByDate(
+      {
+        status: TASK_STATUS.PENDING,
+      },
+      null
+    );
+    if (response.length && response.length > 0) {
+      const emailBody = generateTaskListEmailBody(response);
+      sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
+      sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
+      sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
+      await sendSMS();
+    }
   } catch (error) {
     let errorLog = await SchedulerLog.create({
       job_name: "Job Scheduler",
@@ -86,13 +78,22 @@ const generateInvoice = async () => {
     });
     for (let i = 0; i < communities.length; i++) {
       let community = communities[i].dataValues;
-      console.log(community);
+      // Proper logging of community details
+      console.info(`Processing community: ${community.name}`, community);
       if (community.communityServiceSchedule?.lastInvoiceGenerated) {
         const lastGenerated = moment(
           community.communityServiceSchedule.lastInvoiceGenerated
         );
         const today = moment().startOf("day"); // Start of today
-        console.log(today.diff(lastGenerated, "days"));
+        await SchedulerLog.create({
+          job_name: "Job Scheduler",
+          job_type: "Invoice Generation",
+          status: "INFO",
+          error_message: `Days since last invoice generated: ${today.diff(
+            lastGenerated,
+            "days"
+          )}`,
+        });
         if (today.diff(lastGenerated, "days") >= 7) {
           console.log(`Generating invoice for community: ${community.name}`);
           let invoiceModel = {
@@ -100,14 +101,19 @@ const generateInvoice = async () => {
             totalGarbageBins: 0,
             totalPetStations: 0,
             totalBagReplaced: 0,
-            costPerGarbageBins: 0,           
-            costPerPetStations: 0,  
-            costPerBagReplaced: 0,  
+            totalBinReplaced: 0,
+            totalHandSanitizerReplaced: 0,
+            totalNewInstallment: 0,
+            costPerGarbageBins: 0,
+            costPerPetStations: 0,
+            costPerBagReplaced: 0,
+            costPerBinReplaced: 0,
+            costPerNewStationInstalled: 0,
             invoiceDate: today.toDate(),
           };
           let bills = await Billing.findAll({
             where: { invoiceGenerated: false, communityId: community.id },
-            include: Task,
+            include: [{ model: Task, include: Community }],
           });
           if (bills && bills.length > 0) {
             for (let j = 0; j < bills.length; j++) {
@@ -115,11 +121,25 @@ const generateInvoice = async () => {
               invoiceModel.totalGarbageBins += bill.task.noOfGarbageBin;
               invoiceModel.totalPetStations += bill.task.noOfPetStation;
               invoiceModel.totalBagReplaced += bill.task.noOfBagRollReplaced;
+              invoiceModel.totalBinReplaced += bill.task.noOfBinReplacement;
+              invoiceModel.totalNewInstallment +=
+                bill.task.noOfStationInstalled;
+              invoiceModel.totalHandSanitizerReplaced +=
+                bill.task.noOfHandSanitizerReplacement;
               invoiceModel.totalAmount += bill.totalAmount;
               invoiceModel.costPerGarbageBins = bill.task.chargePerGarbageBin;
               invoiceModel.costPerPetStations = bill.task.chargePerPetStation;
               invoiceModel.costPerBagReplaced = bill.task.chargePerBagRoll;
-              await Billing.update({ invoiceGenerated: true }, { where: { id: bill.id } });
+              invoiceModel.costPerBinReplaced =
+                bill.task.chargePerBinReplacement;
+              invoiceModel.costPerHandSanitizer =
+                bill.task.chargePerHandSanitizer;
+              invoiceModel.costPerNewStationInstalled =
+                bill.task.chargePerNewStationInstallment;
+              await Billing.update(
+                { invoiceGenerated: true },
+                { where: { id: bill.id } }
+              );
             }
             invoiceModel.status = "pending";
             let createdInvoice = await Invoice.create(invoiceModel);
@@ -142,7 +162,6 @@ const generateInvoice = async () => {
             { lastInvoiceGenerated: today.toDate() },
             { where: { id: community.id } }
           );
-          
         }
       }
     }
@@ -194,10 +213,7 @@ const generateTaskListEmailBody = (tasks) => {
     <p>Best regards,<br>Doggy Duty</p>
   `;
   } else {
-    emailBody = `
-    <h2>Daily Task List</h2>
-    <p>Dear Team,</p>
-    <p>No Job Scheduled for today:</p>`;
+    return;
   }
 
   return emailBody;

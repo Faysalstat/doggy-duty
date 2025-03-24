@@ -10,6 +10,7 @@ import { InvoiceComponent } from './invoice/invoice.component';
 import { CompletedListComponent } from './completed-list/completed-list.component';
 import { InvoiceListComponent } from './invoice-list/invoice-list.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { SharedCompsModule } from '../shared-comps/shared-comps.module';
 
 @NgModule({
   declarations: [ListComponent, CreateComponent, InvoiceComponent, CompletedListComponent, InvoiceListComponent],
@@ -19,6 +20,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     ReactiveFormsModule,
     MaterialModule,
     ToastModule,
+    SharedCompsModule,
     RouterModule.forChild([
       { path: 'history', component:CompletedListComponent  },
       { path: 'due-list', component: ListComponent },

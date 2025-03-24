@@ -13,6 +13,7 @@ import { MaterialModule } from 'src/material.module';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { AppConfigComponent } from './app-config/app-config.component';
+import { SharedCompsModule } from './shared-comps/shared-comps.module';
 @NgModule({
     imports: [
         CommonModule,
@@ -26,7 +27,8 @@ import { AppConfigComponent } from './app-config/app-config.component';
         ButtonModule,
         DashboardsRoutingModule,
         MaterialModule,
-        ToastModule
+        ToastModule,
+        SharedCompsModule
     ],
     declarations: [DashboardComponent, AppConfigComponent],
     providers:[MessageService]

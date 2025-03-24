@@ -61,10 +61,8 @@ const smsRoute = require("./src/router/sms-route");
 
 // Run every day at 07:00 AM in Florida (Eastern Time)
 cron.schedule(
-  "12 16 * * *", 
+  "16 9 * * *", // Runs at 2:30 PM EDT/EST
   async () => {
-// cron.schedule("*/1 * * * *", async () => {
-    // console.log(`Cron job running at ${moment().tz("America/New_York").format()}`);
     await taskScheduler.generateDailyTasks();
   }, 
   {

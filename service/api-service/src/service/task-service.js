@@ -18,7 +18,11 @@ exports.generateDailyTasks = async (params) => {
       query.scheduledDate = new Date(params.scheduledDate);
       taskDate = new Date(params.scheduledDate);
     }
-
+    let config = await AppConfig.findAll();
+    let chargePerBagRoll = config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;
+    let chargePerBinReplacement = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_BIN_REPLACEMENT).value;
+    let chargePerNewStationInstallment = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_NEW_STATION_INSTALLMENT).value;
+    let chargePerHandSanitizer = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_HAND_SANITIZER).value;
     // Fetch schedules matching today's day
     const schedules = await CommunityServiceSchedule.findAll({
       where: query,
@@ -55,14 +59,22 @@ exports.generateDailyTasks = async (params) => {
         scheduledDate: taskDate,
         status: "pending",
         isBagRollReplaced: false,
+        isBinReplaced: false,
+        isNewStationInstalled: false,
+        isHandSanitizerReplaced: false,
         noOfPetStation: communitySchedule.noOfPetStation,
         noOfGarbageBin: communitySchedule.noOfGarbageBin,
         noOfBagRollReplaced: 0,
+        noOfBinReplacement: 0,
+        noOfStationInstalled: 0,
+        noOfHandSanitizerReplacement: 0,
         chargePerPetStation: communitySchedule.chargePerPetStation,
         chargePerGarbageBin: communitySchedule.chargePerGarbageBin,
-        chargePerBagRoll: 0,
+        chargePerBagRoll: chargePerBagRoll,
+        chargePerBinReplacement: chargePerBinReplacement,
+        chargePerNewStationInstallment: chargePerNewStationInstallment,
+        chargePerHandSanitizer: chargePerHandSanitizer,
       };
-
       currentTasks.push(task);
 
       // Create a job order for every 4 tasks
@@ -99,7 +111,9 @@ exports.getAllTasks = async (req, res) => {
   let query = {};
   try {
     if (params.status) {
-      const statuses = Array.isArray(params.status) ? params.status : params.status.split(",");
+      const statuses = Array.isArray(params.status)
+        ? params.status
+        : params.status.split(",");
       query.status = { [Op.in]: statuses };
     }
     let tasks = await Task.findAll({
@@ -124,7 +138,13 @@ exports.getAllTasks = async (req, res) => {
         noOfGarbageBin: task.noOfGarbageBin,
         chargePerGarbageBin: task.chargePerGarbageBin,
         noOfBagRollReplaced: task.noOfBagRollReplaced,
+        noOfBinReplacement: task.noOfBinReplacement,
+        noOfHandSanitizerReplacement: task.noOfHandSanitizerReplacement,
+        noOfStationInstalled: task.noOfStationInstalled,
         chargePerBagRoll: task.chargePerBagRoll,
+        chargePerBinReplacement: task.chargePerBinReplacement,
+        chargePerHandSanitizer: task.chargePerHandSanitizer,
+        chargePerNewStationInstallment: task.chargePerNewStationInstallment,
         scheduledDate: task.scheduledDate,
         taskId: task.id,
         taskStatus: task.status,
@@ -148,9 +168,7 @@ exports.completeTask = async (req, res) => {
       where: { id: payload.taskId },
       include: [{ model: Community, include: CommunityServiceSchedule }],
     });
-    let config = await AppConfig.findOne({
-      where: { configName: CONFIG_NAMES.PRICE_PER_BAG_ROLL },
-    });
+
     // Parse frequency as a number
     const frequency =
       Number(task.community.communityServiceSchedule.frequency) || 0;
@@ -170,19 +188,34 @@ exports.completeTask = async (req, res) => {
     );
     let taskUpdateModel = {
       isBagRollReplaced: payload.isBagRollReplaced,
-      status: payload.isCancel?TASK_STATUS.CANCELED:TASK_STATUS.COMPLETED,
-      chargePerBagRoll: config.value,
+      isBinReplaced: payload.isBinReplaced,
+      isNewStationInstalled: payload.isNewStationInstalled,
+      isHandSanitizerReplaced: payload.isHandSanitizerReplaced,
       noOfBagRollReplaced: payload.isBagRollReplaced
         ? payload.noOfBagRollReplaced
         : 0,
+      noOfBinReplacement: payload.isBinReplaced
+        ? payload.noOfBinReplacement
+        : 0,
+      noOfStationInstalled: payload.isNewStationInstalled
+        ? payload.noOfStationInstalled
+        : 0,
+      noOfHandSanitizerReplacement: payload.isHandSanitizerReplaced
+        ? payload.noOfHandSanitizerReplacement
+        : 0,
+      chargePerBagRoll: payload.chargePerBagRoll,
+      chargePerBinReplacement: payload.chargePerBinReplacement,
+      chargePerNewStationInstallment: payload.chargePerNewStationInstallment,
+      chargePerHandSanitizer: payload.chargePerHandSanitizer,
+      status: payload.isCancel ? TASK_STATUS.CANCELED : TASK_STATUS.COMPLETED,
     };
     let updatedTask = await Task.update(taskUpdateModel, {
       where: { id: payload.taskId },
     });
-    if(payload.isCancel){
+    if (payload.isCancel) {
       return "Task Cancelled";
     }
-    let totalBill = calculateTotalBill(task);
+    let totalBill = await calculateTotalBill(task,payload);
     let billModel = {
       totalAmount: totalBill,
       taskCompletionDate: new Date(payload.date),
@@ -198,9 +231,17 @@ exports.completeTask = async (req, res) => {
   }
 };
 
-const calculateTotalBill = (task) => {
+const calculateTotalBill = async (task,payload) => {
+  let config = await AppConfig.findAll();
+  let chargePerBagRoll = config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;
+  let chargePerBinReplacement = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_BIN_REPLACEMENT).value;
+  let chargePerNewStationInstallment = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_NEW_STATION_INSTALLMENT).value;
+  let chargePerHandSanitizer = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_HAND_SANITIZER).value;
   const petStationCost = task.noOfPetStation * task.chargePerPetStation;
   const garbageBinCost = task.noOfGarbageBin * task.chargePerGarbageBin;
-  const bagRollCost = task.noOfBagRollReplaced * task.chargePerBagRoll;
-  return petStationCost + garbageBinCost + bagRollCost;
+  const bagRollCost = payload.noOfBagRollReplaced * chargePerBagRoll;
+  const binReplacementCost = payload.noOfBinReplacement * chargePerBinReplacement;
+  const petStationInstallmentCost = payload.noOfStationInstalled * chargePerNewStationInstallment;
+  const handSanitizerCost = payload.noOfHandSanitizerReplacement * chargePerHandSanitizer;
+  return petStationCost + garbageBinCost + bagRollCost + binReplacementCost + petStationInstallmentCost + handSanitizerCost;
 };

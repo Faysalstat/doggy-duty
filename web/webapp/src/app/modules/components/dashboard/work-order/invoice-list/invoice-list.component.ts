@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MessageService } from 'primeng/api';
 import { CommunityService } from 'src/app/services/community.service';
@@ -11,6 +11,7 @@ import { InvoiceComponent } from '../invoice/invoice.component';
   styleUrls: ['./invoice-list.component.scss']
 })
 export class InvoiceListComponent implements OnInit {
+  
   invoiceList:any[] = [];
   constructor(
     private communityService: CommunityService,
@@ -21,6 +22,10 @@ export class InvoiceListComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchAllInvoice();
+    this.communityService.fetchInvoiceList.subscribe(() => {
+      this.fetchAllInvoice();
+    }
+    );
   }
 
   fetchAllInvoice() {
@@ -30,8 +35,13 @@ export class InvoiceListComponent implements OnInit {
     // fetch all invoices
     this.communityService.getAllInvoice(params).subscribe({
       next: (res:any) => {
-        console.log(res);
         this.invoiceList = res.body;
+        if(res.body && res.body.length > 0){
+          this.invoiceList.forEach((invoice:any) => {
+            invoice.taxAmount = invoice.totalAmount * 0.07;
+          }
+          );
+        }
       },
       error: (err:any) => {
         this.messageService.add({
@@ -47,6 +57,7 @@ export class InvoiceListComponent implements OnInit {
     this.dialog.open(InvoiceComponent, {
       width: '800px',
       data: invoice,
+      panelClass: 'custom-dialog-container'
     });
   }
 

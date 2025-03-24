@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BillingUrls, CommunityUrls, ConfigUrls, ServiceUrls, TaskUrls } from '../utils/urls.const';
 
@@ -7,6 +7,7 @@ import { BillingUrls, CommunityUrls, ConfigUrls, ServiceUrls, TaskUrls } from '.
   providedIn: 'root'
 })
 export class CommunityService {
+  fetchInvoiceList:EventEmitter<any> = new EventEmitter();
   constructor(private http: HttpClient) {}
   public getCommunityById(id:number): Observable<any> {
     let params = new HttpParams();
@@ -67,5 +68,14 @@ export class CommunityService {
     params = params.append('communityId',queryParams.get('communityId'));
     params = params.append('status',queryParams.get('status'));
     return this.http.get(BillingUrls.GET_ALL_INVOICE,{params:params});
+  }
+
+  public getAllConfigByName(queryParams: Map<string, any>): Observable<any> {
+    let params = new HttpParams();
+    params = params.append('configNames',queryParams.get('configNames'));
+    return this.http.get(ConfigUrls.GET_ALL_BY_NAME,{params:params});
+  }
+  public payInvoice(invoiceId:any): Observable<any> {
+    return this.http.post(BillingUrls.PAY_INVOICE,{invoiceId:invoiceId});
   }
 }

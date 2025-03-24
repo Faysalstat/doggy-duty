@@ -7,11 +7,13 @@ import { MaterialModule } from 'src/material.module';
 import { RouterModule } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { SharedCompsModule } from '../shared-comps/shared-comps.module';
 
 @NgModule({
   declarations: [CreateComponent, ListComponent],
   imports: [
     CommonModule,
+    SharedCompsModule,
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,

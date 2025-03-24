@@ -1,11 +1,12 @@
 const Community = require("../model/community");
-const { BaseLocation, TASK_STATUS } = require("../model/enums");
+const {CONFIG_NAMES } = require("../model/enums");
 const CommonService = require("../service/common-service");
 const db = require("../connector/db-connector");
 const CommunityServiceSchedule = require("../model/communityServiceSchedule");
 const Task = require("../model/task");
 const JobOrder = require("../model/job-order");
 const moment = require('moment');
+const AppConfig = require("../model/app-config");
 
 exports.addCommunity = async (req, res) => {
   try {
@@ -188,6 +189,11 @@ exports.getAllJobOrderByDate = async (params,userTimeZone) => {
   }
   let sortedCommunities = [];
   try {
+    let config = await AppConfig.findAll();
+    let chargePerBagRoll = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;
+    let chargePerBinReplacement = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_BIN_REPLACEMENT).value;
+    let chargePerNewStationInstallment = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_NEW_STATION_INSTALLMENT).value;
+    let chargePerHandSanitizer = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_HAND_SANITIZER).value;
     let communities = await Community.findAll({
       include: [
         { model: CommunityServiceSchedule },
@@ -211,6 +217,8 @@ exports.getAllJobOrderByDate = async (params,userTimeZone) => {
       scheduledDate = community.communityServiceSchedule.scheduledDate;
       const communityData = {
         jobOrderId: community.tasks[0].jobOrderId, // Get jobOrderId from the first task or set to null
+        taskId:community.tasks[0].id,
+        taskStatus: community.tasks[0].status,
         communityId: community.id,
         communityName: community.communityName,
         communityAddress: community.communityAddress,
@@ -221,17 +229,28 @@ exports.getAllJobOrderByDate = async (params,userTimeZone) => {
         lockBoxCode: community.lockBoxCode,
         specialRequest: community.specialRequest,
         noOfPetStation: community.communityServiceSchedule.noOfPetStation,
-        chargePerPetStation: community.communityServiceSchedule.chargePerPetStation,
         noOfGarbageBin: community.communityServiceSchedule.noOfGarbageBin,
+        noOfBagRollReplaced: 0,
+        noOfBinReplacement: 0,
+        noOfHandSanitizerReplacement: 0,
+        noOfStationInstalled: 0,
+        chargePerPetStation: community.communityServiceSchedule.chargePerPetStation,
         chargePerGarbageBin: community.communityServiceSchedule.chargePerGarbageBin,
-        noOfBagRollReplaced: community.tasks[0].noOfBagRollReplaced,
-        chargePerBagRoll: community.tasks[0].chargePerBagRoll,
-        distance: community.distance.toFixed(3),
+        chargePerBagRoll: chargePerBagRoll || 0,
+        chargePerBinReplacement: chargePerBinReplacement || 0,
+        chargePerNewStationInstallment: chargePerNewStationInstallment || 0,
+        chargePerHandSanitizer: chargePerHandSanitizer || 0,
+        isBagRollReplaced: false, // Add your first extra property
+        isBinReplaced: false, // Add your first extra property
+        isHandSanitizerReplaced: false, // Add your first extra property
+        isNewStationInstalled: false, // Add your first extra property
+        totalBagReplacementPrice: 0,
+        totalBinReplacementPrice: 0,
+        totalStationInstallationPrice: 0,
+        totalHandSanitizerPrice: 0,
         scheduledDate:  scheduledDate ,
-        taskId:community.tasks[0].id,
-        taskStatus: community.tasks[0].status
+        distance: community.distance.toFixed(3),
       };
-
       return communityData;
     });
     return result;

@@ -1,0 +1,207 @@
+<mat-accordion>
+    <p *ngIf="communityList?.length == 0">*No Job Today</p>
+    <mat-expansion-panel *ngFor="let community of communityList; index as i" hideToggle>
+        <mat-expansion-panel-header (click)="togglePanel(i)" [ngClass]="{ 'active-header': expandedPanelIndex === i }">
+            <mat-panel-title>
+                <i class="fas fa-lightbulb" style="color: #cc5200"></i>
+                {{ community.communityName }}
+            </mat-panel-title>
+            <mat-panel-description>
+                <strong><i class="fas fa-map-marker-alt"></i></strong>
+                {{ community.communityAddress }}
+            </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <button class="btn-default" style="float: right; color: #cc5200" mat-flat-button>
+                    {{ community.taskStatus }}
+                </button>
+            </div>
+            <div class="col-md-6">
+                <p>
+                    <strong><i class="fas fa-key"></i> Gate Code:</strong>
+                    {{ community.gateCode }}
+                </p>
+                <p>
+                    <strong><i class="fas fa-lock"></i> Lock Box Code:</strong>
+                    {{ community.lockBoxCode }}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p>
+                    <strong><i class="fas fa-user"></i> CAM:</strong>
+                    {{ community.camOfcommunity }}
+                </p>
+                <p>
+                    <strong><i class="fas fa-phone"></i> Phone:</strong>
+                    {{ community.phone }}
+                </p>
+                <p>
+                    <strong><i class="fas fa-envelope"></i> Email:</strong>
+                    <a href="mailto:{{ community.email }}">{{ community.email }}</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <p>
+                    <strong><i class="fas fa-trash"></i> Garbage Bins:</strong>
+                    {{ community.noOfGarbageBin }}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p>
+                    <strong><i class="fas fa-paw"></i> Pet Stations:</strong>
+                    {{ community.noOfPetStation }}
+                </p>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <p class="lh-lg">
+                    <strong><i class="fas fa-sticky-note"></i> Special Request:</strong>
+                    {{ community.specialRequest }}
+                </p>
+            </div>
+        </div>
+        <div class="row mt-3 align-items-center">
+            <div class="col-md-3 d-flex align-items-center">
+                <mat-slide-toggle class="toggle-btn" color="primary" [(ngModel)]="community.isBagRollReplaced"
+                    (change)="onToggleChange($event, i)">
+                    Replace Bag
+                </mat-slide-toggle>
+            </div>
+            <!-- Column 2 & 3: Input Box and Button -->
+            <div *ngIf="community.isBagRollReplaced" class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Number of Roll Replaced</mat-label>
+                    <input type="number" (change)="calculateTotal(community)" placeholder="Number of Rolls"
+                        [(ngModel)]="community.noOfBagRollReplaced" matInput />
+                </mat-form-field>
+            </div>
+            <div *ngIf="community.isBagRollReplaced" class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Price Per Rolls</mat-label>
+                    <span appCurrency matTextPrefix>$ &nbsp;</span>
+                    <input appCurrency [readonly]="true" type="number" placeholder="Price Per Rolls"
+                        [(ngModel)]="community.chargePerBagRoll" matInput />
+                </mat-form-field>
+            </div>
+            <div *ngIf="community.isBagRollReplaced" class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Total Bill</mat-label>
+                    <span appCurrency matTextPrefix>$ &nbsp;</span>
+                    <input appCurrency [readonly]="true" type="number" placeholder="Total Bill" [(ngModel)]="community.totalBagReplacementPrice"
+                        matInput />
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="row mt-3 align-items-center">
+            <div class="col-md-3 d-flex align-items-center">
+                <mat-slide-toggle class="toggle-btn" color="primary" [(ngModel)]="community.isBinReplaced"
+                    (change)="onToggleChange($event, i)">
+                    Replace 10 Gal. Bin
+                </mat-slide-toggle>
+            </div>
+            <!-- Column 2 & 3: Input Box and Button -->
+            <div *ngIf="community.isBinReplaced" class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Number Bin Replaced</mat-label>
+                    <input type="number" (change)="calculateTotal(community)" placeholder="Number of Bins"
+                        [(ngModel)]="community.noOfBinReplacement" matInput />
+                </mat-form-field>
+            </div>
+            <div *ngIf="community.isBinReplaced" class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Price Per Bins</mat-label>
+                    <span appCurrency matTextPrefix>$ &nbsp;</span>
+                    <input appCurrency [readonly]="true" type="number" placeholder="Price Per Rolls"
+                        [(ngModel)]="community.chargePerBinReplacement" matInput />
+                </mat-form-field>
+            </div>
+            <div *ngIf="community.isBinReplaced" class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Total Bill</mat-label>
+                    <span appCurrency matTextPrefix>$ &nbsp;</span>
+                    <input appCurrency [readonly]="true" type="number" placeholder="Total Bill" [(ngModel)]="community.totalBinReplacementPrice"
+                        matInput />
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="row mt-3 align-items-center">
+            <div class="col-md-3 d-flex align-items-center">
+                <mat-slide-toggle class="toggle-btn" color="primary" [(ngModel)]="community.isNewStationInstalled"
+                    (change)="onToggleChange($event, i)">
+                    Install new Station
+                </mat-slide-toggle>
+            </div>
+            <!-- Column 2 & 3: Input Box and Button -->
+            <div *ngIf="community.isNewStationInstalled" class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Number of Station Installed</mat-label>
+                    <input type="number" (change)="calculateTotal(community)" placeholder="Number of Stations"
+                        [(ngModel)]="community.noOfStationInstalled" matInput />
+                </mat-form-field>
+            </div>
+            <div *ngIf="community.isNewStationInstalled" class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Price Per Station</mat-label>
+                    <span appCurrency matTextPrefix>$ &nbsp;</span>
+                    <input appCurrency [readonly]="true" type="number" placeholder="Price Per Station"
+                        [(ngModel)]="community.chargePerNewStationInstallment" matInput />
+                </mat-form-field>
+            </div>
+            <div *ngIf="community.isNewStationInstalled" class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Total Bill</mat-label>
+                    <span appCurrency matTextPrefix>$ &nbsp;</span>
+                    <input appCurrency [readonly]="true" type="number" placeholder="Total Bill" [(ngModel)]="community.totalStationInstallationPrice"
+                        matInput />
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="row mt-3 align-items-center">
+            <div class="col-md-3 d-flex align-items-center">
+                <mat-slide-toggle class="toggle-btn" color="primary" [(ngModel)]="community.isHandSanitizerReplaced"
+                    (change)="onToggleChange($event, i)">
+                    Replace Hand Sanitizer
+                </mat-slide-toggle>
+            </div>
+            <!-- Column 2 & 3: Input Box and Button -->
+            <div *ngIf="community.isHandSanitizerReplaced" class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Number of Sanitizer Replaced</mat-label>
+                    <input type="number" (change)="calculateTotal(community)" placeholder="Number of Sanitizer"
+                        [(ngModel)]="community.noOfHandSanitizerReplacement" matInput />
+                </mat-form-field>
+            </div>
+            <div *ngIf="community.isHandSanitizerReplaced" class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Price Per Sanitizer</mat-label>
+                    <span appCurrency matTextPrefix>$ &nbsp;</span>
+                    <input appCurrency [readonly]="true" type="number" placeholder="Price Per Station"
+                        [(ngModel)]="community.chargePerHandSanitizer" matInput />
+                </mat-form-field>
+            </div>
+            <div *ngIf="community.isHandSanitizerReplaced" class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Total Bill</mat-label>
+                    <span appCurrency matTextPrefix>$ &nbsp;</span>
+                    <input appCurrency [readonly]="true" type="number" placeholder="Total Bill" [(ngModel)]="community.totalHandSanitizerReplacedPrice"
+                        matInput />
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="row mt-3 align-items-center">
+            <div class="col-md-12 d-flex justify-content-end">
+                <button (click)="completeTask(community,false)" class="mr-3 btn-bg-primary">
+                    Complete Task
+                </button>
+                <button (click)="completeTask(community,true)" class="btn-bg-warn">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </mat-expansion-panel>
+</mat-accordion>

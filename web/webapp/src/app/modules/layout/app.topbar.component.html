@@ -12,11 +12,7 @@
     </button>
 
     <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
-        
-        <button class="p-link layout-topbar-button mr-4">
-            <i class="pi pi-user"></i>
-            <span>Profile</span>
-        </button>
-        <button type="button" class="btn btn-danger">Logout</button>
+        <img src="assets/img/doggy-icon.png" class="rounded-circle" alt="doggy-duty" style="width: 50px; height: 50px;margin-right: 20px;">
+        <button type="button" (click)="logout()" class="btn btn-danger">Logout</button>
     </div>
 </div>

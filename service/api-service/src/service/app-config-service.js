@@ -35,3 +35,27 @@ exports.getAll = async (req, res, next) => {
     });
   }
 };
+
+exports.getAllByName = async (req, res, next) => {
+  let params = req.query;
+  let query = {};
+  try {
+    if (params.configNames) {
+      query.configName = {
+      [Op.in]: params.configNames.split(','),
+      };
+    }
+    let response = await AppConfig.findAll({
+      where: query,
+    });
+    return res.status(200).json({
+      message: "App config Retrieved",
+      body: response,
+    });
+  } catch (error) {
+    return res.status(404).json({
+      message: "Not Found: " + error.message,
+      isSuccess: false,
+    });
+  }
+};

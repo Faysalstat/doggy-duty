@@ -15,6 +15,8 @@ export class InvoiceComponent {
   constructor(
     public dialogRef: MatDialogRef<InvoiceComponent>,
     private pdfMakeService: PdfMakeService,
+    private communityService: CommunityService,
+    private messageService: MessageService,
     @Inject(MAT_DIALOG_DATA) public invoice: any
   ) {}
 
@@ -24,7 +26,7 @@ export class InvoiceComponent {
   applyFilter(date: any) {
     let newDate = new Date(date);
     return (
-      (newDate.getDate()) +"/"+(newDate.getMonth()+1) + '/' + newDate.getFullYear()
+      (newDate.getMonth()+1)+"/"+(newDate.getDate()) + '/' + newDate.getFullYear()
     );
   }
  
@@ -38,6 +40,26 @@ export class InvoiceComponent {
 
   downloadInvoice() {
     this.pdfMakeService.generateInvoicePDF(this.invoice);
+  }
+  payInvoice() {
+    this.communityService.payInvoice(this.invoice.id).subscribe({
+      next: (response) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Invoice paid successfully',
+        });
+        this.communityService.fetchInvoiceList.emit();
+        this.dialogRef.close();
+      },
+      error: (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'An error occurred while paying invoice',
+        });
+      },
+    })
   }
 
 }

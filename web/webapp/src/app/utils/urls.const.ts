@@ -33,10 +33,12 @@ export const TaskUrls = {
 export const BillingUrls = {
   GET_ALL : BASE_URL + "/billing/getall",
   GET_ALL_INVOICE : BASE_URL + "/billing/invoice-getall",
+  PAY_INVOICE : BASE_URL + "/billing/invoice/pay",
 }
 
 export const ConfigUrls = {
   GET_ALL : BASE_URL + "/config/getall",
+  GET_ALL_BY_NAME : BASE_URL + "/config/getallbyname",
   ADD : BASE_URL + "/config/create",
   UPDATE : BASE_URL + "/config/update",
 }
