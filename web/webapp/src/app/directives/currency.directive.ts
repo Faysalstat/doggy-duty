@@ -13,9 +13,9 @@ export class CurrencyDirective {
     this.renderer.setStyle(this.el.nativeElement, 'font-weight', 'bold');
   }
 
-  @HostListener('input', ['$event.target.value'])
-  onInput(value: string) {
-    const formattedValue = parseFloat(value).toFixed(2);
-    this.renderer.setProperty(this.el.nativeElement, 'value', formattedValue);
-  }
+  // @HostListener('input', ['$event.target.value'])
+  // onInput(value: string) {
+  //   const formattedValue = parseFloat(value).toFixed(2);
+  //   this.renderer.setProperty(this.el.nativeElement, 'value', formattedValue);
+  // }
 }

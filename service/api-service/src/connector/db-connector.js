@@ -14,7 +14,8 @@ exports.sequelize = new Sequelize('doggy_duty_db', 'root', 'root', {
   host: 'localhost',
   port: '3306',
   dialect: 'mysql',
-  pool: pool
+  pool: pool,
+  timezone: "America/New_York", // Ensures Sequelize treats times in EDT
 });
 
 // dev 

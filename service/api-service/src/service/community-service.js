@@ -5,7 +5,7 @@ const db = require("../connector/db-connector");
 const CommunityServiceSchedule = require("../model/communityServiceSchedule");
 const Task = require("../model/task");
 const JobOrder = require("../model/job-order");
-const moment = require('moment');
+const moment = require('moment-timezone');
 const AppConfig = require("../model/app-config");
 
 exports.addCommunity = async (req, res) => {
@@ -37,6 +37,7 @@ exports.addCommunity = async (req, res) => {
       startingDate: payload.startingDate,
       scheduledDate: payload.startingDate,
       lastServedDate: lastServedDateUTC,
+      lastInvoiceGenerated: payload.startingDate,
       noOfPetStation: payload.noOfPetStation,
       noOfGarbageBin: payload.noOfGarbageBin,
       communityId: newCommunity.id,
@@ -93,7 +94,7 @@ exports.updateCommunity = async (req, res) => {
     // Update Community Service Schedule
     let communityServiceScheduleModel = {
       frequency: payload.frequency,
-      startingDate: payload.startingDate,
+      scheduledDate: setToMidnightUTC(payload.scheduledDate),
       noOfPetStation: payload.noOfPetStation,
       noOfGarbageBin: payload.noOfGarbageBin,
       chargePerPetStation: payload.chargePerPetStation,
@@ -143,6 +144,9 @@ exports.getAllCommunitiesWithDistanceFromBase = async (req, res) => {
   let sortedCommunities = [];
   try {
     let communities = await Community.findAll({include:CommunityServiceSchedule});
+    if (!communities || communities.length === 0) {
+      return [];
+    }
     sortedCommunities = await CommonService.orderCommunitiesByProximity(JSON.parse(JSON.stringify(communities)));
     const result = sortedCommunities.map(community => {
       const communityData = {
@@ -211,6 +215,9 @@ exports.getAllJobOrderByDate = async (params,userTimeZone) => {
         },
       ],
     });
+    if (!communities || communities.length === 0) {
+      return [];
+    }
     sortedCommunities = await CommonService.orderCommunitiesByProximity(JSON.parse(JSON.stringify(communities)));
     const result = sortedCommunities.map(community => {
       let scheduledDate;
@@ -310,6 +317,6 @@ exports.getAllCommunity = async (req, res) => {
 const setToMidnightUTC = (date) => {
   if (!date) return null;
   let dt = new Date(date);
-  dt.setUTCHours(0, 0, 0, 0); // Set to 00:00:00 UTC
+  dt.setUTCHours(18, 0, 0, 0); // Set to 00:00:00 UTC
   return dt;
 };

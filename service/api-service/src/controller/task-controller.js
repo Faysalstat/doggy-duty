@@ -1,20 +1,6 @@
 const taskService = require("../service/task-service");
-// const taskScheduler = require("./src/scheduler/task-scheduler");
-// exports.addTask = async (req, res, next) => {
-//   try {
-//     let response = await taskService.addTask(req, res, next);
-//     return res.status(201).json({
-//       message: "Task Created",
-//       body: response,
-//     });
-//   } catch (error) {
-//     return res.status(400).json({
-//       message: "Operation Failed: " + error.message,
-//       isSuccess: false,
-//     });
-//   }
-// };
-
+const scheduleService = require("../service/schedule-service");
+const moment = require('moment-timezone');
 exports.getAllTasks = async (req, res, next) => {
   try {
     let response = await taskService.getAllTasks(req, res, next);
@@ -33,7 +19,7 @@ exports.getAllTasks = async (req, res, next) => {
 exports.generateDailyTasks = async (req, res, next) => {
   try {
     let params = req.query;
-    let response = await taskService.generateDailyTasks(params);
+    let response = await scheduleService.generateDailyTasks(params.scheduledDate);
     return res.status(200).json({
       message: response
     });
@@ -63,7 +49,8 @@ exports.completeTask = async (req, res, next) => {
 exports.generateDailyTasks = async (req, res, next) => {
   try {
     let params = req.query;
-    let response = await taskService.generateDailyTasks(params);
+    const todayEDT = moment.tz("America/New_York");
+    let response = await taskService.generateDailyTasks(todayEDT);
     return res.status(200).json({
       message: response
     });

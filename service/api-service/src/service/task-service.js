@@ -7,16 +7,24 @@ const commonService = require("../service/common-service");
 const AppConfig = require("../model/app-config");
 const { CONFIG_NAMES, TASK_STATUS, PAYMENT_STATUS } = require("../model/enums");
 const Billing = require("../model/billing");
+const moment = require("moment-timezone");
 
 // Function to generate job orders and tasks
-exports.generateDailyTasks = async (params) => {
+exports.generateDailyTasks = async (scheduledDate) => {
   try {
+    // Convert provided date to EDT (America/New_York)
+  const startOfDayEDT = moment.tz(scheduledDate, "America/New_York").startOf('day');
+  const endOfDayEDT = moment.tz(scheduledDate, "America/New_York").endOf('day');
+
+  // Convert to UTC (to match database storage)
+  const startOfDayUTC = startOfDayEDT.utc().format("YYYY-MM-DD HH:mm:ss");
+  const endOfDayUTC = endOfDayEDT.utc().format("YYYY-MM-DD HH:mm:ss");
     let query = {};
-    let taskDate = new Date();
-    let nextScheduledDate = new Date();
-    if (params.scheduledDate && params.scheduledDate != "") {
-      query.scheduledDate = new Date(params.scheduledDate);
-      taskDate = new Date(params.scheduledDate);
+    let taskDate = moment.tz("America/New_York");;
+    
+    if (scheduledDate && scheduledDate != "") {
+      query.scheduledDate = {[Op.between]: [startOfDayUTC, endOfDayUTC]};
+      taskDate = moment.tz(scheduledDate, "America/New_York");
     }
     let config = await AppConfig.findAll();
     let chargePerBagRoll = config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;
@@ -43,12 +51,13 @@ exports.generateDailyTasks = async (params) => {
     );
 
     for (const schedule of sortedSchedule) {
+      let nextScheduledDate = moment.tz("America/New_York");
       const communitySchedule = schedule.dataValues;
       const frequency = Number(communitySchedule.frequency) || 0;
       const today = new Date(communitySchedule.scheduledDate);
-      nextScheduledDate.setDate(today.getDate() + frequency); // Add frequency days
+      nextScheduledDate.add(frequency, 'days');; // Add frequency days
       let scheduleUpdateModel = {
-        scheduledDate: nextScheduledDate,
+        scheduledDate: await setToMidnightUTC(nextScheduledDate),
       };
       let updatedSchedule = await CommunityServiceSchedule.update(
         scheduleUpdateModel,
@@ -103,6 +112,7 @@ exports.generateDailyTasks = async (params) => {
     return `Created ${jobOrders.length} job orders with tasks.`;
   } catch (error) {
     console.error("Error in task generation:", error.message);
+    throw new Error("Error Occured " + error.message);
   }
 };
 
@@ -244,4 +254,11 @@ const calculateTotalBill = async (task,payload) => {
   const petStationInstallmentCost = payload.noOfStationInstalled * chargePerNewStationInstallment;
   const handSanitizerCost = payload.noOfHandSanitizerReplacement * chargePerHandSanitizer;
   return petStationCost + garbageBinCost + bagRollCost + binReplacementCost + petStationInstallmentCost + handSanitizerCost;
+};
+
+const setToMidnightUTC = async (date) => {
+  if (!date) return null;
+  let dt = new Date(date);
+  dt.setUTCHours(18, 0, 0, 0); // Set to 00:00:00 UTC
+  return dt;
 };

@@ -115,7 +115,7 @@
                             <input type="number" placeholder="Frequency" formControlName="frequency" matInput>
                         </mat-form-field>
                     </div>
-                    <div class="col-md-4">
+                    <div *ngIf="!isEdit" class="col-md-4">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Start Date</mat-label>
                             <input (dateChange)="onSelectStartingDate()" [ngModelOptions]="{standalone:true}" [(ngModel)]="startingDate" matInput [matDatepicker]="startDate">
@@ -123,14 +123,14 @@
                             <mat-datepicker #startDate></mat-datepicker>
                         </mat-form-field>
                     </div>
-                    <!-- <div *ngIf="isEdit" class="col-md-4">
+                    <div *ngIf="isEdit" class="col-md-4">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Next Scheduled Date</mat-label>
-                            <input [ngModelOptions]="{standalone:true}" [(ngModel)]="scheduledDate" matInput [matDatepicker]="nextScheduleDate">
+                            <input (dateChange)="onDateChange($event)" [ngModelOptions]="{standalone:true}" [(ngModel)]="scheduledDate" matInput [matDatepicker]="nextScheduleDate">
                             <mat-datepicker-toggle matIconSuffix [for]="nextScheduleDate"></mat-datepicker-toggle>
                             <mat-datepicker #nextScheduleDate></mat-datepicker>
                         </mat-form-field>
-                    </div> -->
+                    </div>
                     <!-- Submit Button Positioned to the Right -->
                     <div class="col-12 d-flex justify-content-end mt-3" style="width: 100%;">
                         <button (click)="onSubmit()" class="btn-bg-primary">{{isEdit?"Update Community":"Add Community"}}</button>

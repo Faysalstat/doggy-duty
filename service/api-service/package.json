@@ -23,6 +23,7 @@
     "express-session": "^1.17.3",
     "http": "^0.0.1-security",
     "jsonwebtoken": "^9.0.0",
+    "moment-timezone": "^0.5.48",
     "mongodb": "^4.4.1",
     "mongoose": "^6.2.7",
     "mysql": "^2.18.1",

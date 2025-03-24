@@ -11,17 +11,32 @@ const CommunityServiceSchedule = require("../model/communityServiceSchedule");
 const Invoice = require("../model/invoice");
 const InvoiceBillMapping = require("../model/invoice-bill");
 const moment = require("moment");
-exports.generateDailyTasks = async () => {
-  let today = new Date().toLocaleString("en-US", {
-    timeZone: "America/New_York",
-  });
-  let smsLog = {};
-  let mailLog = {};
+exports.generateDailyTasks = async (today) => {
   try {
-    await taskService.generateDailyTasks({ scheduledDate: today });
-    await sendSMS();
-    // await generateMail();
-    // await generateInvoice();
+    await SchedulerLog.create({
+      job_name: "Job Scheduler",
+      job_type: "Scheduler",
+      status: "Scheduler Started",
+      error_message: `Scheduler Started for ${today}`,
+    });
+    await taskService.generateDailyTasks(today);
+    let response = await communityService.getAllJobOrderByDate(
+      {
+        status: TASK_STATUS.PENDING,
+      },
+      null
+    );
+    // if (response.length && response.length > 0) {
+    //   await sendSMS(today);
+    //   await generateMail(today, response);
+    //   await SchedulerLog.create({
+    //     job_name: "Job Scheduler",
+    //     job_type: "SMS & Mail",
+    //     status: `SUCCESS`,
+    //     error_message: `SMS & Mail Sent for ${today}`,
+    //   });
+    // }
+    await generateInvoice();
   } catch (error) {
     let errorLog = await SchedulerLog.create({
       job_name: "Job Scheduler",
@@ -31,44 +46,22 @@ exports.generateDailyTasks = async () => {
     });
   }
 };
-const sendSMS = async () => {
+const sendSMS = async (today) => {
   try {
     const smsResponse = await smsService.sendSms();
-    console.log(smsResponse);
   } catch (error) {
-    let errorLog = await SchedulerLog.create({
-      job_name: "Job Scheduler",
-      job_type: "Mail",
-      status: "FAILED",
-      error_message: error.message,
-    });
-    throw new Error("SMS Sending Failed." + error.message);
+    throw new Error("SMS Sending Failed.Error:" + error.message);
   }
 };
 
-const generateMail = async () => {
+const generateMail = async (today, response) => {
   try {
-    let response = await communityService.getAllJobOrderByDate(
-      {
-        status: TASK_STATUS.PENDING,
-      },
-      null
-    );
-    if (response.length && response.length > 0) {
-      const emailBody = generateTaskListEmailBody(response);
-      sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
-      sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
-      sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
-      await sendSMS();
-    }
+    const emailBody = generateTaskListEmailBody(response);
+    sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
+    sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
+    sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
   } catch (error) {
-    let errorLog = await SchedulerLog.create({
-      job_name: "Job Scheduler",
-      job_type: "Mail",
-      status: "FAILED",
-      error_message: error.message,
-    });
-    throw new Error("Mail Sending Failed." + error.message);
+    throw new Error(`Mail Sending Failed on ${today}` + error.message);
   }
 };
 const generateInvoice = async () => {
@@ -166,7 +159,12 @@ const generateInvoice = async () => {
       }
     }
   } catch (error) {
-    console.log(error.message);
+    let errorLog = await SchedulerLog.create({
+      job_name: "Job Scheduler",
+      job_type: "Invoice Generation",
+      status: "FAILED",
+      error_message: error.message,
+    });
   }
 };
 
@@ -212,9 +210,6 @@ const generateTaskListEmailBody = (tasks) => {
     <p>Thank you!</p>
     <p>Best regards,<br>Doggy Duty</p>
   `;
-  } else {
-    return;
   }
-
   return emailBody;
 };

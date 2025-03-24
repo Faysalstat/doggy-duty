@@ -44,7 +44,7 @@ export class CreateComponent implements OnInit {
       next: (res) => {
         console.log(res);
         let communityDetails = res.body;
-        this.startingDate = communityDetails.startingDate;
+        this.scheduledDate = communityDetails.scheduledDate;
         this.prepareForm(communityDetails);
       },
       error: (err) => {
@@ -157,6 +157,7 @@ export class CreateComponent implements OnInit {
 
   onUpdate(payload: any) {
     payload.id = this.communityId;
+    payload.scheduledDate = this.scheduledDate;
     this.communityService.updateCommunityService(payload).subscribe({
       next: (res) => {
         console.log(res);
@@ -178,16 +179,22 @@ export class CreateComponent implements OnInit {
   }
 
   // Function to add one day to the date
-  addDays(date: Date | null): Date | null {
-    if (!date) return null;
-    let result = new Date(date);
-    result.setDate(result.getDate() + 1); // Add specified number of days
-    return result;
-  }
-
+  // addDays(date: Date | null): Date | null {
+  //   if (!date) return null;
+  //   let result = new Date(date);
+  //   result.setDate(result.getDate() + 1); // Add specified number of days
+  //   return result;
+  // }
   onSelectStartingDate() {
     this.communityCreateForm
       .get('startingDate')
-      ?.setValue(this.addDays(this.startingDate));
+      ?.setValue(this.startingDate);
+  }
+  onDateChange(event:any) {
+    if (event.value) {
+      // Convert to YYYY-MM-DD format
+      // this.scheduledDate = moment(event.value).format("YYYY-MM-DD");
+      console.log("Formatted Date:", this.scheduledDate);
+    }
   }
 }
