@@ -2,6 +2,7 @@ const { Op } = require("sequelize");
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const logger = require("../../logger");
 
 exports.authenticate = async (req, res) => {
   let payload = req.body;
@@ -51,6 +52,7 @@ exports.authenticate = async (req, res) => {
       };
     }
   } catch (error) {
+    logger.error(error.message);
    throw new Error("Server Error "+ error.message)
   }
 };

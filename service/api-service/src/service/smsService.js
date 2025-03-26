@@ -1,6 +1,6 @@
 "use strict";
 const api = require("../../node_modules/clicksend/api.js");
-
+const logger = require("../../logger");
 exports.sendSms = async () => {
   const from = "+18339724310";
   const recipient1 = "+14074174915";
@@ -29,6 +29,7 @@ exports.sendSms = async () => {
     console.log(smsResponse);
     return smsResponse;
   } catch (error) {
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
     let errorLog = await SchedulerLog.create({
       job_name: "Job Scheduler",
       job_type: "SMS",

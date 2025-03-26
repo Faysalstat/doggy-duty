@@ -52,7 +52,7 @@ export class PdfMakeService {
 
   generateInvoicePDF(invoiceData: any) {
     const doc = new jsPDF();
-    doc.addImage("assets/img/logo.png", "PNG", 5, 5, 50, 50); // Increased the size of the logo
+    doc.addImage("assets/img/logo.png", "PNG", 5, 5, 50, 30); // Increased the size of the logo
     doc.line(5, 40, 200,40); // Adjusted the line position to be below the larger logo
 
     // doc.text('', 10, 55); // Adding a line break before the autoTable

@@ -1,5 +1,6 @@
 const { Op } = require("sequelize");
 const AppConfig = require("../model/app-config");
+const logger = require("../../logger");
 
 exports.addConfig = async (req, res) => {
   let payload = req.body;
@@ -14,6 +15,7 @@ exports.addConfig = async (req, res) => {
       body: response,
     });
   } catch (error) {
+    logger.error(error.message);
     return res.status(400).json({
       message: "Operation Failed: " + error.message,
       isSuccess: false,
@@ -29,6 +31,7 @@ exports.getAll = async (req, res, next) => {
       body: response,
     });
   } catch (error) {
+    logger.error(error.message);
     return res.status(404).json({
       message: "Not Found: " + error.message,
       isSuccess: false,
@@ -45,14 +48,13 @@ exports.getAllByName = async (req, res, next) => {
       [Op.in]: params.configNames.split(','),
       };
     }
-    let response = await AppConfig.findAll({
-      where: query,
-    });
+    let response = await AppConfig.findAll();
     return res.status(200).json({
       message: "App config Retrieved",
       body: response,
     });
   } catch (error) {
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
     return res.status(404).json({
       message: "Not Found: " + error.message,
       isSuccess: false,

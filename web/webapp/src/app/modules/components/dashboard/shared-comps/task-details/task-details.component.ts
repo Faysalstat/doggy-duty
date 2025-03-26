@@ -40,7 +40,7 @@ export class TaskDetailsComponent {
       totalBinReplacementPrice: community.totalBinReplacementPrice,
       totalStationInstallationPrice: community.totalStationInstallationPrice,
       totalHandSanitizerReplacedPrice: community.totalHandSanitizerReplacedPrice,
-      date: new Date(),
+      date: community.scheduledDate,
       isCancel: isCancel,
     };
     this.communityService.completeTask(taskCompleteModel).subscribe({

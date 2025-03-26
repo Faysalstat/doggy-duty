@@ -4,7 +4,7 @@ const Invoice = require("../model/invoice");
 const InvoiceBillMapping = require("../model/invoice-bill");
 const Task = require("../model/task");
 const { Op } = require("sequelize");
-
+const logger = require("../../logger");
 exports.getBillByCommunityId = async (req, res, next) => {
   let params = req.query;
   let query = {};
@@ -31,6 +31,7 @@ exports.getBillByCommunityId = async (req, res, next) => {
     });
     return response;
   } catch (error) {
+    logger.error(error.message);
     throw new Error("Error Occurred: " + error.message);
   }
 };

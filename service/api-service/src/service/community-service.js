@@ -5,14 +5,12 @@ const db = require("../connector/db-connector");
 const CommunityServiceSchedule = require("../model/communityServiceSchedule");
 const Task = require("../model/task");
 const JobOrder = require("../model/job-order");
-const moment = require('moment-timezone');
 const AppConfig = require("../model/app-config");
-
+const moment = require("moment-timezone");
+const logger = require("../../logger");
 exports.addCommunity = async (req, res) => {
   try {
     let payload = req.body;
-
-    // Convert incoming dates to UTC
     const lastServedDateUTC = new Date(); // Always store as UTC
 
     // Create Community entity
@@ -49,7 +47,7 @@ exports.addCommunity = async (req, res) => {
     return {newCommunity,newCommunityServiceSchedule};
 
   } catch (error) {
-    console.error("Error Occurred:", error);
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
     throw new Error("Error Occurred:", error);
   }
 };
@@ -94,7 +92,7 @@ exports.updateCommunity = async (req, res) => {
     // Update Community Service Schedule
     let communityServiceScheduleModel = {
       frequency: payload.frequency,
-      scheduledDate: setToMidnightUTC(payload.scheduledDate),
+      scheduledDate: payload.scheduledDate,
       noOfPetStation: payload.noOfPetStation,
       noOfGarbageBin: payload.noOfGarbageBin,
       chargePerPetStation: payload.chargePerPetStation,
@@ -136,7 +134,7 @@ exports.updateCommunity = async (req, res) => {
 
     return communityData;
   } catch (error) {
-    console.error("Error Occurred:", error);
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
     throw new Error("Error Occurred: " + error.message);
   }
 };
@@ -174,6 +172,7 @@ exports.getAllCommunitiesWithDistanceFromBase = async (req, res) => {
     });
     return result;
   } catch (error) {
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
     throw new Error("Error Occurred: " + error.message);
   }
 };
@@ -185,7 +184,7 @@ exports.getAllJobOrderByDate = async (params,userTimeZone) => {
   if(params.date && params.date != ""){
     jobquery.date = params.date;
   }else{
-    jobquery.date = new Date();
+    jobquery.date = moment.tz("America/New_York").format('YYYY-MM-DD');
   }
 
   if(params.status && params.status != ""){
@@ -262,6 +261,7 @@ exports.getAllJobOrderByDate = async (params,userTimeZone) => {
     });
     return result;
   } catch (error) {
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
     throw new Error("Error Occurred: " + error.message);
   }
 };
@@ -310,13 +310,8 @@ exports.getAllCommunity = async (req, res) => {
     });
     return result;
   } catch (error) {
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
     throw new Error("Error Occurred: " + error.message);
   }
 };
 
-const setToMidnightUTC = (date) => {
-  if (!date) return null;
-  let dt = new Date(date);
-  dt.setUTCHours(18, 0, 0, 0); // Set to 00:00:00 UTC
-  return dt;
-};

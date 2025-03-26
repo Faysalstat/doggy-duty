@@ -10,46 +10,48 @@ const Task = require("../model/task");
 const CommunityServiceSchedule = require("../model/communityServiceSchedule");
 const Invoice = require("../model/invoice");
 const InvoiceBillMapping = require("../model/invoice-bill");
-const moment = require("moment");
+const moment = require("moment-timezone");
+const logger = require("../../logger");
 exports.generateDailyTasks = async (today) => {
   try {
-    await SchedulerLog.create({
-      job_name: "Job Scheduler",
-      job_type: "Scheduler",
-      status: "Scheduler Started",
-      error_message: `Scheduler Started for ${today}`,
-    });
-    await taskService.generateDailyTasks(today);
+    
+    let taskScheduled = await taskService.generateDailyTasks(today);
     let response = await communityService.getAllJobOrderByDate(
       {
         status: TASK_STATUS.PENDING,
       },
       null
     );
-    // if (response.length && response.length > 0) {
-    //   await sendSMS(today);
-    //   await generateMail(today, response);
-    //   await SchedulerLog.create({
-    //     job_name: "Job Scheduler",
-    //     job_type: "SMS & Mail",
-    //     status: `SUCCESS`,
-    //     error_message: `SMS & Mail Sent for ${today}`,
-    //   });
-    // }
+
+    if (response.length && response.length > 0) {
+      
+      await generateMail(today, response);
+      logger.info("Job Execution Log", {
+        job_name: "Job Scheduler",
+        job_type: "SMS & Mail",
+        status: SUCCESS, // SUCCESS or FAILURE
+        message: `SMS & Mail Sent for ${today}`,
+      });
+    } else {
+      logger.info("Job Execution Log", {
+        job_name: "Job Scheduler",
+        job_type: "SMS & Mail",
+        status: `FAILURE`,
+        error_message: `SMS & Mail Not Sent for ${today}`,
+      });
+    }
     await generateInvoice();
+    return "SUCCESS"
   } catch (error) {
-    let errorLog = await SchedulerLog.create({
-      job_name: "Job Scheduler",
-      job_type: "Job Generator",
-      status: "FAILED",
-      error_message: error.message,
-    });
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
+    throw new Error("Job Generation Failed." + error.message);
   }
 };
 const sendSMS = async (today) => {
   try {
     const smsResponse = await smsService.sendSms();
   } catch (error) {
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
     throw new Error("SMS Sending Failed.Error:" + error.message);
   }
 };
@@ -60,7 +62,12 @@ const generateMail = async (today, response) => {
     sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
     sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
     sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
+    logger.info(`Mail sent successfully`);
+    const smsResponse = await smsService.sendSms();
+    logger.info(`SMS sent successfully`);
+    console.log("SMS Response: ", smsResponse);
   } catch (error) {
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
     throw new Error(`Mail Sending Failed on ${today}` + error.message);
   }
 };
@@ -72,23 +79,23 @@ const generateInvoice = async () => {
     for (let i = 0; i < communities.length; i++) {
       let community = communities[i].dataValues;
       // Proper logging of community details
-      console.info(`Processing community: ${community.name}`, community);
+      logger.info(`Processing community: ${community.communityName}`, community);
       if (community.communityServiceSchedule?.lastInvoiceGenerated) {
         const lastGenerated = moment(
           community.communityServiceSchedule.lastInvoiceGenerated
         );
         const today = moment().startOf("day"); // Start of today
-        await SchedulerLog.create({
+        logger.info("Job Execution Log", {
           job_name: "Job Scheduler",
           job_type: "Invoice Generation",
           status: "INFO",
-          error_message: `Days since last invoice generated: ${today.diff(
+          error_message: `Days since last invoice generated for ${community.communityName} : ${today.diff(
             lastGenerated,
             "days"
           )}`,
         });
-        if (today.diff(lastGenerated, "days") >= 7) {
-          console.log(`Generating invoice for community: ${community.name}`);
+        if (today.diff(lastGenerated, "days") >= 1) {
+          logger.info(`Generating invoice for community: ${community.communityName}`);
           let invoiceModel = {
             totalAmount: 0,
             totalGarbageBins: 0,
@@ -159,7 +166,8 @@ const generateInvoice = async () => {
       }
     }
   } catch (error) {
-    let errorLog = await SchedulerLog.create({
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
+    logger.info("Job Execution Log", {
       job_name: "Job Scheduler",
       job_type: "Invoice Generation",
       status: "FAILED",

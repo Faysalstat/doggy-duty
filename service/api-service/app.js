@@ -59,11 +59,15 @@ const scheduleService = require("./src/service/schedule-service");
 const billingRoute = require("./src/router/billing-route");
 const smsRoute = require("./src/router/sms-route");
 const moment = require("moment-timezone");
+const logger = require("./logger");
 // Run every day at 07:00 AM in Florida (Eastern Time)
 cron.schedule(
-  "56 16 * * *", // Runs at 2:30 PM EDT/EST
+  "0 6 * * *", // Runs at 2:30 PM EDT/EST
   async () => {
-    const todayEDT = moment.tz("America/New_York");
+    const todayEDT = moment().tz("America/New_York").format("YYYY-MM-DD");
+    logger.info("Cron job started for daily task generation", {
+      date: todayEDT, // Date in EDT/EST
+    });
     await scheduleService.generateDailyTasks(todayEDT);
   }, 
   {

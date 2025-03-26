@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,6 +11,7 @@ import { CommunityService } from 'src/app/services/community.service';
   selector: 'app-create',
   templateUrl: './create.component.html',
   styleUrls: ['./create.component.scss'],
+  providers: [DatePipe]
 })
 export class CreateComponent implements OnInit {
   communityId!: number;
@@ -24,7 +26,8 @@ export class CreateComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private communityService: CommunityService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private datePipe: DatePipe
   ) {}
 
   ngOnInit(): void {
@@ -64,27 +67,6 @@ export class CreateComponent implements OnInit {
       },
     });
   }
-
-  // private populateForm(communityData: any): void {
-  //   this.communityCreateForm.patchValue({
-  //     id: communityData.id,
-  //     communityName: communityData.communityName,
-  //     communityAddress: communityData.communityAddress,
-  //     latitude: communityData.latitude,
-  //     longitude: communityData.longitude,
-  //     camOfcommunity: communityData.camOfcommunity,
-  //     gateCode: communityData.gateCode,
-  //     phone: communityData.phone,
-  //     email: communityData.email,
-  //     lockBoxCode: communityData.lockBoxCode,
-  //     specialRequest: communityData.specialRequest,
-  //     noOfPetStation: communityData.noOfPetStation,
-  //     noOfGarbageBin: communityData.noOfGarbageBin,
-  //     chargePerPetStation: communityData.chargePerPetStation,
-  //     chargePerGarbageBin: communityData.chargePerGarbageBin,
-  //     frequency: communityData.frequency,
-  //   });
-  // }
 
   prepareForm(communityData: any) {
     if (!communityData) {
@@ -178,13 +160,6 @@ export class CreateComponent implements OnInit {
     });
   }
 
-  // Function to add one day to the date
-  // addDays(date: Date | null): Date | null {
-  //   if (!date) return null;
-  //   let result = new Date(date);
-  //   result.setDate(result.getDate() + 1); // Add specified number of days
-  //   return result;
-  // }
   onSelectStartingDate() {
     this.communityCreateForm
       .get('startingDate')
@@ -193,7 +168,8 @@ export class CreateComponent implements OnInit {
   onDateChange(event:any) {
     if (event.value) {
       // Convert to YYYY-MM-DD format
-      // this.scheduledDate = moment(event.value).format("YYYY-MM-DD");
+      this.scheduledDate = this.datePipe.transform(event.value, 'yyyy-MM-dd');
+      console.log("Raw Date From Picker", event.value);
       console.log("Formatted Date:", this.scheduledDate);
     }
   }

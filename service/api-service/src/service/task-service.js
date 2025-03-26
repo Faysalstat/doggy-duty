@@ -8,23 +8,16 @@ const AppConfig = require("../model/app-config");
 const { CONFIG_NAMES, TASK_STATUS, PAYMENT_STATUS } = require("../model/enums");
 const Billing = require("../model/billing");
 const moment = require("moment-timezone");
-
+const SchedulerLog = require("../model/scheduler-log");
+const logger = require("../../logger");
 // Function to generate job orders and tasks
 exports.generateDailyTasks = async (scheduledDate) => {
   try {
-    // Convert provided date to EDT (America/New_York)
-  const startOfDayEDT = moment.tz(scheduledDate, "America/New_York").startOf('day');
-  const endOfDayEDT = moment.tz(scheduledDate, "America/New_York").endOf('day');
-
-  // Convert to UTC (to match database storage)
-  const startOfDayUTC = startOfDayEDT.utc().format("YYYY-MM-DD HH:mm:ss");
-  const endOfDayUTC = endOfDayEDT.utc().format("YYYY-MM-DD HH:mm:ss");
     let query = {};
-    let taskDate = moment.tz("America/New_York");;
-    
+    let taskDate ='';
     if (scheduledDate && scheduledDate != "") {
-      query.scheduledDate = {[Op.between]: [startOfDayUTC, endOfDayUTC]};
-      taskDate = moment.tz(scheduledDate, "America/New_York");
+      query.scheduledDate =  scheduledDate;
+      taskDate = scheduledDate;
     }
     let config = await AppConfig.findAll();
     let chargePerBagRoll = config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;
@@ -38,8 +31,13 @@ exports.generateDailyTasks = async (scheduledDate) => {
     });
 
     if (schedules.length === 0) {
-      console.log("No scheduled services for today.");
-      return "No scheduled services for today.";
+      logger.info("Job Execution Log", {
+            job_name: "Job Scheduler",
+            job_type: "Scheduler",
+            status: "Scheduler Stopped",
+            error_message: `No scheduled services for today`,
+          });
+      return [];
     }
 
     let jobOrders = [];
@@ -51,13 +49,13 @@ exports.generateDailyTasks = async (scheduledDate) => {
     );
 
     for (const schedule of sortedSchedule) {
-      let nextScheduledDate = moment.tz("America/New_York");
+      
       const communitySchedule = schedule.dataValues;
       const frequency = Number(communitySchedule.frequency) || 0;
       const today = new Date(communitySchedule.scheduledDate);
-      nextScheduledDate.add(frequency, 'days');; // Add frequency days
+      const nextScheduledDate = moment().tz("America/New_York").add(frequency, 'days').format("YYYY-MM-DD");
       let scheduleUpdateModel = {
-        scheduledDate: await setToMidnightUTC(nextScheduledDate),
+        scheduledDate: nextScheduledDate,
       };
       let updatedSchedule = await CommunityServiceSchedule.update(
         scheduleUpdateModel,
@@ -109,9 +107,9 @@ exports.generateDailyTasks = async (scheduledDate) => {
     }
 
     console.log(`Created ${jobOrders.length} job orders with tasks.`);
-    return `Created ${jobOrders.length} job orders with tasks.`;
+    return schedules;
   } catch (error) {
-    console.error("Error in task generation:", error.message);
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
     throw new Error("Error Occured " + error.message);
   }
 };
@@ -163,6 +161,8 @@ exports.getAllTasks = async (req, res) => {
     });
     return result;
   } catch (error) {
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack
+    });
     throw new Error("Error Occured " + error.message);
   }
 };
@@ -170,10 +170,7 @@ exports.getAllTasks = async (req, res) => {
 exports.completeTask = async (req, res) => {
   let payload = req.body;
   try {
-    // Calculate new scheduled date
-    //Remove date value after demo
-    const scheduledDate = new Date(payload.date);
-
+    
     let task = await Task.findOne({
       where: { id: payload.taskId },
       include: [{ model: Community, include: CommunityServiceSchedule }],
@@ -184,13 +181,11 @@ exports.completeTask = async (req, res) => {
       Number(task.community.communityServiceSchedule.frequency) || 0;
     // Get today's date
     //Remove date value after demo
-    const today = new Date(
-      task.community.communityServiceSchedule.scheduledDate
-    );
-    scheduledDate.setDate(today.getDate() + frequency); // Add frequency days
+    const today = new Date(payload.date);
+    let nextScheduledDate = moment.tz(payload.date, "America/New_York").add(frequency, 'days').format("YYYY-MM-DD"); // Add frequency days and format to YYYY-MM-DD
     let scheduleUpdateModel = {
       lastServedDate: today,
-      scheduledDate: scheduledDate,
+      scheduledDate: nextScheduledDate,
     };
     let updatedSchedule = await CommunityServiceSchedule.update(
       scheduleUpdateModel,
@@ -223,6 +218,11 @@ exports.completeTask = async (req, res) => {
       where: { id: payload.taskId },
     });
     if (payload.isCancel) {
+      logger.info("Job Execution Log", {
+        job_name: "Task Completion",
+        job_type: "Task Completion",    
+        status: "Task Cancelled",
+      });
       return "Task Cancelled";
     }
     let totalBill = await calculateTotalBill(task,payload);
@@ -237,6 +237,7 @@ exports.completeTask = async (req, res) => {
     let createdBill = await Billing.create(billModel);
     return createdBill;
   } catch (error) {
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
     throw new Error("Error Occured " + error.message);
   }
 };

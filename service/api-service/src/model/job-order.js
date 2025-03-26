@@ -10,7 +10,7 @@ const JobOrder = db.sequelize.define(
       allowNull: false,
       primaryKey: true,
     },
-    date: Sequelize.DATEONLY
+    date: Sequelize.STRING
   },
   {
     freezeTableName: true,

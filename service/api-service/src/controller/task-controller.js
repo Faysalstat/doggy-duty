@@ -19,7 +19,8 @@ exports.getAllTasks = async (req, res, next) => {
 exports.generateDailyTasks = async (req, res, next) => {
   try {
     let params = req.query;
-    let response = await scheduleService.generateDailyTasks(params.scheduledDate);
+    const todayEDT = moment.tz("America/New_York").format('YYYY-MM-DD');
+    let response = await scheduleService.generateDailyTasks(todayEDT);
     return res.status(200).json({
       message: response
     });
@@ -46,18 +47,18 @@ exports.completeTask = async (req, res, next) => {
   }
 };
 
-exports.generateDailyTasks = async (req, res, next) => {
-  try {
-    let params = req.query;
-    const todayEDT = moment.tz("America/New_York");
-    let response = await taskService.generateDailyTasks(todayEDT);
-    return res.status(200).json({
-      message: response
-    });
-  } catch (error) {
-    return res.status(404).json({
-      message: "Not Found: " + error.message,
-      isSuccess: false,
-    });
-  }
-};
+// exports.generateDailyTasks = async (req, res, next) => {
+//   try {
+//     let params = req.query;
+//     const todayEDT = moment.tz("America/New_York");
+//     let response = await taskService.generateDailyTasks(todayEDT);
+//     return res.status(200).json({
+//       message: response
+//     });
+//   } catch (error) {
+//     return res.status(404).json({
+//       message: "Not Found: " + error.message,
+//       isSuccess: false,
+//     });
+//   }
+// };
