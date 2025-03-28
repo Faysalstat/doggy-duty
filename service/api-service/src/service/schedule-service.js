@@ -12,10 +12,10 @@ const Invoice = require("../model/invoice");
 const InvoiceBillMapping = require("../model/invoice-bill");
 const moment = require("moment-timezone");
 const logger = require("../../logger");
-exports.generateDailyTasks = async (today) => {
+exports.generateDailyTasks = async () => {
   try {
-    
-    let taskScheduled = await taskService.generateDailyTasks(today);
+    let today = moment().tz("America/New_York").format("YYYY-MM-DD");
+    let taskScheduled = await taskService.generateDailyTasks();
     let response = await communityService.getAllJobOrderByDate(
       {
         status: TASK_STATUS.PENDING,
@@ -29,7 +29,7 @@ exports.generateDailyTasks = async (today) => {
       logger.info("Job Execution Log", {
         job_name: "Job Scheduler",
         job_type: "SMS & Mail",
-        status: SUCCESS, // SUCCESS or FAILURE
+        status: "SUCCESS", // SUCCESS or FAILURE
         message: `SMS & Mail Sent for ${today}`,
       });
     } else {
@@ -65,7 +65,7 @@ const generateMail = async (today, response) => {
     logger.info(`Mail sent successfully`);
     const smsResponse = await smsService.sendSms();
     logger.info(`SMS sent successfully`);
-    console.log("SMS Response: ", smsResponse);
+    // console.log("SMS Response: ", smsResponse);
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
     throw new Error(`Mail Sending Failed on ${today}` + error.message);
@@ -79,7 +79,7 @@ const generateInvoice = async () => {
     for (let i = 0; i < communities.length; i++) {
       let community = communities[i].dataValues;
       // Proper logging of community details
-      logger.info(`Processing community: ${community.communityName}`, community);
+      logger.info(`Processing community: ${community.communityName}`);
       if (community.communityServiceSchedule?.lastInvoiceGenerated) {
         const lastGenerated = moment(
           community.communityServiceSchedule.lastInvoiceGenerated

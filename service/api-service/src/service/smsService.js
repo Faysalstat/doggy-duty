@@ -6,7 +6,7 @@ exports.sendSms = async () => {
   const recipient1 = "+14074174915";
   const recipient2 = "+18633995176";
   const smsBody =
-  "Doggy Duty, LLC\n\nNew Doggy Duty Work Order Created Today. Please visit www.DoggyDuty.Live to review and print your schedule.\n\nThank you!";
+  "Doggy Duty, LLC\n\nNew Doggy Duty Work Order Created Today. Please visit www.DoggyDuty.pet to review and print your schedule.\n\nThank you!";
   var messages = [];
   var smsMessage1 = new api.SmsMessage();
   smsMessage1.from = from;

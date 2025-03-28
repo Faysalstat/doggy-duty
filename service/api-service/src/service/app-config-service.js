@@ -61,3 +61,23 @@ exports.getAllByName = async (req, res, next) => {
     });
   }
 };
+
+exports.updateConfig = async (req, res) => {
+  let payload = req.body;
+  try {
+    let config = {
+      value: payload.value,
+    };
+    let response = await AppConfig.update(config,{where:{configName:payload.configName}});
+    return res.status(201).json({
+      message: "Config Updated",
+      body: response,
+    });
+  } catch (error) {
+    logger.error(error.message);
+    return res.status(400).json({
+      message: "Operation Failed: " + error.message,
+      isSuccess: false,
+    });
+  }
+};

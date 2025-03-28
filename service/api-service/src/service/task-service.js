@@ -7,18 +7,14 @@ const commonService = require("../service/common-service");
 const AppConfig = require("../model/app-config");
 const { CONFIG_NAMES, TASK_STATUS, PAYMENT_STATUS } = require("../model/enums");
 const Billing = require("../model/billing");
-const moment = require("moment-timezone");
-const SchedulerLog = require("../model/scheduler-log");
 const logger = require("../../logger");
+const moment = require("moment-timezone");
 // Function to generate job orders and tasks
-exports.generateDailyTasks = async (scheduledDate) => {
+exports.generateDailyTasks = async () => {
   try {
     let query = {};
-    let taskDate ='';
-    if (scheduledDate && scheduledDate != "") {
-      query.scheduledDate =  scheduledDate;
-      taskDate = scheduledDate;
-    }
+    let taskDate = moment().tz("America/New_York").format("YYYY-MM-DD");
+    query.scheduledDate =  moment().tz("America/New_York").format("YYYY-MM-DD");
     let config = await AppConfig.findAll();
     let chargePerBagRoll = config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;
     let chargePerBinReplacement = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_BIN_REPLACEMENT).value;
@@ -52,8 +48,12 @@ exports.generateDailyTasks = async (scheduledDate) => {
       
       const communitySchedule = schedule.dataValues;
       const frequency = Number(communitySchedule.frequency) || 0;
-      const today = new Date(communitySchedule.scheduledDate);
-      const nextScheduledDate = moment().tz("America/New_York").add(frequency, 'days').format("YYYY-MM-DD");
+      const nextScheduledDate = moment().tz("America/New_York").add(frequency, 'days').startOf('day').format("YYYY-MM-DD");
+      logger.info("Next Scheduled Date Generated", {
+        frequency: frequency,  
+        nextScheduledDate: nextScheduledDate,
+        taskDate: taskDate,
+      });
       let scheduleUpdateModel = {
         scheduledDate: nextScheduledDate,
       };
@@ -105,8 +105,11 @@ exports.generateDailyTasks = async (scheduledDate) => {
       }
       jobOrders.push(jobOrder);
     }
-
-    console.log(`Created ${jobOrders.length} job orders with tasks.`);
+    logger.info("Job Execution Log", {
+      job_name: "Job Scheduler",
+      job_type: "Scheduler",
+      status: "Scheduler Completed",
+    });
     return schedules;
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
