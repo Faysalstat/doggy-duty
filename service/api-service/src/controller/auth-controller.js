@@ -47,3 +47,38 @@ exports.isLoggedIn = async (req,res,next)=>{
       });
     }
   }
+
+  exports.generateResetPasswordToken = async (req,res,next)=>{
+    try {
+      let response = await authService.generateResetPasswordToken(req,res,next);
+      return res.status(200).json({
+        body: response.body,
+        isSuccess: true,
+        message:response.message
+      });
+    } catch (error) {
+      return res.status(400).json({
+        message: "Reset Token Not Sent." + error.message,
+        isSuccess: false,
+      });
+    }
+  }
+exports.resetPassword = async (req,res,next)=>{
+  try {
+    let response = await authService.resetPassword(req,res,next);
+    return res.status(200).json({
+      body: response,
+      isSuccess: true,
+      message:"Password Changed Successfully"
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: "Password Change Failed." + error.message,
+      isSuccess: false,
+    });
+  }
+}
+
+exports.verifyResetPasswordToken = async (req,res,next)=>{
+  let response = await authService.verifyResetPasswordToken(req,res,next);
+}

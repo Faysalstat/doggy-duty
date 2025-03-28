@@ -8,7 +8,10 @@ export const AuthenticationUrls = {
   ADD_USER: BASE_URL + "/auth/adduser",
   GET_ALL_USER: BASE_URL + "/auth/getalluser",
   CHECK_EXISTING_USER: BASE_URL + "/auth/checkexistinguser",
-  CHECK_IS_LOGGEDIN: BASE_URL + "/auth/islogedin"
+  CHECK_IS_LOGGEDIN: BASE_URL + "/auth/islogedin",
+  SEND_RESET_TOKEN: BASE_URL + "/auth/sendresettoken",
+  VERIFY_RESET_TOKEN: BASE_URL + "/auth/verifytoken",
+  RESET_PASSWORD: BASE_URL + "/auth/resetpassword",
 }
 
 export const ServiceUrls = {
