@@ -78,4 +78,8 @@ export class CommunityService {
   public payInvoice(invoiceId:any): Observable<any> {
     return this.http.post(BillingUrls.PAY_INVOICE,{invoiceId:invoiceId});
   }
+
+  public getSummary():Observable<any>{
+    return this.http.get(BillingUrls.GET_SUMMARY);
+  }
 }

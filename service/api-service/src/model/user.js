@@ -11,8 +11,7 @@ const User = db.sequelize.define('user',{
     username: Sequelize.STRING,
     password: Sequelize.STRING,
     userrole: Sequelize.STRING,
-    email: Sequelize.STRING,
-    token: Sequelize.STRING,
+    email: Sequelize.STRING
 },{
     freezeTableName: true
   })

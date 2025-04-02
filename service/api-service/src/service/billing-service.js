@@ -113,3 +113,40 @@ exports.payInvoice = async (req, res, next) => {
     throw new Error("Error Occurred: " + error.message);
   }
 }
+exports.getSumamry = async (req)=>{
+  let params = req.query;
+  let totalEarning=0;
+  let totalAmountGetPaid = 0;
+  let totalAmountDue = 0;
+  let totalTaxCollected = 0;
+  try {
+    let totalPaidBill = await Invoice.findAll({
+      include: [
+      {
+        model: InvoiceBillMapping,
+        include: [
+        {
+          model: Billing, include: [Task, Community]
+        },
+        ],
+      },
+      ],
+    });
+    for (let index = 0; index < totalPaidBill.length; index++) {
+      const invoice = totalPaidBill[index];
+      if(invoice.status=='paid'){
+        totalAmountGetPaid+=invoice.totalAmount;
+      }
+    }
+    totalEarning = totalPaidBill.reduce((sum, invoice) => {
+      console.log()
+      return sum + invoice.totalAmount;
+    }, 0);
+    totalTaxCollected = (totalAmountGetPaid * 0.07).toFixed(2);
+    return {
+      totalEarning,totalAmountGetPaid,totalTaxCollected
+    }
+  } catch (error) {
+    throw new Error("Total Amount paid fetch failed")
+  }
+}

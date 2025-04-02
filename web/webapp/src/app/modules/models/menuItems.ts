@@ -43,18 +43,18 @@ export const MENUITEM = [
       ],
     },
     {
-      label: 'Need Help?',
+      label: 'Resources',
       items: [
-        {
-          label: 'FAQ',
-          icon: 'pi pi-fw pi-question',
-          routerLink: ['/documentation'],
-        },
-        {
-          label: 'Tutorials',
-          icon: 'pi pi-fw pi-sitemap',
-          routerLink: ['/documentation'],
-        },
+      {
+        label: 'Earning Summary',
+        icon: 'pi pi-fw pi-chart-line',
+        routerLink: ['/summary'],
+      },
+      {
+        label: 'Calender',
+        icon: 'pi pi-fw pi-calendar',
+        routerLink: ['/summary/calender'],
+      },
       ],
     },
   ];

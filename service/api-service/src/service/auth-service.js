@@ -1,10 +1,7 @@
-const { Op } = require("sequelize");
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const logger = require("../../logger");
-const AppConfig = require("../model/app-config");
-const { log } = require("console");
 const sendMail = require("../mail/mailer");
 
 exports.authenticate = async (req, res) => {
@@ -45,6 +42,7 @@ exports.authenticate = async (req, res) => {
         body: {
           userid: authenticateUser.id,
           username: authenticateUser.username,
+          email:authenticateUser.email,
           token: token,
         },
       };
@@ -107,7 +105,9 @@ exports.addUser = async (req, res, next) => {
   let payload = req.body;
   try {
     let user = {
-      username: payload.username
+      username: payload.username,
+      email:payload.email,
+      userrole:"admin"
     };
     bcrypt.hash(payload.password, 10, (err, hash) => {
       console.log(hash);
@@ -274,13 +274,13 @@ exports.verifyResetPasswordToken = async (req,res)=>{
     });
 }
 const generateResetPasswordEmailBody = (user, token) => {
+  let baseUrl = 'https://doggyduty.live/#/';
   return `<html>
   <body>
     <h1>Reset Password</h1>
     <p>Hello ${user.username},</p>
-    <p>Click the link below to reset your password:</p>`+
-    // `<a href="https://doggyduty.live/#/auth/reset-password/${token}">Reset Password</a>`+
-    `<a href="http://localhost:4200/#/auth/reset-password/${token}">Reset Password</a>`+
+    <p>Click the link below to reset your password:</p>` +
+    `<a href="${baseUrl}auth/reset-password/${token}">Reset Password</a>` +
     `<p>The token will expire in 30 minutes</p>
       <p>If you did not request this, please ignore this email.</p>
   </body>

@@ -9,6 +9,7 @@ import { AppConfigComponent } from './app-config/app-config.component';
         { path: 'service', loadChildren: () => import('./job-service/job-service.module').then(m => m.JobServiceModule) },
         { path: 'work-order', loadChildren: () => import('./work-order/work-order.module').then(m => m.WorkOrderModule) },
         { path: 'community', loadChildren: () => import('./community/community.module').then(m => m.CommunityModule) },
+        { path: 'summary', loadChildren: () => import('./summary/summary.module').then(m => m.SummaryModule) },
         { path: 'config', component:AppConfigComponent },
     ])],
     exports: [RouterModule]

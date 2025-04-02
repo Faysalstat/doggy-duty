@@ -3,7 +3,6 @@ const communityService = require("../service/community-service");
 const sendMail = require("../mail/mailer");
 const { TASK_STATUS } = require("../model/enums");
 const Community = require("../model/community");
-const SchedulerLog = require("../model/scheduler-log");
 const smsService = require("../service/smsService");
 const Billing = require("../model/billing");
 const Task = require("../model/task");
@@ -94,7 +93,7 @@ const generateInvoice = async () => {
             "days"
           )}`,
         });
-        if (today.diff(lastGenerated, "days") >= 1) {
+        if (today.diff(lastGenerated, "days") >= 30) {
           logger.info(`Generating invoice for community: ${community.communityName}`);
           let invoiceModel = {
             totalAmount: 0,
