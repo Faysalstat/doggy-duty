@@ -37,7 +37,7 @@
         <label for="email" class="font-semibold w-24">Email</label>
         <input [(ngModel)]="email" pInputText id="email" class="flex-auto" autocomplete="off" />
     </div>
-    <div class="flex justify-end gap-2">
-        <button class="p-3 text-xl btn-bg-primary" (click)="sendResetToken()">Send Request</button>
+    <div class="flex items-center gap-2">
+        <button class="p-3 full-width text-xl btn-bg-primary" style="width: 100%;" (click)="sendResetToken()">Send Request</button>
     </div>
 </p-dialog>

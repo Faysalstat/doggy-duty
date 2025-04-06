@@ -77,7 +77,6 @@ cron.schedule(
 app.get("/api", (req, res) => {
   res.send("Welcome to my Node API!");
 });
-
 app.use("/api/auth", authRoute);
 app.use("/api/config", configRoute);
 app.use("/api/service", serviceRoute);

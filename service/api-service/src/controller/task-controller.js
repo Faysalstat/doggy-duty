@@ -1,5 +1,6 @@
 const taskService = require("../service/task-service");
 const scheduleService = require("../service/schedule-service");
+const moment = require("moment-timezone");
 exports.getAllTasks = async (req, res, next) => {
   try {
     let response = await taskService.getAllTasks(req, res, next);
@@ -17,7 +18,8 @@ exports.getAllTasks = async (req, res, next) => {
 
 exports.generateDailyTasks = async (req, res, next) => {
   try {
-    let response = await scheduleService.generateDailyTasks();
+    let today = req.query.scheduledDate;
+    let response = await scheduleService.generateDailyTasks(today);
     return res.status(200).json({
       message: response
     });

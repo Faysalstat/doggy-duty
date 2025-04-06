@@ -11,19 +11,18 @@ const Invoice = require("../model/invoice");
 const InvoiceBillMapping = require("../model/invoice-bill");
 const moment = require("moment-timezone");
 const logger = require("../../logger");
-exports.generateDailyTasks = async () => {
+exports.generateDailyTasks = async (today) => {
   try {
-    let today = moment().tz("America/New_York").format("YYYY-MM-DD");
-    let taskScheduled = await taskService.generateDailyTasks();
+    notifyDev(today);
+    let taskScheduled = await taskService.generateDailyTasks(today);
     let response = await communityService.getAllJobOrderByDate(
       {
         status: TASK_STATUS.PENDING,
+        date: today,
       },
       null
     );
-
     if (response.length && response.length > 0) {
-      
       await generateMail(today, response);
       logger.info("Job Execution Log", {
         job_name: "Job Scheduler",
@@ -219,4 +218,19 @@ const generateTaskListEmailBody = (tasks) => {
   `;
   }
   return emailBody;
+};
+
+const notifyDev = (today) => {
+  let emailBody = `
+    <h2>Scheduler Run Successfully for ${today} </h2>
+    <p>Dear Dev Team,</p>
+    <p>Please find below the task list for today:</p>
+  `;
+  emailBody += `
+      </tbody>
+    </table>
+    <p>Thank you!</p>
+    <p>Best regards,<br>Doggy Duty</p>
+  `;
+  sendMail("faysalstat04@gmail.com", "Scheduler Running", emailBody);
 };

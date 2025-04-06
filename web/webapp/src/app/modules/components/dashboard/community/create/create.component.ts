@@ -117,6 +117,7 @@ export class CreateComponent implements OnInit {
   }
 
   onSave(payload: any) {
+    payload.scheduledDate = this.datePipe.transform(payload.startingDate, 'yyyy-MM-dd');
     this.communityService.createCommunityService(payload).subscribe({
       next: (res) => {
         console.log(res);

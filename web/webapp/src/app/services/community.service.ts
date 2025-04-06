@@ -67,6 +67,8 @@ export class CommunityService {
     let params = new HttpParams();
     params = params.append('communityId',queryParams.get('communityId'));
     params = params.append('status',queryParams.get('status'));
+    params = params.append('startDate',queryParams.get('startDate'));
+    params = params.append('endDate',queryParams.get('endDate'));
     return this.http.get(BillingUrls.GET_ALL_INVOICE,{params:params});
   }
 
@@ -79,7 +81,9 @@ export class CommunityService {
     return this.http.post(BillingUrls.PAY_INVOICE,{invoiceId:invoiceId});
   }
 
-  public getSummary():Observable<any>{
-    return this.http.get(BillingUrls.GET_SUMMARY);
+  public getSummary(queryParams: Map<string, any>):Observable<any>{
+    let params = new HttpParams();
+    params = params.append('selectedYear',queryParams.get('selectedYear'));
+    return this.http.get(BillingUrls.GET_SUMMARY,{params:params});
   }
 }

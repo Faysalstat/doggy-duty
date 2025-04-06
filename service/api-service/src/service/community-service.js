@@ -33,7 +33,7 @@ exports.addCommunity = async (req, res) => {
     let communityServiceScheduleModel = {
       frequency: payload.frequency,
       startingDate: payload.startingDate,
-      scheduledDate: payload.startingDate,
+      scheduledDate: payload.scheduledDate,
       lastServedDate: lastServedDateUTC,
       lastInvoiceGenerated: payload.startingDate,
       noOfPetStation: payload.noOfPetStation,
@@ -159,13 +159,13 @@ exports.getAllCommunitiesWithDistanceFromBase = async (req, res) => {
         email: community.email,
         lockBoxCode: community.lockBoxCode,
         specialRequest: community.specialRequest,
-        noOfPetStation: community.communityServiceSchedule.noOfPetStation,
-        chargePerPetStation : community.communityServiceSchedule.chargePerPetStation ,
-        noOfGarbageBin: community.communityServiceSchedule.noOfGarbageBin,
-        chargePerGarbageBin: community.communityServiceSchedule.chargePerGarbageBin ,
+        noOfPetStation: community.communityServiceSchedule.noOfPetStation || 0,
+        chargePerPetStation : community.communityServiceSchedule.chargePerPetStation || 0 ,
+        noOfGarbageBin: community.communityServiceSchedule.noOfGarbageBin || 0,
+        chargePerGarbageBin: community.communityServiceSchedule.chargePerGarbageBin || 0 ,
         startingDate: community.communityServiceSchedule.startingDate ,
         scheduledDate: community.communityServiceSchedule.scheduledDate ,
-        frequency: community.communityServiceSchedule.frequency ,
+        frequency: community.communityServiceSchedule.frequency || 0,
         distance: community.distance.toFixed(3),
       };
       return communityData;
@@ -177,7 +177,7 @@ exports.getAllCommunitiesWithDistanceFromBase = async (req, res) => {
   }
 };
 
-exports.getAllJobOrderByDate = async (params,userTimeZone) => {
+exports.getAllJobOrderByDate = async (params) => {
   let jobquery = {};
   let taskquery = {};
   

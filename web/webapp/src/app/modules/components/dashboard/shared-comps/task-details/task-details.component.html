@@ -1,5 +1,5 @@
 <mat-accordion>
-    <p *ngIf="communityList?.length == 0">*No Job Today</p>
+    <p *ngIf="communityList?.length == 0">*No Jobs Today</p>
     <mat-expansion-panel *ngFor="let community of communityList; index as i" hideToggle>
         <mat-expansion-panel-header (click)="togglePanel(i)" [ngClass]="{ 'active-header': expandedPanelIndex === i }">
             <mat-panel-title>

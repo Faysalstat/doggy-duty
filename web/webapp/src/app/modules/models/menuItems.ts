@@ -9,7 +9,7 @@ export const MENUITEM = [
       label: 'Modules',
       items: [
         {
-          label: 'Community',
+          label: 'Communities',
           icon: 'pi pi-fw pi-users',
           routerLink: ['/community/list']
         },
@@ -28,14 +28,14 @@ export const MENUITEM = [
               routerLink: ['/work-order/history'],
             },
             {
-              label: 'Invoice',
+              label: 'Invoices',
               icon: 'pi pi-fw pi-file-pdf',
               routerLink: ['/work-order/invoice'],
             },
           ],
         },
         {
-          label: 'Configs',
+          label: 'Settings',
           icon: 'pi pi-fw pi-truck',
           routerLink: ['/config']
         },

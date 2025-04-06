@@ -10,11 +10,11 @@ const Billing = require("../model/billing");
 const logger = require("../../logger");
 const moment = require("moment-timezone");
 // Function to generate job orders and tasks
-exports.generateDailyTasks = async () => {
+exports.generateDailyTasks = async (scheduledDate) => {
   try {
     let query = {};
     let taskDate = moment().tz("America/New_York").format("YYYY-MM-DD");
-    query.scheduledDate =  moment().tz("America/New_York").format("YYYY-MM-DD");
+    query.scheduledDate =  scheduledDate;
     let config = await AppConfig.findAll();
     let chargePerBagRoll = config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;
     let chargePerBinReplacement = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_BIN_REPLACEMENT).value;
@@ -188,7 +188,6 @@ exports.completeTask = async (req, res) => {
     let nextScheduledDate = moment.tz(payload.date, "America/New_York").add(frequency, 'days').format("YYYY-MM-DD"); // Add frequency days and format to YYYY-MM-DD
     let scheduleUpdateModel = {
       lastServedDate: today,
-      scheduledDate: nextScheduledDate,
     };
     let updatedSchedule = await CommunityServiceSchedule.update(
       scheduleUpdateModel,
@@ -231,7 +230,7 @@ exports.completeTask = async (req, res) => {
     let totalBill = await calculateTotalBill(task,payload);
     let billModel = {
       totalAmount: totalBill,
-      taskCompletionDate: new Date(payload.date),
+      taskCompletionDate: task.scheduledDate,
       status: PAYMENT_STATUS.PENDING,
       communityId: task.communityId,
       taskId: task.id,
