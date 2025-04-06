@@ -5,6 +5,7 @@ import { ListComponent } from './list/list.component';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from 'src/material.module';
+import { SharedCompsModule } from '../shared-comps/shared-comps.module';
 
 
 
@@ -15,6 +16,7 @@ import { MaterialModule } from 'src/material.module';
   ],
   imports: [
     CommonModule,
+    SharedCompsModule,
     ReactiveFormsModule,
     MaterialModule,
     RouterModule.forChild([

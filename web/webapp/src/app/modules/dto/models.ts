@@ -19,9 +19,7 @@ export class CommunityDTO {
     chargePerPetStation?: number;
     chargePerGarbageBin?: number;
     frequency?: string;
-    startingDate?: Date;
-    lastServedDate?: Date;
-    scheduledDate?: Date;
+
 }
 
 export enum TaskStatus {
@@ -29,3 +27,10 @@ export enum TaskStatus {
     COMPLETED = "completed",
     CANCELLED = "cancelled"
   }
+
+export enum AppConfigNames {
+  PRICE_PER_BAG_ROLL = 'PRICE_PER_BAG_ROLL',
+  PRICE_PER_NEW_STATION_INSTALLMENT = 'PRICE_PER_NEW_STATION_INSTALLMENT',
+  PRICE_PER_BIN_REPLACEMENT = 'PRICE_PER_BIN_REPLACEMENT',
+  PRICE_PER_HAND_SANITIZER = 'PRICE_PER_HAND_SANITIZER',
+}

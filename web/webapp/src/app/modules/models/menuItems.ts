@@ -9,7 +9,7 @@ export const MENUITEM = [
       label: 'Modules',
       items: [
         {
-          label: 'Community',
+          label: 'Communities',
           icon: 'pi pi-fw pi-users',
           routerLink: ['/community/list']
         },
@@ -18,38 +18,43 @@ export const MENUITEM = [
           icon: 'pi pi-fw pi-cart-plus',
           items: [
             {
+              label: 'Due Task',
+              icon: 'pi pi-fw pi-list',
+              routerLink: ['/work-order/due-list'],
+            },
+            {
               label: 'History',
               icon: 'pi pi-fw pi-list',
               routerLink: ['/work-order/history'],
             },
             {
-              label: 'Invoice',
+              label: 'Invoices',
               icon: 'pi pi-fw pi-file-pdf',
               routerLink: ['/work-order/invoice'],
             },
           ],
         },
-        // {
-        //   label: 'Services',
-        //   icon: 'pi pi-fw pi-truck',
-        //   routerLink: ['/service/list']
-        // },
+        {
+          label: 'Settings',
+          icon: 'pi pi-fw pi-truck',
+          routerLink: ['/config']
+        },
 
       ],
     },
     {
-      label: 'Need Help?',
+      label: 'Resources',
       items: [
-        {
-          label: 'FAQ',
-          icon: 'pi pi-fw pi-question',
-          routerLink: ['/documentation'],
-        },
-        {
-          label: 'Tutorials',
-          icon: 'pi pi-fw pi-sitemap',
-          routerLink: ['/documentation'],
-        },
+      {
+        label: 'Earning Summary',
+        icon: 'pi pi-fw pi-chart-line',
+        routerLink: ['/summary'],
+      },
+      {
+        label: 'Calender',
+        icon: 'pi pi-fw pi-calendar',
+        routerLink: ['/summary/calender'],
+      },
       ],
     },
   ];

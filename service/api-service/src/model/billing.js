@@ -13,6 +13,7 @@ const Billing = db.sequelize.define(
     totalAmount: Sequelize.FLOAT,
     taskCompletionDate: Sequelize.DATEONLY,
     status: Sequelize.STRING,
+    invoiceGenerated: Sequelize.BOOLEAN,
   },
   {
     freezeTableName: true,

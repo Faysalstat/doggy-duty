@@ -1,0 +1,51 @@
+<div class="container bg-white mt-4">
+    <p-toast  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
+    <div class="mt-4 p-5 rounded">
+        <div class="d-flex align-items-center justify-content-between">
+            <h4>App Config</h4>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Config Name</mat-label>
+                    <input placeholder="Config Name" [(ngModel)]="configName"
+                        matInput />
+                </mat-form-field>
+            </div>
+            <div class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Value</mat-label>
+                    <input placeholder="Value" [(ngModel)]="value"
+                        matInput />
+                </mat-form-field>
+            </div>
+            <div class="col-md-3 ">
+                <button (click)="onSubmit()" class="btn-bg-primary">Update</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Config Name</th>
+                                <th>Value</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let config of configList">
+                                <td>{{config.configName}}</td>
+                                <td>{{config.value}}</td>
+                                <td>
+                                    <button (click)="onEdit(config)" class="btn btn-sm btn-warning">Edit</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

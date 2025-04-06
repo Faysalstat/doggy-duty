@@ -1,0 +1,21 @@
+.header {
+    display: flex;
+    align-items: center;
+    /* Vertically center-aligns items */
+    justify-content: flex-end;
+    /* Aligns items to the right */
+    padding: 10px;
+}
+
+.download-text {
+    margin-right: 8px;
+    /* Space between text and button */
+    font-size: 16px;
+    /* Adjust font size as needed */
+}
+.modal-content {
+    max-height: 700px; /* Adjust as needed */
+    overflow-y: auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+  }

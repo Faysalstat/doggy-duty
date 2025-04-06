@@ -78,7 +78,8 @@
                     <div class="col-md-3">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Price per Pet Stations</mat-label>
-                            <input  placeholder="Price" formControlName="chargePerPetStation" matInput
+                            <span appCurrency matTextPrefix>$ &nbsp;</span>
+                            <input appCurrency placeholder="Price" formControlName="chargePerPetStation" matInput
                                 type="number">
                         </mat-form-field>
                     </div>
@@ -92,7 +93,8 @@
                     <div class="col-md-3">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Price per Garbage Bin</mat-label>
-                            <input placeholder="Price" formControlName="chargePerGarbageBin" matInput
+                            <span appCurrency matTextPrefix>$ &nbsp;</span>
+                            <input appCurrency placeholder="Price" formControlName="chargePerGarbageBin" matInput
                                 type="number">
                         </mat-form-field>
                     </div>
@@ -113,10 +115,10 @@
                             <input type="number" placeholder="Frequency" formControlName="frequency" matInput>
                         </mat-form-field>
                     </div>
-                    <div class="col-md-4">
+                    <div *ngIf="!isEdit" class="col-md-4">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Start Date</mat-label>
-                            <input formControlName="startingDate" matInput [matDatepicker]="startDate">
+                            <input (dateChange)="onSelectStartingDate()" [ngModelOptions]="{standalone:true}" [(ngModel)]="startingDate" matInput [matDatepicker]="startDate">
                             <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
                             <mat-datepicker #startDate></mat-datepicker>
                         </mat-form-field>
@@ -124,9 +126,9 @@
                     <div *ngIf="isEdit" class="col-md-4">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Next Scheduled Date</mat-label>
-                            <input formControlName="scheduledDate" matInput [matDatepicker]="startDate">
-                            <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
-                            <mat-datepicker #startDate></mat-datepicker>
+                            <input (dateChange)="onDateChange($event)" [ngModelOptions]="{standalone:true}" [(ngModel)]="scheduledDate" matInput [matDatepicker]="nextScheduleDate">
+                            <mat-datepicker-toggle matIconSuffix [for]="nextScheduleDate"></mat-datepicker-toggle>
+                            <mat-datepicker #nextScheduleDate></mat-datepicker>
                         </mat-form-field>
                     </div>
                     <!-- Submit Button Positioned to the Right -->

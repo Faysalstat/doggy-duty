@@ -1,1 +1,6 @@
-<p>list works!</p>
+<p-toast [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
+<div class="d-flex justify-content-between align-items-center mt-3">
+    <h2>Over due Job Order</h2>
+</div>
+<hr />
+<app-task-details (fetchListEmmiter)="fetchJobOrder()" [communityList]="communityList"></app-task-details>

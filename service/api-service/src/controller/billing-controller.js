@@ -30,11 +30,12 @@ exports.getAllInvoices = async (req, res, next) => {
   }
 };
 
-exports.getInvoiceById = async (req, res, next) => {
+exports.getBillByCommunityId = async (req, res, next) => {
   try {
-    let response = await billingService.getInvoiceById(req, res, next);
+    let response = await billingService.getBillByCommunityId(req, res, next);
     return res.status(200).json({
       message: "Invoice Retrieved",
+      count:response.length,
       body: response,
     });
   } catch (error) {
@@ -44,3 +45,35 @@ exports.getInvoiceById = async (req, res, next) => {
     });
   }
 };
+
+exports.payInvoice = async (req, res, next) => {
+  try {
+    let response = await billingService.payInvoice(req, res, next);
+    return res.status(200).json({
+      message: "Invoice Paid",
+      body: response,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: "Operation Failed: " + error.message,
+      isSuccess: false,
+    });
+  }
+}
+
+exports.getSummary = async (req,res,next) =>{
+  try {
+    let response = await billingService.getSumamry(req, res, next);
+    return res.status(200).json({
+      message: "Invoice Paid",
+      body: response,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: "Operation Failed: " + error.message,
+      isSuccess: false,
+    });
+  }
+}
+
+

@@ -22,7 +22,7 @@
                                 <p-checkbox id="rememberme1" [binary]="true" styleClass="mr-2"></p-checkbox>
                                 <label for="rememberme1">Remember me</label>
                             </div>
-                            <a class="font-medium no-underline ml-2 text-right cursor-pointer"
+                            <a class="font-medium no-underline ml-2 text-right cursor-pointer" (click)="showDialog()"
                                 style="color: var(--primary-color)">Forgot password?</a>
                         </div>
                         <button pRipple class="w-full p-3 text-xl sign-in-btn btn-bg-primary" (click)="signIn()">Sign In</button>
@@ -32,3 +32,12 @@
         </div>
     </div>
 </div>
+<p-dialog header="Send Password reset request to your mail." [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
+    <div class="flex items-center gap-4 mb-8">
+        <label for="email" class="font-semibold w-24">Email</label>
+        <input [(ngModel)]="email" pInputText id="email" class="flex-auto" autocomplete="off" />
+    </div>
+    <div class="flex items-center gap-2">
+        <button class="p-3 full-width text-xl btn-bg-primary" style="width: 100%;" (click)="sendResetToken()">Send Request</button>
+    </div>
+</p-dialog>

@@ -8,6 +8,8 @@ router.post('/signout',authController.signout);
 router.get('/checkexistinguser',authController.checkExistingUser);
 router.get('/islogedin',authController.isLoggedIn);
 router.get('/getalluser',authController.getAllUser);
-router.get('/getallunassigneduser',authController.getAllUnassignedUser);
+router.get('/sendresettoken',authController.generateResetPasswordToken);
+router.post('/resetpassword',authController.resetPassword);
+router.get('/verifytoken',authController.verifyResetPasswordToken);
 
 module.exports = router

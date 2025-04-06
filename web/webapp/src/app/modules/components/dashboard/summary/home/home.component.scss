@@ -1,0 +1,31 @@
+.earning-card {
+    border-radius: 10px;
+    transition: transform 0.2s ease-in-out;
+    color: #333;
+  }
+  
+  .earning-card:hover {
+    transform: scale(1.03);
+  }
+  
+  /* Light background colors */
+  .earning-card.earnings {
+    background: #63b9f7; /* Light blue */
+  }
+  
+  .earning-card.tax {
+    background: #fefe59; /* Light pink */
+  }
+  
+  .icon {
+    font-size: 25px;
+    // color: #007bff;
+  }
+  
+  .amount {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  .mat-calendar-content {
+    display: none; /* optional: hides day view */
+  }

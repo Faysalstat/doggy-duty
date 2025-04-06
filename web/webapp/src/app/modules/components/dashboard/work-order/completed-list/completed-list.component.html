@@ -1,0 +1,53 @@
+<div class="container bg-white mt-3">
+    <p-toast  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
+    <div class="mt-4 p-5 rounded">
+        <div class="d-flex align-items-center justify-content-between">
+            <h3>Completed Task History</h3>
+        </div>
+        <hr>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>SN</th>
+                        <th>Community Name</th>
+                        <th>Pet Stations</th>
+                        <th>Price/Unit</th>
+                        <th>Garbage Bins</th>
+                        <th>Price/Unit</th>
+                        <th>Bag Roll Replaced</th>
+                        <th>Price/Unit</th>
+                        <th>Bin Replaced</th>
+                        <th>Price/Unit</th>
+                        <th>New Installation</th>
+                        <th>Price/Unit</th>
+                        <th>Completed Date</th>
+                        <th>status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="14" class="align-items-center" *ngIf="communityList.length==0">No Completed Task</td>
+                    </tr>
+                    <tr *ngFor="let community of communityList; let i = index">
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ community.communityName }}</td>
+                        <!-- <td>{{ community.communityAddress }}</td> -->
+                        <td>{{ community.noOfPetStation }}</td>
+                        <td appCurrency>${{ community.chargePerPetStation }}</td>
+                        <td>{{ community.noOfGarbageBin }}</td>
+                        <td appCurrency>${{ community.chargePerGarbageBin }}</td>
+                        <td>{{ community.noOfBagRollReplaced }}</td>
+                        <td appCurrency>${{ community.chargePerBagRoll }}</td>
+                        <td>{{ community.noOfBinReplacement }}</td>
+                        <td appCurrency>${{ community.chargePerBinReplacement }}</td>
+                        <td>{{ community.noOfStationInstalled }}</td>
+                        <td appCurrency>${{ community.chargePerNewStationInstallment }}</td>
+                        <td>{{ applyFilter(community.scheduledDate) }}</td>
+                        <td>{{ community.taskStatus }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

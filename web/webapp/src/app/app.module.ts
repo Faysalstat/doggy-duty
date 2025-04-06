@@ -13,10 +13,13 @@ import { ProductService } from './modules/shared-services/product.service';
 import { AppLayoutModule } from './modules/layout/app.layout.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from 'src/material.module';
+import { DateOnlyDirective } from './directives/date-only.directive';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { RequestInterceptor } from './interseptor/request.interceptor';
 
 @NgModule({
     declarations: [
-        AppComponent, NotfoundComponent
+        AppComponent, NotfoundComponent, DateOnlyDirective
     ],
     imports: [
         AppRoutingModule,
@@ -26,6 +29,7 @@ import { MaterialModule } from 'src/material.module';
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
+        { provide: HTTP_INTERCEPTORS, useClass: RequestInterceptor, multi: true },
         CountryService, CustomerService, EventService, IconService, NodeService,
         PhotoService, ProductService
     ],

@@ -32,4 +32,19 @@ export class AuthService {
     params = params.append("token",token);
     return this.http.get(AuthenticationUrls.CHECK_IS_LOGGEDIN,{params:params}).toPromise();
   }
+  public sendResetToken(email:string): Observable<any> {
+    let params = new HttpParams();
+    params = params.append("email",email);
+    return this.http.get(AuthenticationUrls.SEND_RESET_TOKEN,{params:params});
+  }
+
+  public verifyResetToken(token:string):Observable<any>{
+    let params = new HttpParams();
+    params = params.append("token",token);
+    return this.http.get(AuthenticationUrls.VERIFY_RESET_TOKEN,{params:params});
+  }
+
+  public resetPassword(paylaod:any ):Observable<any>{
+    return this.http.post(AuthenticationUrls.RESET_PASSWORD,paylaod);
+  }
 }

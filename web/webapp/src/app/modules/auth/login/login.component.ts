@@ -23,6 +23,8 @@ export class LoginComponent {
     password!: string;
     loginForm!: FormGroup;
     message!:string;
+    visible: boolean = false;
+    email: string = '';
   constructor(
     public layoutService: LayoutService,
     private router: Router, 
@@ -70,4 +72,28 @@ export class LoginComponent {
       complete: ()=>{}
     })
   }
+  showDialog() {
+    this.visible = true;
+}
+sendResetToken(){
+  this.visible = false;
+  if(this.email && this.email!=''){
+    this.authService.sendResetToken(this.email).subscribe({
+      next:(res:any)=>{ 
+        if(res.isSuccess){
+          this.notificationService.showMessage("SUCCESS!","Reset token sent to your email","OK",2000);
+        }else{
+          this.notificationService.showMessage("ERROR!","Reset token could not be sent " + res.message,"OK",2000);
+          
+        }
+      }
+      ,error:(err:any)=>{
+        this.notificationService.showErrorMessage("ERROR!",err.message,"OK",2000)
+      }
+    })
+  }else{
+    this.notificationService.showErrorMessage("Invalid Form","Provide Email","OK",2000)
+  }
+
+}
 }

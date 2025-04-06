@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { CommunityService } from 'src/app/services/community.service';
-import { TaskStatus } from '../../dto/models';
+import { AppConfigNames, TaskStatus } from '../../dto/models';
 import { PdfMakeService } from 'src/app/services/pdf-make.service';
 
 @Component({
@@ -10,34 +10,54 @@ import { PdfMakeService } from 'src/app/services/pdf-make.service';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   communityList: any[] = [];
-  expandedPanelIndex: number | null = null; // Track the index of the expanded panel
+  chargePerBagRoll: number = 0;
+  chargePerBinReplacement: number = 0;
+  chargePerNewStationInstallment: number = 0;
+  chargePerHandSanitizer: number = 0;
   constructor(
     private communityService: CommunityService,
     private messageService: MessageService,
-    private pdfMakeService:PdfMakeService
+    private pdfMakeService: PdfMakeService
   ) {}
 
   ngOnInit() {
+    this.fetchPriceConfigs();
     this.fetchJobOrder();
+  }
+  fetchPriceConfigs(){
+    const params: Map<string, any> = new Map();
+    params.set('configNames', AppConfigNames.PRICE_PER_BAG_ROLL + ',' + AppConfigNames.PRICE_PER_BIN_REPLACEMENT+','+AppConfigNames.PRICE_PER_NEW_STATION_INSTALLMENT);
+    this.communityService.getAllConfigByName(params).subscribe({
+      next: (res) => {
+        console.log(res);
+        this.chargePerBagRoll = res.body.find((config: any) => config.configName === AppConfigNames.PRICE_PER_BAG_ROLL).value;
+        this.chargePerBinReplacement = res.body.find((config: any) => config.configName === AppConfigNames.PRICE_PER_BIN_REPLACEMENT).value;
+        this.chargePerNewStationInstallment = res.body.find((config: any) => config.configName === AppConfigNames.PRICE_PER_NEW_STATION_INSTALLMENT).value;
+        this.chargePerHandSanitizer = res.body.find((config: any) => config.configName === AppConfigNames.PRICE_PER_HAND_SANITIZER).value;
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.measse,
+        });
+      },
+    });
   }
   fetchJobOrder() {
     const params: Map<string, any> = new Map();
-    params.set('date','');
-    params.set('status',TaskStatus.PENDING);
+    params.set('date', '');
+    params.set('status', TaskStatus.PENDING);
     this.communityService.getJobOrderByDate(params).subscribe({
       next: (res) => {
         this.communityList = res.body;
-        this.communityList = this.communityList.map((community: any) => {
-          return {
-            ...community, // Spread the existing properties of the community
-            isBagRollReplaced: false, // Add your first extra property
-            noOfBagRollReplaced: 0, // Add your second extra property
-            pricePerUnit:8.5
-          };
-        });
       },
-      error:(err)=>{
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.measse });
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.measse,
+        });
       },
     });
   }
@@ -51,36 +71,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       year: 'numeric',
     };
     return today.toLocaleDateString('en-GB', options);
-  }
-
-  onToggleChange(event: any,index:number) {
-    // Handle any additional logic when the toggle changes, if necessary
-    console.log('Toggle state changed:', event.checked);
-  }
-  togglePanel(index: number) {
-    this.expandedPanelIndex = this.expandedPanelIndex === index ? null : index; // Toggle the panel index
-  }
-  completeTask(community:any){
-    let taskCompleteModel = {
-      taskId:community.taskId,
-      isBagRollReplaced:community.isBagRollReplaced,
-      noOfBagRollReplaced:community.noOfBagRollReplaced,
-      date: new Date()
-    }
-
-    this.communityService.completeTask(taskCompleteModel).subscribe({
-      next:(res)=>{
-        console.log(res);
-        this.messageService.add({ severity: 'success', summary: 'Updated', detail:"Successfully Updated"});
-        this.fetchJobOrder();
-      },
-      error:(err)=>{
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.measse });
-      },
-    })
-  }
-  calculateTotal(community:any){
-    community.total = community.noOfBagRollReplaced * 8.5;
   }
 
   downloadWorkOrder() {
@@ -102,15 +92,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     let workOrderModel = {
       date: '',
       invoiceId: 'N/A',
-      orders: orders
+      orders: orders,
     };
     let today = new Date();
-    let formatedDate = 
-    today.getDate() +
+    let formatedDate =
+      today.getDate() +
       '/' +
       (today.getMonth() + 1) +
       '/' +
       today.getFullYear();
-    this.pdfMakeService.downloadWorkOrder(workOrderModel,formatedDate);
+    this.pdfMakeService.downloadWorkOrder(workOrderModel, formatedDate);
   }
 }

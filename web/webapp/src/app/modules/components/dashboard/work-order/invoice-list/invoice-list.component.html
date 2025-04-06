@@ -1,0 +1,102 @@
+<div class="container mt-4">
+    <p-toast [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
+    <div class="mt-4 p-5 rounded">
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <h2>Generated Invoice</h2>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Communities</mat-label>
+                    <mat-select (selectionChange)="fetchAllInvoice()" [ngModelOptions]="{standalone:true}" [(ngModel)]="queryBody.communityId">
+                        <mat-option *ngFor="let community of communityList" [value]="community.value" >{{community.label}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                    <mat-label>Status</mat-label>
+                    <mat-select (selectionChange)="fetchAllInvoice()" [ngModelOptions]="{standalone:true}" [(ngModel)]="queryBody.status">
+                        <mat-option value="">All</mat-option>
+                        <mat-option value="paid">Paid</mat-option>
+                        <mat-option value="pending">Pending</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                  <mat-label>From Date</mat-label>
+                  <input matInput [matDatepicker]="fromDatePicker"
+                    [ngModelOptions]="{standalone:true}" [(ngModel)]="queryBody.startDate" (dateInput)="fetchAllInvoice()">
+                  <mat-datepicker-toggle matSuffix [for]="fromDatePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #fromDatePicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field class="input-field" appearance="outline">
+                  <mat-label>To Date</mat-label>
+                  <input matInput [matDatepicker]="toDatePicker"
+                    [ngModelOptions]="{standalone:true}" [(ngModel)]="queryBody.endDate" (dateInput)="fetchAllInvoice()">
+                  <mat-datepicker-toggle matSuffix [for]="toDatePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #toDatePicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+            <!-- <div class="col-md-3 d-flex justify-content-end" style="width: 100%;">
+                <button (click)="fetchAllInvoice()" class="btn-bg-primary">Refresh</button>
+            </div> -->
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>SN</th>
+                                <th>Community Name</th>
+                                <th>Generated Date</th>
+                                <th>Community Address</th>
+                                <th>Total Pet Stations</th>
+                                <th>Price/Unit</th>
+                                <th>Total Garbage Bins</th>
+                                <th>Price/Unit</th>
+                                <th>Total Bag Roll Replaced</th>
+                                <th>Price/Unit</th>
+                                <th>Total Sanitizer Replaced</th>
+                                <th>Price/Unit</th>
+                                <th>Total Amount</th>
+                                <th>status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngIf="invoiceList.length==0">
+                                <td colspan="15">No Invoice Ready</td>
+                            </tr>
+                            <tr *ngFor="let invoice of invoiceList; let i = index">
+                                <td>{{ i + 1 }}</td>
+                                <td>{{ invoice.community.communityName }}</td>
+                                <td>{{ invoice.invoiceDate }}</td>
+                                <td>{{ invoice.community.communityAddress }}</td>
+                                <td>{{ invoice.totalPetStations }}</td>
+                                <td appCurrency>${{ invoice.costPerPetStations }}</td>
+                                <td>{{ invoice.totalGarbageBins }}</td>
+                                <td appCurrency>${{ invoice.costPerGarbageBins }}</td>
+                                <td>{{ invoice.totalBagReplaced }}</td>
+                                <td appCurrency>${{ invoice.costPerBagReplaced }}</td>
+                                <td>{{ invoice.totalHandSanitizerReplaced }}</td>
+                                <td appCurrency>${{ invoice.costPerHandSanitizer }}</td>
+                                <td appCurrency>${{ invoice.totalAmount }}</td>
+                                <td>{{ invoice.status }}</td>
+                                <td>
+                                    <button class="btn-default" (click)="showInvoice(invoice)" style="color: #cc5200" mat-flat-button>
+                                        <i class="fas fa-eye
+                                        "></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
