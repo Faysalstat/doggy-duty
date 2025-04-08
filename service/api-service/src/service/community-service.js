@@ -12,7 +12,6 @@ exports.addCommunity = async (req, res) => {
   try {
     let payload = req.body;
     const lastServedDateUTC = new Date(); // Always store as UTC
-
     // Create Community entity
     let communityEntity = {
       communityName: payload.communityName,
@@ -33,7 +32,7 @@ exports.addCommunity = async (req, res) => {
     let communityServiceScheduleModel = {
       frequency: payload.frequency,
       startingDate: payload.startingDate,
-      scheduledDate: payload.scheduledDate,
+      scheduledDaysOfWeek: payload.scheduledDaysOfWeek,
       lastServedDate: lastServedDateUTC,
       lastInvoiceGenerated: payload.startingDate,
       noOfPetStation: payload.noOfPetStation,
@@ -92,7 +91,7 @@ exports.updateCommunity = async (req, res) => {
     // Update Community Service Schedule
     let communityServiceScheduleModel = {
       frequency: payload.frequency,
-      scheduledDate: payload.scheduledDate,
+      scheduledDaysOfWeek: payload.scheduledDaysOfWeek,
       noOfPetStation: payload.noOfPetStation,
       noOfGarbageBin: payload.noOfGarbageBin,
       chargePerPetStation: payload.chargePerPetStation,
@@ -128,7 +127,7 @@ exports.updateCommunity = async (req, res) => {
       noOfGarbageBin: payload.noOfGarbageBin,
       chargePerGarbageBin: payload.chargePerGarbageBin,
       startingDate: payload.startingDate,
-      scheduledDate: payload.scheduledDate,
+      scheduledDaysOfWeek: payload.scheduledDaysOfWeek,
       frequency: payload.frequency,
     };
 
@@ -164,7 +163,7 @@ exports.getAllCommunitiesWithDistanceFromBase = async (req, res) => {
         noOfGarbageBin: community.communityServiceSchedule.noOfGarbageBin || 0,
         chargePerGarbageBin: community.communityServiceSchedule.chargePerGarbageBin || 0 ,
         startingDate: community.communityServiceSchedule.startingDate ,
-        scheduledDate: community.communityServiceSchedule.scheduledDate ,
+        scheduledDaysOfWeek: community.communityServiceSchedule.scheduledDaysOfWeek ,
         frequency: community.communityServiceSchedule.frequency || 0,
         distance: community.distance.toFixed(3),
       };
@@ -219,8 +218,8 @@ exports.getAllJobOrderByDate = async (params) => {
     }
     sortedCommunities = await CommonService.orderCommunitiesByProximity(JSON.parse(JSON.stringify(communities)));
     const result = sortedCommunities.map(community => {
-      let scheduledDate;
-      scheduledDate = community.communityServiceSchedule.scheduledDate;
+      let scheduledDaysOfWeek;
+      scheduledDaysOfWeek = community.communityServiceSchedule.scheduledDaysOfWeek;
       const communityData = {
         jobOrderId: community.tasks[0].jobOrderId, // Get jobOrderId from the first task or set to null
         taskId:community.tasks[0].id,
@@ -254,7 +253,7 @@ exports.getAllJobOrderByDate = async (params) => {
         totalBinReplacementPrice: 0,
         totalStationInstallationPrice: 0,
         totalHandSanitizerPrice: 0,
-        scheduledDate:  scheduledDate ,
+        scheduledDaysOfWeek:  scheduledDaysOfWeek ,
         distance: community.distance.toFixed(3),
       };
       return communityData;
@@ -262,7 +261,6 @@ exports.getAllJobOrderByDate = async (params) => {
     return result;
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
-    throw new Error("Error Occurred: " + error.message);
   }
 };
 
@@ -288,7 +286,7 @@ exports.getCommunityById = async (req, res) => {
       noOfGarbageBin: community.communityServiceSchedule.noOfGarbageBin,
       chargePerGarbageBin: community.communityServiceSchedule.chargePerGarbageBin ,
       startingDate: community.communityServiceSchedule.startingDate,
-      scheduledDate: community.communityServiceSchedule.scheduledDate,
+      scheduledDaysOfWeek: community.communityServiceSchedule.scheduledDaysOfWeek,
       frequency: community.communityServiceSchedule.frequency
     };
     return communityData;

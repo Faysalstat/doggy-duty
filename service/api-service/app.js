@@ -58,6 +58,7 @@ const jobOrderRoute = require("./src/router/job-order-route");
 const scheduleService = require("./src/service/schedule-service");
 const billingRoute = require("./src/router/billing-route");
 const smsRoute = require("./src/router/sms-route");
+const eventRoute = require("./src/router/event-route");
 const moment = require("moment-timezone");
 const logger = require("./logger");
 // Run every day at 07:00 AM in Florida (Eastern Time)
@@ -85,3 +86,4 @@ app.use("/api/task", taskRoute);
 app.use("/api/job-order", jobOrderRoute);
 app.use("/api/billing", billingRoute);
 app.use("/api/sms", smsRoute);
+app.use("/api/event", eventRoute);

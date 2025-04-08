@@ -13,8 +13,9 @@ const moment = require("moment-timezone");
 exports.generateDailyTasks = async (scheduledDate) => {
   try {
     let query = {};
-    let taskDate = moment().tz("America/New_York").format("YYYY-MM-DD");
-    query.scheduledDate =  scheduledDate;
+    let taskDate = scheduledDate;
+    let currentDay = moment.tz(scheduledDate, "YYYY-MM-DD", "America/New_York").format("dddd");
+    query.scheduledDaysOfWeek =  {[Op.like]: `%${currentDay}%`};
     let config = await AppConfig.findAll();
     let chargePerBagRoll = config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;
     let chargePerBinReplacement = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_BIN_REPLACEMENT).value;
@@ -47,20 +48,6 @@ exports.generateDailyTasks = async (scheduledDate) => {
     for (const schedule of sortedSchedule) {
       
       const communitySchedule = schedule.dataValues;
-      const frequency = Number(communitySchedule.frequency) || 0;
-      const nextScheduledDate = moment().tz("America/New_York").add(frequency, 'days').startOf('day').format("YYYY-MM-DD");
-      logger.info("Next Scheduled Date Generated", {
-        frequency: frequency,  
-        nextScheduledDate: nextScheduledDate,
-        taskDate: taskDate,
-      });
-      let scheduleUpdateModel = {
-        scheduledDate: nextScheduledDate,
-      };
-      let updatedSchedule = await CommunityServiceSchedule.update(
-        scheduleUpdateModel,
-        { where: { id: communitySchedule.id } }
-      );
       let task = {
         communityId: communitySchedule.communityId,
         scheduledDate: taskDate,
@@ -113,7 +100,6 @@ exports.generateDailyTasks = async (scheduledDate) => {
     return schedules;
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
-    throw new Error("Error Occured " + error.message);
   }
 };
 
@@ -173,21 +159,13 @@ exports.getAllTasks = async (req, res) => {
 exports.completeTask = async (req, res) => {
   let payload = req.body;
   try {
-    
     let task = await Task.findOne({
       where: { id: payload.taskId },
       include: [{ model: Community, include: CommunityServiceSchedule }],
     });
 
-    // Parse frequency as a number
-    const frequency =
-      Number(task.community.communityServiceSchedule.frequency) || 0;
-    // Get today's date
-    //Remove date value after demo
-    const today = new Date(payload.date);
-    let nextScheduledDate = moment.tz(payload.date, "America/New_York").add(frequency, 'days').format("YYYY-MM-DD"); // Add frequency days and format to YYYY-MM-DD
     let scheduleUpdateModel = {
-      lastServedDate: today,
+      lastServedDate: task.scheduledDate,
     };
     let updatedSchedule = await CommunityServiceSchedule.update(
       scheduleUpdateModel,

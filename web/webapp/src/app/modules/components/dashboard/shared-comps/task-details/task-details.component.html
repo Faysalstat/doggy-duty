@@ -12,7 +12,13 @@
             </mat-panel-description>
         </mat-expansion-panel-header>
         <div class="row mt-4">
-            <div class="col-md-12">
+            <div class="col-md-6">
+                <p style="font-size: small;">
+                    <i class="fas fa-calendar-alt"></i> Task Date:
+                    {{ community.scheduledDate | date: 'mediumDate' }}
+                </p>
+            </div>
+            <div class="col-md-6">
                 <button class="btn-default" style="float: right; color: #cc5200" mat-flat-button>
                     {{ community.taskStatus }}
                 </button>

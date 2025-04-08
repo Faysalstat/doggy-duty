@@ -13,7 +13,8 @@ const moment = require("moment-timezone");
 const logger = require("../../logger");
 exports.generateDailyTasks = async (today) => {
   try {
-    notifyDev(today);
+    // notifyDev(today);
+    // generateDailyEvent(today);
     let taskScheduled = await taskService.generateDailyTasks(today);
     let response = await communityService.getAllJobOrderByDate(
       {
@@ -23,7 +24,7 @@ exports.generateDailyTasks = async (today) => {
       null
     );
     if (response.length && response.length > 0) {
-      await generateMail(today, response);
+      // await generateMail(today, response);
       logger.info("Job Execution Log", {
         job_name: "Job Scheduler",
         job_type: "SMS & Mail",
@@ -38,7 +39,7 @@ exports.generateDailyTasks = async (today) => {
         error_message: `SMS & Mail Not Sent for ${today}`,
       });
     }
-    await generateInvoice();
+    await generateInvoice(today);
     return "SUCCESS"
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
@@ -69,7 +70,7 @@ const generateMail = async (today, response) => {
     throw new Error(`Mail Sending Failed on ${today}` + error.message);
   }
 };
-const generateInvoice = async () => {
+const generateInvoice = async (today) => {
   try {
     let communities = await Community.findAll({
       include: [{ model: CommunityServiceSchedule }],
@@ -79,20 +80,15 @@ const generateInvoice = async () => {
       // Proper logging of community details
       logger.info(`Processing community: ${community.communityName}`);
       if (community.communityServiceSchedule?.lastInvoiceGenerated) {
-        const lastGenerated = moment(
-          community.communityServiceSchedule.lastInvoiceGenerated
-        );
-        const today = moment().startOf("day"); // Start of today
+        const lastGenerated = community.communityServiceSchedule.lastInvoiceGenerated;
+        const diff = moment(today).diff(moment(lastGenerated), "days");
         logger.info("Job Execution Log", {
           job_name: "Job Scheduler",
           job_type: "Invoice Generation",
           status: "INFO",
-          error_message: `Days since last invoice generated for ${community.communityName} : ${today.diff(
-            lastGenerated,
-            "days"
-          )}`,
+          error_message: `Days since last invoice generated for ${community.communityName} : ${diff}`,
         });
-        if (today.diff(lastGenerated, "days") >= 30) {
+        if (diff >= 30) {
           logger.info(`Generating invoice for community: ${community.communityName}`);
           let invoiceModel = {
             totalAmount: 0,
@@ -107,7 +103,7 @@ const generateInvoice = async () => {
             costPerBagReplaced: 0,
             costPerBinReplaced: 0,
             costPerNewStationInstalled: 0,
-            invoiceDate: today.toDate(),
+            invoiceDate: moment(today).format("YYYY-MM-DD"),
           };
           let bills = await Billing.findAll({
             where: { invoiceGenerated: false, communityId: community.id },
@@ -154,10 +150,9 @@ const generateInvoice = async () => {
           }
 
           // Update lastInvoiceGenerated to today
-          community.communityServiceSchedule.lastInvoiceGenerated =
-            today.toDate();
+          community.communityServiceSchedule.lastInvoiceGenerated =today;
           await CommunityServiceSchedule.update(
-            { lastInvoiceGenerated: today.toDate() },
+            { lastInvoiceGenerated: today},
             { where: { id: community.id } }
           );
         }
@@ -173,7 +168,42 @@ const generateInvoice = async () => {
     });
   }
 };
-
+const generateDailyEvent = async (today) => { 
+  try {
+    let events = await taskService.getAllEvents({
+      scheduledDate: today,
+    });
+    if(events.length && events.length > 0){
+      logger.info("Job Execution Log", {
+        job_name: "Job Scheduler",
+        job_type: "Event Generation",
+        status: "SUCCESS", // SUCCESS or FAILURE
+        message: `Event Found for ${today}`,
+      });
+      for(let i=0;i<events.length;i++){
+        let event = events[i].dataValues;
+        let emailBody = generateEventMail(event);
+        sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
+        sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
+        sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
+        logger.info(`Mail sent successfully`);
+        const smsResponse = await smsService.sendEventSms(event);
+        logger.info(`SMS sent successfully`);
+      }
+    }else{
+      logger.info("Job Execution Log", {
+        job_name: "Job Scheduler",
+        job_type: "Event Generation",
+        status: `FAILURE`,
+        error_message: `No Event Found for ${today}`,
+      });
+    }
+    return "SUCCESS";
+  } catch (error) {
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
+    return "FAILURE";
+  }
+};
 const generateTaskListEmailBody = (tasks) => {
   let emailBody = "";
   if (tasks.length && tasks.length > 0) {
@@ -234,3 +264,24 @@ const notifyDev = (today) => {
   `;
   sendMail("faysalstat04@gmail.com", "Scheduler Running", emailBody);
 };
+
+const generateEventMail = async (event) => {  
+
+let emailBody = "";
+  if (tasks.length && tasks.length > 0) {
+    emailBody = `
+    <h1>Reminder for your upcomming Event</h1>
+    <p>Dear Team,</p>
+    <p>This is a reminder for your upcoming event:</p>
+    <h2>${event.title}</h2>
+    <p><strong>Date:</strong> ${event.scheduledDate}</p>
+    <p><strong>Description:</strong> ${event.description}</p>
+  `;
+
+    emailBody += `
+    <p>Thank you!</p>
+    <p>Best regards,<br>Doggy Duty</p>
+  `;
+  }
+  return emailBody;
+}
