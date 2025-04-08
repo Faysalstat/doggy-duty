@@ -1,1 +1,13 @@
-<p>day-selector works!</p>
+<!-- day-selector.component.html -->
+<div class="day-selector">
+  <h3>Select Days for Schedule</h3>
+  <div class="button-group">
+    <button 
+      *ngFor="let day of daysOfWeek" 
+      [ngClass]="{'selected': selectedDays.includes(day)}" 
+      (click)="toggleDay(day)">
+      {{ day }}
+    </button>
+  </div>
+  <button type="button" (click)="updateSchedule()" [disabled]="selectedDays.length === 0">Update Schedule</button>
+</div>
