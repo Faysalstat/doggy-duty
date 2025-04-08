@@ -8,9 +8,10 @@ import { RouterModule } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { SharedCompsModule } from '../shared-comps/shared-comps.module';
+import { DaySelectorComponent } from './day-selector/day-selector.component';
 
 @NgModule({
-  declarations: [CreateComponent, ListComponent],
+  declarations: [CreateComponent, ListComponent, DaySelectorComponent],
   imports: [
     CommonModule,
     SharedCompsModule,
