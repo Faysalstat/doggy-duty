@@ -8,7 +8,7 @@ import { CalenderComponent } from './calender/calender.component';
 import { SharedCompsModule } from '../shared-comps/shared-comps.module';
 import { ToastModule } from 'primeng/toast';
 import { MatDialogModule } from '@angular/material/dialog';
-
+import { CalendarModule } from 'primeng/calendar';
 @NgModule({
   declarations: [HomeComponent, CalenderComponent],
   imports: [
@@ -19,6 +19,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     MaterialModule,
     ToastModule,
     MatDialogModule,
+    CalendarModule,
     RouterModule.forChild([
       { path: '', component: HomeComponent },
       { path: 'calender', component: CalenderComponent },

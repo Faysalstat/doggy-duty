@@ -87,6 +87,18 @@ hr{
   cursor: pointer;
   transition: 0.3s;
 }
+.btn-bg-secondary {
+  background-color: #00bfff; /* Custom blue */
+  color: white; /* Text color */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-bg-secondary:hover {
+  background-color: #0099cc; /* Darker shade on hover */
+}
 .btn-bg-warn{
   background-color: #ff0000; /* Custom red */
   color: white; /* Text color */

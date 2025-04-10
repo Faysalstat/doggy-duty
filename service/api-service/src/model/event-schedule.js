@@ -1,6 +1,7 @@
 const Sequelize = require("sequelize");
 const db = require("../connector/db-connector");
 const { title } = require("process");
+const { schedule } = require("node-cron");
 
 const EventSchedule = db.sequelize.define(
   "eventSchedule",
@@ -13,6 +14,7 @@ const EventSchedule = db.sequelize.define(
     },
     status: Sequelize.STRING,
     scheduledDate: Sequelize.STRING,
+    scheduledTime: Sequelize.STRING,
     title: Sequelize.STRING,
     description: Sequelize.STRING,
   },

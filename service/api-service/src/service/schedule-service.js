@@ -11,10 +11,11 @@ const Invoice = require("../model/invoice");
 const InvoiceBillMapping = require("../model/invoice-bill");
 const moment = require("moment-timezone");
 const logger = require("../../logger");
+const EventSchedule = require("../model/event-schedule");
 exports.generateDailyTasks = async (today) => {
   try {
-    // notifyDev(today);
-    // generateDailyEvent(today);
+    notifyDev(today);
+    generateDailyEvent(today);
     let taskScheduled = await taskService.generateDailyTasks(today);
     let response = await communityService.getAllJobOrderByDate(
       {
@@ -170,8 +171,10 @@ const generateInvoice = async (today) => {
 };
 const generateDailyEvent = async (today) => { 
   try {
-    let events = await taskService.getAllEvents({
-      scheduledDate: today,
+    let events = await EventSchedule.findAll({
+      where: {
+        scheduledDate: today,
+      },
     });
     if(events.length && events.length > 0){
       logger.info("Job Execution Log", {
@@ -182,12 +185,12 @@ const generateDailyEvent = async (today) => {
       });
       for(let i=0;i<events.length;i++){
         let event = events[i].dataValues;
-        let emailBody = generateEventMail(event);
-        sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
-        sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
+        let emailBody = await generateEventMail(event);
+        // sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
+        // sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
         sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
         logger.info(`Mail sent successfully`);
-        const smsResponse = await smsService.sendEventSms(event);
+        // const smsResponse = await smsService.sendEventSms(event);
         logger.info(`SMS sent successfully`);
       }
     }else{
@@ -268,7 +271,7 @@ const notifyDev = (today) => {
 const generateEventMail = async (event) => {  
 
 let emailBody = "";
-  if (tasks.length && tasks.length > 0) {
+  if (event) {
     emailBody = `
     <h1>Reminder for your upcomming Event</h1>
     <p>Dear Team,</p>

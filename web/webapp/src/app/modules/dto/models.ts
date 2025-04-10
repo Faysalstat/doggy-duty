@@ -39,5 +39,7 @@ export class EventData{
   id?: number;
   title?: string;
   scheduledDate?:string;
+  scheduledTime?:string;
   description?: string;
+  status?: string;
 }

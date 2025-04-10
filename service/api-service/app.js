@@ -8,7 +8,7 @@ const cron = require("node-cron");
 var http = require("http").Server(app);
 app.use(bodyParser.json());
 const dbModels = require("./src/model/init-model");
-
+const scheduleService = require("./src/service/schedule-service");
 const cors = require("cors");
 app.use(
   cors({
@@ -55,12 +55,9 @@ const serviceRoute = require("./src/router/service-route");
 const communityRoute = require("./src/router/community-route");
 const taskRoute = require("./src/router/task-rote");
 const jobOrderRoute = require("./src/router/job-order-route");
-const scheduleService = require("./src/service/schedule-service");
 const billingRoute = require("./src/router/billing-route");
 const smsRoute = require("./src/router/sms-route");
 const eventRoute = require("./src/router/event-route");
-const moment = require("moment-timezone");
-const logger = require("./logger");
 // Run every day at 07:00 AM in Florida (Eastern Time)
 cron.schedule(
   "0 6 * * *", // Runs at 2:30 PM EDT/EST
@@ -87,3 +84,6 @@ app.use("/api/job-order", jobOrderRoute);
 app.use("/api/billing", billingRoute);
 app.use("/api/sms", smsRoute);
 app.use("/api/event", eventRoute);
+app.get("/api/stayawake", (req, res) => {
+  res.send("I am Awake");
+});

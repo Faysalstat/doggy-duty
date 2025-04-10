@@ -6,6 +6,7 @@ exports.addEventSchedule = async (req, res, next) => {
     let eventModel = {
     status: 'active',
     scheduledDate: payload.scheduledDate,
+    scheduledTime: payload.scheduledTime,
     title: payload.title,
     description: payload.description
     }
@@ -19,7 +20,8 @@ exports.addEventSchedule = async (req, res, next) => {
 exports.getAllEventSchedule = async (req, res, next) => {
   try {
     let response = await EventSchedule.findAll({
-      where: { status: "active" }
+      where: { status: "active" },
+      order: [[EventSchedule.sequelize.fn('STR_TO_DATE', EventSchedule.sequelize.col('scheduledDate'), '%Y-%m-%d'), 'ASC']]
     });
     return response;
   } catch (error) {
@@ -44,10 +46,11 @@ exports.updateEventSchedule = async (req, res, next) => {
         let payload = req.body;
         let eventModel = {
         scheduledDate: payload.scheduledDate,
+        scheduledTime: payload.scheduledTime,
         title: payload.title,
         description: payload.description
         }
-        let response = await EventSchedule.create(eventModel,{where: { id: payload.id }});
+        let response = await EventSchedule.update(eventModel,{where: { id: payload.id }});
         return response;
       } catch (error) {
         throw new Error("Not Updated: " + error.message);
@@ -55,7 +58,7 @@ exports.updateEventSchedule = async (req, res, next) => {
 };  
 exports.deleteEventSchedule = async (req, res, next) => {
   try {
-    let response = await EventSchedule.destroy({ where: { id: req.params.id } });
+    let response = await EventSchedule.destroy({ where: { id: req.query.id } });
     return response;
   } catch (error) {
     throw new Error("Not Deleted: " + error.message);

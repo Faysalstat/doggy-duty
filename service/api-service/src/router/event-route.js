@@ -7,4 +7,5 @@ router.post('/create',eventScheduleController.addEventSchedule);
 router.get('/getall',eventScheduleController.getAllEventSchedule);
 router.get('/get/:id',eventScheduleController.getEventScheduleById);
 router.post('/update',eventScheduleController.updateEventSchedule);
+router.delete('/delete',eventScheduleController.deleteEventSchedule);
 module.exports = router

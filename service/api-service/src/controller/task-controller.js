@@ -18,8 +18,23 @@ exports.getAllTasks = async (req, res, next) => {
 
 exports.generateDailyTasks = async (req, res, next) => {
   try {
-    let today = req.query.scheduledDate;
-    let response = await scheduleService.generateDailyTasks(today);
+    let today;
+    let response;
+    if(req.query.scheduledDate){
+        today = req.query.scheduledDate;
+    }else{
+        today = moment().tz("America/New_York").format("YYYY-MM-DD");
+    }
+    const currentHour = moment().tz("America/New_York").format("HH");
+    // if (currentHour === "06") {
+    //   response = await scheduleService.generateDailyTasks(today);
+    // } else {
+    //   return res.status(400).json({
+    //   message: "Tasks can only be generated at 6:00 AM",
+    //   isSuccess: false,
+    //   });
+    // }
+    response = await scheduleService.generateDailyTasks(today);
     return res.status(200).json({
       message: response
     });
