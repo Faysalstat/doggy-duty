@@ -31,7 +31,7 @@
                     </tr>
                     <tr *ngFor="let community of communityList; let i = index">
                         <td>{{ i + 1 }}</td>
-                        <td>{{ community.communityName }}</td>
+                        <td class="community-font">{{ community.communityName }}</td>
                         <!-- <td>{{ community.communityAddress }}</td> -->
                         <td>{{ community.noOfPetStation }}</td>
                         <td appCurrency>${{ community.chargePerPetStation }}</td>

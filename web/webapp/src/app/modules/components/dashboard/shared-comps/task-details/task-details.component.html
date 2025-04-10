@@ -4,7 +4,7 @@
         <mat-expansion-panel-header (click)="togglePanel(i)" [ngClass]="{ 'active-header': expandedPanelIndex === i }">
             <mat-panel-title>
                 <i class="fas fa-lightbulb" style="color: #cc5200"></i>
-                {{ community.communityName }}
+                <span class="community-font">{{ community.communityName }}</span>
             </mat-panel-title>
             <mat-panel-description>
                 <strong><i class="fas fa-map-marker-alt"></i></strong>
