@@ -13,9 +13,11 @@ const moment = require("moment-timezone");
 exports.generateDailyTasks = async (scheduledDate) => {
   try {
     let query = {};
+    let tasksForEmail = [];
     let taskDate = scheduledDate;
-    let currentDay = moment.tz(scheduledDate, "YYYY-MM-DD", "America/New_York").format("dddd");
+    let currentDay = moment().tz("America/New_York").format("dddd").toLowerCase();
     query.scheduledDaysOfWeek =  {[Op.like]: `%${currentDay}%`};
+    query.isPaused = false;
     let config = await AppConfig.findAll();
     let chargePerBagRoll = config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;
     let chargePerBinReplacement = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_BIN_REPLACEMENT).value;
@@ -26,7 +28,6 @@ exports.generateDailyTasks = async (scheduledDate) => {
       where: query,
       include: [{ model: Community }],
     });
-
     if (schedules.length === 0) {
       logger.info("Job Execution Log", {
             job_name: "Job Scheduler",
@@ -46,7 +47,6 @@ exports.generateDailyTasks = async (scheduledDate) => {
     );
 
     for (const schedule of sortedSchedule) {
-      
       const communitySchedule = schedule.dataValues;
       let task = {
         communityId: communitySchedule.communityId,
@@ -70,8 +70,15 @@ exports.generateDailyTasks = async (scheduledDate) => {
         chargePerHandSanitizer: chargePerHandSanitizer,
       };
       currentTasks.push(task);
-
-      // Create a job order for every 4 tasks
+      tasksForEmail.push({
+        communityName: communitySchedule.community.communityName,
+        communityAddress: communitySchedule.community.communityAddress,
+        camOfcommunity: communitySchedule.community.camOfcommunity,
+        phone: communitySchedule.community.phone,
+        noOfGarbageBin: communitySchedule.noOfGarbageBin,
+        noOfPetStation: communitySchedule.noOfPetStation,
+        taskStatus: "Pending",
+      });
       if (currentTasks.length === 4) {
         let jobOrder = await JobOrder.create({ date: taskDate });
         for (let task of currentTasks) {
@@ -82,7 +89,6 @@ exports.generateDailyTasks = async (scheduledDate) => {
         currentTasks = [];
       }
     }
-
     // Create remaining tasks if any
     if (currentTasks.length > 0) {
       let jobOrder = await JobOrder.create({ date: taskDate });
@@ -97,7 +103,7 @@ exports.generateDailyTasks = async (scheduledDate) => {
       job_type: "Scheduler",
       status: "Scheduler Completed",
     });
-    return schedules;
+    return tasksForEmail;
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
   }
@@ -116,6 +122,7 @@ exports.getAllTasks = async (req, res) => {
     let tasks = await Task.findAll({
       where: query,
       include: [Community, JobOrder],
+      order: [[Task.sequelize.fn('STR_TO_DATE', Task.sequelize.col('scheduledDate'), '%m-%d-%Y'), 'DESC']],
     });
     let taskList = JSON.parse(JSON.stringify(tasks));
     const result = taskList.map((task) => {

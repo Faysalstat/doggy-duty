@@ -2,7 +2,7 @@
     <p-toast  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
     <div class="mt-4 p-5 rounded">
         <div class="d-flex align-items-center justify-content-between">
-            <h4>Add Community</h4>
+            <h2>Add Community</h2>
             <div>
             <button (click)="goBack()" class="btn btn-default">Go to List</button>
             <!-- <button (click)="addSchedule()" class="btn add-schedule-btn ms-2">Add Schedule</button> -->
@@ -109,7 +109,7 @@
                         </mat-form-field>
                     </div>
                     <div class="col-md-12">
-                        <h4>Add Schedule</h4>
+                        <h2>Add Schedule</h2>
                         <hr>
                     </div>
                     <div class="col-md-4">
@@ -129,8 +129,13 @@
                             Start Date is required.
                         </div>
                     </div>
+                    <div class="col-md-8 d-flex align-items-center justify-content-end">
+                        <mat-slide-toggle class="custom-toggle" [(ngModel)]="isPaused" [ngModelOptions]="{standalone: true}">
+                            Is Paused
+                        </mat-slide-toggle>
+                    </div>
                     <div class="col-md-12">
-                        <h4>Days of the Week</h4>
+                        <h4 style="font-weight: bold; color: #ff5722; margin-bottom: 10px;">Days of the Week</h4>
                         <p>Click on the buttons below to select the days of the week.</p>
                         <div class="button-group">
                             <button 

@@ -39,7 +39,7 @@ export class EventData{
   id?: number;
   title?: string;
   scheduledDate?:string;
-  scheduledTime?:string;
   description?: string;
+  communityName?: string;
   status?: string;
 }

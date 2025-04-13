@@ -14,18 +14,9 @@ const logger = require("../../logger");
 const EventSchedule = require("../model/event-schedule");
 exports.generateDailyTasks = async (today) => {
   try {
-    notifyDev(today);
-    generateDailyEvent(today);
-    let taskScheduled = await taskService.generateDailyTasks(today);
-    let response = await communityService.getAllJobOrderByDate(
-      {
-        status: TASK_STATUS.PENDING,
-        date: today,
-      },
-      null
-    );
-    if (response.length && response.length > 0) {
-      // await generateMail(today, response);
+    let tasksForEmail = await taskService.generateDailyTasks(today);
+    if (tasksForEmail.length && tasksForEmail.length > 0) {
+      await generateMail(today,tasksForEmail);
       logger.info("Job Execution Log", {
         job_name: "Job Scheduler",
         job_type: "SMS & Mail",
@@ -44,31 +35,20 @@ exports.generateDailyTasks = async (today) => {
     return "SUCCESS"
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
-    throw new Error("Job Generation Failed." + error.message);
-  }
-};
-const sendSMS = async (today) => {
-  try {
-    const smsResponse = await smsService.sendSms();
-  } catch (error) {
-    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
-    throw new Error("SMS Sending Failed.Error:" + error.message);
   }
 };
 
 const generateMail = async (today, response) => {
   try {
     const emailBody = generateTaskListEmailBody(response);
-    sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
-    sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
+    // sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
+    // sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
     sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
     logger.info(`Mail sent successfully`);
-    const smsResponse = await smsService.sendSms();
+    // await smsService.sendSms();
     logger.info(`SMS sent successfully`);
-    // console.log("SMS Response: ", smsResponse);
   } catch (error) {
-    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
-    throw new Error(`Mail Sending Failed on ${today}` + error.message);
+    logger.error(`Error occurred on SMS: ${error.message}`, { stack: error.stack });
   }
 };
 const generateInvoice = async (today) => {
@@ -104,7 +84,7 @@ const generateInvoice = async (today) => {
             costPerBagReplaced: 0,
             costPerBinReplaced: 0,
             costPerNewStationInstalled: 0,
-            invoiceDate: moment(today).format("YYYY-MM-DD"),
+            invoiceDate: moment(today).format("MM-DD-YYYY"),
           };
           let bills = await Billing.findAll({
             where: { invoiceGenerated: false, communityId: community.id },
@@ -169,11 +149,12 @@ const generateInvoice = async (today) => {
     });
   }
 };
-const generateDailyEvent = async (today) => { 
+exports.generateDailyEvent = async (today) => { 
   try {
     let events = await EventSchedule.findAll({
       where: {
         scheduledDate: today,
+        status:'active'
       },
     });
     if(events.length && events.length > 0){
@@ -186,12 +167,24 @@ const generateDailyEvent = async (today) => {
       for(let i=0;i<events.length;i++){
         let event = events[i].dataValues;
         let emailBody = await generateEventMail(event);
-        // sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
-        // sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
+        sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
+        sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
         sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
         logger.info(`Mail sent successfully`);
-        // const smsResponse = await smsService.sendEventSms(event);
+        const smsResponse = await smsService.sendEventSms(event);
         logger.info(`SMS sent successfully`);
+        let eventScheduleModel = {
+          status: "completed"
+        };
+        await EventSchedule.update(eventScheduleModel, {
+          where: { id: event.id },
+        });
+        logger.info("Job Execution Log", {
+          job_name: "Job Scheduler",
+          job_type: "Event Generation",
+          status: "SUCCESS",
+          message: `Event Completed for ${today}`,
+        });
       }
     }else{
       logger.info("Job Execution Log", {
@@ -273,14 +266,12 @@ const generateEventMail = async (event) => {
 let emailBody = "";
   if (event) {
     emailBody = `
-    <h1>Reminder for your upcomming Event</h1>
+    <h1>Reminder for your upcoming Event</h1>
     <p>Dear Team,</p>
     <p>This is a reminder for your upcoming event:</p>
     <h2>${event.title}</h2>
     <p><strong>Date:</strong> ${event.scheduledDate}</p>
-    <p><strong>Description:</strong> ${event.description}</p>
-  `;
-
+    <p><strong>Description:</strong> ${event.description}  ${event.communityName ? ` at ${event.communityName}</p>` : ""}`;
     emailBody += `
     <p>Thank you!</p>
     <p>Best regards,<br>Doggy Duty</p>

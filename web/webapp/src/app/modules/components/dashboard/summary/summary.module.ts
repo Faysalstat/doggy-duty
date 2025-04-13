@@ -9,6 +9,7 @@ import { SharedCompsModule } from '../shared-comps/shared-comps.module';
 import { ToastModule } from 'primeng/toast';
 import { MatDialogModule } from '@angular/material/dialog';
 import { CalendarModule } from 'primeng/calendar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @NgModule({
   declarations: [HomeComponent, CalenderComponent],
   imports: [
@@ -20,6 +21,7 @@ import { CalendarModule } from 'primeng/calendar';
     ToastModule,
     MatDialogModule,
     CalendarModule,
+    MatProgressSpinnerModule,
     RouterModule.forChild([
       { path: '', component: HomeComponent },
       { path: 'calender', component: CalenderComponent },

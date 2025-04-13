@@ -6,7 +6,7 @@ exports.addEventSchedule = async (req, res, next) => {
     let eventModel = {
     status: 'active',
     scheduledDate: payload.scheduledDate,
-    scheduledTime: payload.scheduledTime,
+    communityName: payload.communityName,
     title: payload.title,
     description: payload.description
     }
@@ -19,9 +19,19 @@ exports.addEventSchedule = async (req, res, next) => {
 
 exports.getAllEventSchedule = async (req, res, next) => {
   try {
+    let params = req.query;
+    let query = {};
+    if(params.status) {
+      query.status = params.status.toLowerCase();
+    }else {
+      query.status = 'active';
+    }
+    if(params.scheduledDate && params.scheduledDate !== "") {
+      query.scheduledDate = params.scheduledDate;
+    }
     let response = await EventSchedule.findAll({
-      where: { status: "active" },
-      order: [[EventSchedule.sequelize.fn('STR_TO_DATE', EventSchedule.sequelize.col('scheduledDate'), '%Y-%m-%d'), 'ASC']]
+      where: query,
+      order: [[EventSchedule.sequelize.fn('STR_TO_DATE', EventSchedule.sequelize.col('scheduledDate'), '%m-%d-%Y'), 'ASC']]
     });
     return response;
   } catch (error) {
@@ -46,7 +56,7 @@ exports.updateEventSchedule = async (req, res, next) => {
         let payload = req.body;
         let eventModel = {
         scheduledDate: payload.scheduledDate,
-        scheduledTime: payload.scheduledTime,
+        communityName: payload.communityName,
         title: payload.title,
         description: payload.description
         }

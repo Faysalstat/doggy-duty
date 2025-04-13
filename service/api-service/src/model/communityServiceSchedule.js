@@ -19,6 +19,7 @@ const CommunityServiceSchedule = db.sequelize.define(
     noOfGarbageBin:Sequelize.INTEGER,
     chargePerPetStation:Sequelize.DOUBLE,
     chargePerGarbageBin:Sequelize.DOUBLE,
+    isPaused:Sequelize.BOOLEAN
   },
   {
     freezeTableName: true,

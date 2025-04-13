@@ -10,6 +10,8 @@ app.use(bodyParser.json());
 const dbModels = require("./src/model/init-model");
 const scheduleService = require("./src/service/schedule-service");
 const cors = require("cors");
+const moment = require("moment-timezone");
+const logger = require("./logger");
 app.use(
   cors({
     origin: "*",
@@ -58,11 +60,12 @@ const jobOrderRoute = require("./src/router/job-order-route");
 const billingRoute = require("./src/router/billing-route");
 const smsRoute = require("./src/router/sms-route");
 const eventRoute = require("./src/router/event-route");
-// Run every day at 07:00 AM in Florida (Eastern Time)
+// Run every day at 06:00 AM in Florida (Eastern Time)
+// Task Generator 
 cron.schedule(
-  "0 6 * * *", // Runs at 2:30 PM EDT/EST
+  "38 6 * * *", // Runs at 6.00 AM EDT/EST
   async () => {
-    const todayEDT = moment().tz("America/New_York").format("YYYY-MM-DD");
+    const todayEDT = moment().tz("America/New_York").format("MM-DD-YYYY");
     logger.info("Cron job started for daily task generation", {
       date: todayEDT, // Date in EDT/EST
     });
@@ -72,6 +75,21 @@ cron.schedule(
     timezone: "America/New_York" // EDT/EST handled automatically
   }
 );
+
+// Event Generator 
+// cron.schedule(
+//   "0 7 * * *", // Runs at 7.00 AM EDT/EST
+//   async () => {
+//     const todayEDT = moment().tz("America/New_York").format("MM-DD-YYYY");
+//     logger.info("Cron job started for daily Event generation", {
+//       date: todayEDT, // Date in EDT/EST
+//     });
+//     await scheduleService.generateDailyEvent(todayEDT);
+//   }, 
+//   {
+//     timezone: "America/New_York" // EDT/EST handled automatically
+//   }
+// );
 app.get("/api", (req, res) => {
   res.send("Welcome to my Node API!");
 });
@@ -85,5 +103,6 @@ app.use("/api/billing", billingRoute);
 app.use("/api/sms", smsRoute);
 app.use("/api/event", eventRoute);
 app.get("/api/stayawake", (req, res) => {
-  res.send("I am Awake");
+  const now = moment().tz("America/New_York").format("MM-DD-YYYY HH:mm:ss");
+  res.send("I am Awake at " + now);
 });

@@ -1,31 +1,36 @@
 <div class="container mt-3">
-  <p-toast  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
+  <p-toast [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
   <mat-card class="calendar-card">
     <mat-card-content>
-      <h3>Add Task/Event</h3>
+      <h2>Add Task/Event</h2>
+      <hr>
       <form [formGroup]="eventCreateForm" (keydown.enter)="$event.preventDefault()">
         <div class="row">
           <div class="col-md-4">
             <mat-form-field class="input-field" appearance="outline">
               <mat-label>Scheduled Date</mat-label>
               <input (dateChange)="onDateChange($event)" [ngModelOptions]="{standalone:true}"
-              [(ngModel)]="scheduledDate" matInput [matDatepicker]="startDate" required>
+                [(ngModel)]="scheduledDate" matInput [matDatepicker]="startDate" required>
               <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
               <mat-datepicker #startDate></mat-datepicker>
             </mat-form-field>
           </div>
-          <div class="col-md-3">
-            <div class="d-flex">
-                <mat-form-field class="input-field me-2" appearance="outline">
-                <mat-label>Hour</mat-label>
-                <input type="number" placeholder="Hour" matInput min="0" max="23" [(ngModel)]="hour" [ngModelOptions]="{standalone: true}" required>
-                </mat-form-field>
-                <mat-form-field class="input-field" appearance="outline">
-                <mat-label>Minute</mat-label>
-                <input type="number" placeholder="Minute" matInput min="0" max="59" [(ngModel)]="minute" [ngModelOptions]="{standalone: true}" required>
-                </mat-form-field>
-            </div>
-          
+          <div class="col-md-4">
+            <mat-form-field class="input-field" appearance="outline">
+              <mat-label>Community</mat-label>
+              <mat-select (selectionChange)="onSelectCommunity($event)" [ngModelOptions]="{standalone:true}"
+              [(ngModel)]="selectedCommunity">
+                <mat-option *ngFor="let community of communityList"
+                  [value]="community.value">{{community.label}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+          </div>
+          <div class="col-md-4">
+            <mat-form-field *ngIf="showCommunityField" class="input-field" appearance="outline">
+              <mat-label>Other Location</mat-label>
+              <input formControlName="communityName" matInput />
+            </mat-form-field>
           </div>
           <div class="col-md-12">
             <mat-form-field class="input-field" appearance="outline">
@@ -39,20 +44,32 @@
               <textarea placeholder="description" formControlName="description" matInput></textarea>
             </mat-form-field>
           </div>
-            <div class="col-12 d-flex justify-content-end mt-3" style="width: 100%;">
+          <div class="col-12 d-flex justify-content-end mt-3" style="width: 100%;">
             <button (click)="submitForm()" class="btn-bg-primary me-2">{{isEditMode ? "Update" : "Add Event"}}</button>
             <button (click)="resetForm()" class="btn-bg-warn d-flex align-items-center">
               <mat-icon class="me-1">refresh</mat-icon> Reset
             </button>
-            </div>
+          </div>
         </div>
       </form>
     </mat-card-content>
   </mat-card>
   <mat-card class="calendar-card">
     <mat-card-content>
-      <h3>Event List</h3>
+      <h2>Event List</h2>
+      <hr>
       <div class="row">
+        <div class="col-md-3">
+          <mat-form-field class="input-field" appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select (selectionChange)="getAllEventSchedule()" [ngModelOptions]="{standalone:true}"
+              [(ngModel)]="selectedStatus">
+              <!-- <mat-option value="">All</mat-option> -->
+              <mat-option value="active">Active</mat-option>
+              <mat-option value="completed">Completed</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
         <div class="col-md-12">
           <div class="table-responsive">
             <table class="table table-striped">
@@ -60,7 +77,7 @@
                 <tr>
                   <th>SN</th>
                   <th>Scheduled Date</th>
-                  <th>Scheduled Time</th>
+                  <th>Community Name</th>
                   <th>Event Title</th>
                   <th>Event Description</th>
                   <th>Status</th>
@@ -71,19 +88,19 @@
                 <tr *ngFor="let event of eventList; let i = index">
                   <td class="tbl-cntn">{{ i + 1 }}</td>
                   <td class="tbl-cntn">{{ event.scheduledDate | date: 'MM/dd/yyyy' }} </td>
-                  <td class="tbl-cntn">{{ event.scheduledTime}}</td>
+                  <td class="tbl-cntn">{{ event.communityName}}</td>
                   <td class="tbl-cntn">{{ event.title }}</td>
                   <td class="tbl-cntn">{{ event.description }}</td>
                   <td class="tbl-cntn">
-                  {{event.status === 'active' ? 'Active' : 'Inactive'}}
+                    {{event.status === 'active' ? 'Active' : 'Inactive'}}
                   </td>
                   <td class="d-flex align-items-center mt-0">
-                  <button (click)="editEventSchedule(event)" class="btn btn-sm btn-warning me-2" mat-icon-button>
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button (click)="deleteEventSchedule(event.id ?? 0)" class="btn btn-sm btn-danger" mat-icon-button>
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                    <button (click)="editEventSchedule(event)" class="btn btn-sm btn-warning me-2" mat-icon-button>
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button (click)="deleteEventSchedule(event.id ?? 0)" class="btn btn-sm btn-danger" mat-icon-button>
+                      <mat-icon>delete</mat-icon>
+                    </button>
                   </td>
                 </tr>
               </tbody>

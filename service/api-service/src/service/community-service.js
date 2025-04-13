@@ -8,6 +8,7 @@ const JobOrder = require("../model/job-order");
 const AppConfig = require("../model/app-config");
 const moment = require("moment-timezone");
 const logger = require("../../logger");
+const { is } = require("bluebird");
 exports.addCommunity = async (req, res) => {
   try {
     let payload = req.body;
@@ -40,6 +41,7 @@ exports.addCommunity = async (req, res) => {
       communityId: newCommunity.id,
       chargePerPetStation: payload.chargePerPetStation,
       chargePerGarbageBin: payload.chargePerGarbageBin,
+      isPaused: payload.isPaused
     };
 
     let newCommunityServiceSchedule = await CommunityServiceSchedule.create(communityServiceScheduleModel);
@@ -91,11 +93,13 @@ exports.updateCommunity = async (req, res) => {
     // Update Community Service Schedule
     let communityServiceScheduleModel = {
       frequency: payload.frequency,
+      startingDate: payload.startingDate,
       scheduledDaysOfWeek: payload.scheduledDaysOfWeek,
       noOfPetStation: payload.noOfPetStation,
       noOfGarbageBin: payload.noOfGarbageBin,
       chargePerPetStation: payload.chargePerPetStation,
       chargePerGarbageBin: payload.chargePerGarbageBin,
+      isPaused: payload.isPaused
     };
 
     let updatedSchedule = await CommunityServiceSchedule.update(
@@ -166,6 +170,7 @@ exports.getAllCommunitiesWithDistanceFromBase = async (req, res) => {
         scheduledDaysOfWeek: community.communityServiceSchedule.scheduledDaysOfWeek ,
         frequency: community.communityServiceSchedule.frequency || 0,
         distance: community.distance.toFixed(3),
+        isPaused:community.communityServiceSchedule.isPaused
       };
       return communityData;
     });
@@ -254,6 +259,7 @@ exports.getAllJobOrderByDate = async (params) => {
         totalStationInstallationPrice: 0,
         totalHandSanitizerPrice: 0,
         scheduledDaysOfWeek:  scheduledDaysOfWeek ,
+        scheduledDate: community.tasks[0].scheduledDate,
         distance: community.distance.toFixed(3),
       };
       return communityData;
@@ -287,6 +293,7 @@ exports.getCommunityById = async (req, res) => {
       chargePerGarbageBin: community.communityServiceSchedule.chargePerGarbageBin ,
       startingDate: community.communityServiceSchedule.startingDate,
       scheduledDaysOfWeek: community.communityServiceSchedule.scheduledDaysOfWeek,
+      isPaused:community.communityServiceSchedule.isPaused,
       frequency: community.communityServiceSchedule.frequency
     };
     return communityData;

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -13,7 +13,8 @@ import { DaySelectorComponent } from '../day-selector/day-selector.component';
   selector: 'app-create',
   templateUrl: './create.component.html',
   styleUrls: ['./create.component.scss'],
-  providers: [DatePipe]
+  providers: [DatePipe],
+  encapsulation: ViewEncapsulation.None,
 })
 export class CreateComponent implements OnInit {
   daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -25,6 +26,7 @@ export class CreateComponent implements OnInit {
   lastServedDate?: any;
   scheduledDate?: any;
   selectedDays: string[] = [];
+  isPaused: boolean = true;
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
@@ -52,9 +54,11 @@ export class CreateComponent implements OnInit {
       next: (res) => {
         console.log(res);
         let communityDetails = res.body;
+        this.isPaused = communityDetails.isPaused;
         if(res.body && res.body.scheduledDaysOfWeek){
           this.selectedDays = res.body.scheduledDaysOfWeek.split(',');
         }
+        this.startingDate = this.datePipe.transform(res.body.startingDate, 'yyyy-MM-dd')?.toString()!;
         this.prepareForm(communityDetails);
       },
       error: (err) => {
@@ -123,6 +127,7 @@ export class CreateComponent implements OnInit {
     let payload = this.communityCreateForm.value;
     payload.startingDate = this.startingDate;
     payload.scheduledDaysOfWeek = this.selectedDays.join(',');
+    payload.isPaused = this.isPaused;
     if (this.isEdit) {
       this.onUpdate(payload);
     } else {

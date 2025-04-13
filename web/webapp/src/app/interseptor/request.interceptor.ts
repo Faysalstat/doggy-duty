@@ -6,25 +6,20 @@ import {
   HttpInterceptor
 } from '@angular/common/http';
 import { finalize, Observable } from 'rxjs';
+import { LoaderService } from '../services/loader.service';
 
 @Injectable()
 export class RequestInterceptor implements HttpInterceptor {
 
-  constructor() {}
+  constructor(private loaderService: LoaderService) {}
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    // Clone the request and modify headers if needed
-    const modifiedReq = req.clone({
-      setHeaders: {
-        'timezone': timeZone
-      }
-    });
-
-    return next.handle(modifiedReq).pipe(
-      finalize(() => {
-        console.log('Request Completed:', req.url);
-      })
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
+    this.loaderService.show();
+    return next.handle(req).pipe(
+      finalize(() => this.loaderService.hide())
     );
   }
 }

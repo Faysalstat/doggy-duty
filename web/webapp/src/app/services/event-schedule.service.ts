@@ -18,8 +18,11 @@ export class EventScheduleService {
   public getEventScheduleById(id:number): Observable<any> {
     return this.http.get(EventScheduleUrls.GET_BY_ID + id);
   }
-  public getAllEventSchedule(): Observable<any> {
-    return this.http.get(EventScheduleUrls.GET_ALL);
+  public getAllEventSchedule(queryParams: Map<string, any>): Observable<any> {
+    let params = new HttpParams();
+    params = params.append('status', queryParams.get('status'));
+    params = params.append('scheduledDate', queryParams.get('scheduledDate'));
+    return this.http.get(EventScheduleUrls.GET_ALL, { params: params });
   }
   public deleteEventSchedule(id:number): Observable<any> {
         let params = new HttpParams();

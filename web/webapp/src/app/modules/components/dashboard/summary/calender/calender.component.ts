@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { EventData } from 'src/app/modules/dto/models';
+import { CommunityService } from 'src/app/services/community.service';
 import { EventScheduleService } from 'src/app/services/event-schedule.service';
 
 @Component({
@@ -14,29 +15,28 @@ import { EventScheduleService } from 'src/app/services/event-schedule.service';
 export class CalenderComponent implements OnInit {
   eventCreateForm!: FormGroup;
   eventList!: EventData[];
-  scheduledDate: string = this.datePipe
-    .transform(new Date(), 'yyyy-MM-dd')
-    ?.toString()!;
+  scheduledDate!: string ;
   isEditMode: boolean = false;
-  scheduledTime: string = this.datePipe
-    .transform(new Date(), 'hh:mm a')
-    ?.toString()!;
-  selectedStatus: string = 'PENDING';
-  hour: number = 0;
-  minute: number = 0;
-  ampm: string = 'AM';
+  selectedStatus: string = 'active';
+  communityList: any[] = [];
+  showCommunityField: boolean = false;
+  selectedCommunity: string = '';
   constructor(
     private formBuilder: FormBuilder,
     private datePipe: DatePipe,
     private eventScheduleService: EventScheduleService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private communityService: CommunityService
   ) {
     // Initialize any other properties if needed
+    const transformedDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
+    this.scheduledDate = transformedDate ? transformedDate : '';
   }
   ngOnInit(): void {
     // Any initialization logic can go here
     this.prepareForm(null);
     this.getAllEventSchedule();
+    this.getAllCommunity();
   }
   prepareForm(eventData: any) {
     if (!eventData) {
@@ -47,19 +47,33 @@ export class CalenderComponent implements OnInit {
       title: [eventData.title, Validators.required],
       description: [eventData.description, Validators.required],
       scheduledDate: [eventData.scheduledDate],
+      communityName:[eventData.communityName]
     });
   }
+  getAllCommunity(){
+    this.communityService.getAllCommunity().subscribe({
+      next: (res) => {
+        if(res.body && res.body.length > 0){
+          this.communityList = [{label: 'Select a Community', value: ''}];
+          let communities = res.body;
+          communities.map((elem:any)=>{
+              let community = { label: elem.communityName, value: elem.communityName }
+              this.communityList.push(community);
+          })
+          this.communityList.push({label: 'Other', value: 'Other'});
+        }
 
+      },
+      error:(err)=>{
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.measse });
+      },
+
+    })
+  }
   submitForm() {
     if (this.eventCreateForm.valid) {
       const formData = this.eventCreateForm.value;
-      formData.scheduledDate = this.scheduledDate;
-      formData.scheduledTime =
-        this.hour.toString().padStart(2, '0') +
-        ':' +
-        this.minute.toString().padStart(2, '0') +
-        ' ' +
-        (this.hour >= 12 ? 'PM' : 'AM');
+      formData.scheduledDate = this.datePipe.transform(this.scheduledDate, 'MM-dd-yyyy')!;
       if (this.isEditMode) {
         this.updateEventSchedule(formData);
       } else {
@@ -81,12 +95,8 @@ export class CalenderComponent implements OnInit {
       next: (res) => {
         console.log('Event Created:', res);
         this.eventCreateForm.reset();
-        this.scheduledDate = this.datePipe
-          .transform(new Date(), 'hh:mm a')
-          ?.toString()!;
+        this.scheduledDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd')?.toString()!;
         this.isEditMode = false;
-        this.hour = 0;
-        this.minute = 0;
         this.getAllEventSchedule();
         this.messageService.add({
           severity: 'success',
@@ -109,12 +119,8 @@ export class CalenderComponent implements OnInit {
       next: (res) => {
         console.log('Event Updated:', res);
         this.eventCreateForm.reset();
-        this.scheduledDate = this.datePipe
-          .transform(new Date(), 'hh:mm a')
-          ?.toString()!;
+        this.scheduledDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd')?.toString()!;
         this.isEditMode = false;
-        this.hour = 0;
-        this.minute = 0;
         this.getAllEventSchedule();
         this.messageService.add({
           severity: 'success',
@@ -145,11 +151,17 @@ export class CalenderComponent implements OnInit {
     console.log('Selected Status:', event.value);
   }
   getAllEventSchedule() {
-    this.eventScheduleService.getAllEventSchedule().subscribe({
+    const params: Map<string, any> = new Map();
+    params.set('status',this.selectedStatus);
+    params.set('scheduledDate','');
+    this.eventScheduleService.getAllEventSchedule(params).subscribe({
       next: (res) => {
         console.log('Event List:', res);
         let events = res.body;
-        this.eventList = res.body;
+        this.eventList = events.map((event: EventData) => ({
+          ...event,
+          scheduledDate: this.datePipe.transform(event.scheduledDate, 'yyyy-MM-dd'),
+        }));
       },
       error: (err) => {
         console.error('Error fetching event list:', err);
@@ -179,10 +191,10 @@ export class CalenderComponent implements OnInit {
   }
   editEventSchedule(event: EventData) {
     this.isEditMode = true;
+    this.showCommunityField = true;
     console.log('Edit Event:', event);
+    this.selectedCommunity = '';
     this.scheduledDate = event.scheduledDate!;
-    this.hour = parseInt(event.scheduledTime!.split(':')[0]);
-    this.minute = parseInt(event.scheduledTime!.split(':')[1].split(' ')[0]);
     this.prepareForm(event);
   }
   resetForm() {
@@ -193,9 +205,14 @@ export class CalenderComponent implements OnInit {
       ?.toString()!;
     console.log('Form Reset');
   }
-  onTimeSelect(event: any) {
-    if (event.value) {
-      this.scheduledTime = event;
+  onSelectCommunity(event:any){
+    console.log('Selected Community:', event);
+    if(event.value === "Other"){
+      this.showCommunityField = true;
+      this.eventCreateForm.patchValue({communityName: ''});
+    }else{
+      this.showCommunityField = false;
+      this.eventCreateForm.patchValue({communityName: event.value});
     }
   }
 }

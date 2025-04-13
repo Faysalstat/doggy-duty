@@ -16,9 +16,7 @@ exports.addEventSchedule = async (req, res, next) => {
 
 exports.getAllEventSchedule = async (req, res, next) => {
   try {
-    let params = req.query;
-    const userTimeZone = req.headers['timezone'] || 'UTC'; // Get timezone from header
-    let response = await eventScheduleService.getAllEventSchedule(params,userTimeZone);
+    let response = await eventScheduleService.getAllEventSchedule(req, res, next);
     return res.status(200).json({
       message: "Event Schedule Retrieved",
       body: response,

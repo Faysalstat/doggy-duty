@@ -2,7 +2,7 @@
     <p-toast  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
     <div class="mt-4 p-5 rounded">
         <div class="d-flex align-items-center justify-content-between">
-            <h3>Completed Task History</h3>
+            <h2>Completed Task History</h2>
         </div>
         <hr>
         <div class="table-responsive">
@@ -43,7 +43,7 @@
                         <td appCurrency>${{ community.chargePerBinReplacement }}</td>
                         <td>{{ community.noOfStationInstalled }}</td>
                         <td appCurrency>${{ community.chargePerNewStationInstallment }}</td>
-                        <td>{{ applyFilter(community.scheduledDate) }}</td>
+                        <td>{{community.scheduledDate}}</td>
                         <td>{{ community.taskStatus }}</td>
                     </tr>
                 </tbody>
