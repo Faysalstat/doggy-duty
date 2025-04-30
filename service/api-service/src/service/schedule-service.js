@@ -16,7 +16,7 @@ exports.generateDailyTasks = async (today) => {
   try {
     let tasksForEmail = await taskService.generateDailyTasks(today);
     if (tasksForEmail.length && tasksForEmail.length > 0) {
-      await generateMail(today,tasksForEmail);
+      // await generateMail(today,tasksForEmail);
       logger.info("Job Execution Log", {
         job_name: "Job Scheduler",
         job_type: "SMS & Mail",
@@ -31,7 +31,7 @@ exports.generateDailyTasks = async (today) => {
         error_message: `SMS & Mail Not Sent for ${today}`,
       });
     }
-    await generateInvoice(today);
+    // await generateInvoice(today);
     return "SUCCESS"
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
@@ -41,11 +41,11 @@ exports.generateDailyTasks = async (today) => {
 const generateMail = async (today, response) => {
   try {
     const emailBody = generateTaskListEmailBody(response);
-    // sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
-    // sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
+    sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
+    sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
     sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
     logger.info(`Mail sent successfully`);
-    // await smsService.sendSms();
+    await smsService.sendSms();
     logger.info(`SMS sent successfully`);
   } catch (error) {
     logger.error(`Error occurred on SMS: ${error.message}`, { stack: error.stack });
@@ -69,7 +69,7 @@ const generateInvoice = async (today) => {
           status: "INFO",
           error_message: `Days since last invoice generated for ${community.communityName} : ${diff}`,
         });
-        if (diff >= 30) {
+        if (diff >= 28) {
           logger.info(`Generating invoice for community: ${community.communityName}`);
           let invoiceModel = {
             totalAmount: 0,
@@ -266,12 +266,13 @@ const generateEventMail = async (event) => {
 let emailBody = "";
   if (event) {
     emailBody = `
-    <h1>Reminder for your upcoming Event</h1>
+    <h1>Reminder for your upcomming Event</h1>
     <p>Dear Team,</p>
     <p>This is a reminder for your upcoming event:</p>
     <h2>${event.title}</h2>
     <p><strong>Date:</strong> ${event.scheduledDate}</p>
     <p><strong>Description:</strong> ${event.description}  ${event.communityName ? ` at ${event.communityName}</p>` : ""}`;
+
     emailBody += `
     <p>Thank you!</p>
     <p>Best regards,<br>Doggy Duty</p>

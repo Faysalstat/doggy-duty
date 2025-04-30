@@ -129,7 +129,17 @@
                             Start Date is required.
                         </div>
                     </div>
-                    <div class="col-md-8 d-flex align-items-center justify-content-end">
+                    <div class="col-md-4">
+                        <mat-form-field class="input-field" appearance="outline">
+                          <mat-label>Frequency</mat-label>
+                          <mat-select formControlName="frequency">
+                            <mat-option *ngFor="let freq of frequencies" [value]="freq.value">
+                              {{ freq.label }}
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                    <div class="col-md-4 d-flex align-items-center justify-content-end">
                         <mat-slide-toggle class="custom-toggle" [(ngModel)]="isPaused" [ngModelOptions]="{standalone: true}">
                             Is Paused
                         </mat-slide-toggle>

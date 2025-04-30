@@ -1,5 +1,6 @@
 const AppConfig = require("../model/app-config");
-
+const moment = require("moment-timezone");
+const ScheduledDays = require("../model/scheduled-days");
   // Function to calculate Haversine distance
   const haversineDistance = (lat1, lon1, lat2, lon2) => {
     const toRad = (value) => (Math.PI / 180) * value;
@@ -130,3 +131,33 @@ const AppConfig = require("../model/app-config");
 
     return sortedSchedule;
   }
+
+  exports.getFilteredCommunityBasedOnFrequency = async (schedules) => {
+    const today = moment().tz("America/New_York");
+    const filteredSchedules = await Promise.all(
+      schedules.map(async (schedule) => {
+        const frequency = schedule.frequency ?? 1; // Default to weekly
+        const lastServedDate = schedule.scheduledDays[0]?.lastServedDate;
+        if (!lastServedDate) {
+          // No last served date, ready to serve
+          return { schedule, include: true };
+        }
+
+        const lastServedMoment = moment(lastServedDate).tz("America/New_York");
+        const weeksSinceLastServed = today.diff(lastServedMoment, 'weeks');
+        if (weeksSinceLastServed >= frequency) {
+          await ScheduledDays.update(
+            { lastServedDate: today.format("YYYY-MM-DD") },
+            { where: { id: schedule.scheduledDays[0].id } }
+          );
+        }
+        // Check if the community is ready to be served based on frequency
+        console.log(weeksSinceLastServed >= frequency);
+        return { schedule, include: weeksSinceLastServed >= frequency };
+      })
+    );
+
+    return filteredSchedules
+      .filter((result) => result.include)
+      .map((result) => result.schedule);
+  };

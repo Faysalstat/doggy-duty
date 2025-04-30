@@ -27,6 +27,7 @@ export class CreateComponent implements OnInit {
   scheduledDate?: any;
   selectedDays: string[] = [];
   isPaused: boolean = true;
+  frequencies:any[] = [];
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
@@ -35,7 +36,14 @@ export class CreateComponent implements OnInit {
     private messageService: MessageService,
     private datePipe: DatePipe,
     private dialog: MatDialog,
-  ) {}
+  ) {
+    this.frequencies = [
+      { value: 1, label: 'Every Week' },
+      { value: 2, label: 'Every 2 Weeks' },
+      { value: 3, label: 'Every 3 Weeks' },
+      { value: 4, label: 'Every 4 Weeks' }
+    ];
+  }
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
@@ -56,7 +64,7 @@ export class CreateComponent implements OnInit {
         let communityDetails = res.body;
         this.isPaused = communityDetails.isPaused;
         if(res.body && res.body.scheduledDaysOfWeek){
-          this.selectedDays = res.body.scheduledDaysOfWeek.split(',');
+          this.selectedDays = res.body.scheduledDaysOfWeek;
         }
         this.startingDate = this.datePipe.transform(res.body.startingDate, 'yyyy-MM-dd')?.toString()!;
         this.prepareForm(communityDetails);
@@ -99,9 +107,9 @@ export class CreateComponent implements OnInit {
       noOfGarbageBin: [communityData.noOfGarbageBin],
       chargePerPetStation: [communityData.chargePerPetStation],
       chargePerGarbageBin: [communityData.chargePerGarbageBin],
-      frequency: [communityData.frequency],
+      frequency: [communityData.frequency || 1,Validators.required],
       startingDate: [communityData.startingDate],
-      scheduledDaysOfWeek: [communityData.scheduledDaysOfWeek?communityData.scheduledDaysOfWeek.split(','):[]],
+      scheduledDaysOfWeek: [communityData.scheduledDaysOfWeek?communityData.scheduledDaysOfWeek:[]],
     });
   }
 
@@ -126,7 +134,7 @@ export class CreateComponent implements OnInit {
     }
     let payload = this.communityCreateForm.value;
     payload.startingDate = this.startingDate;
-    payload.scheduledDaysOfWeek = this.selectedDays.join(',');
+    payload.scheduledDaysOfWeek = this.selectedDays;
     payload.isPaused = this.isPaused;
     if (this.isEdit) {
       this.onUpdate(payload);

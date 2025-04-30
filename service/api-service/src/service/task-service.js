@@ -9,14 +9,17 @@ const { CONFIG_NAMES, TASK_STATUS, PAYMENT_STATUS } = require("../model/enums");
 const Billing = require("../model/billing");
 const logger = require("../../logger");
 const moment = require("moment-timezone");
+const { model } = require("mongoose");
+const ScheduledDays = require("../model/scheduled-days");
 // Function to generate job orders and tasks
 exports.generateDailyTasks = async (scheduledDate) => {
   try {
     let query = {};
+    let schedulequery = {};
     let tasksForEmail = [];
-    let taskDate = scheduledDate;
+    let taskDate = moment().tz("America/New_York").format("MM-DD-YYYY");
     let currentDay = moment().tz("America/New_York").format("dddd").toLowerCase();
-    query.scheduledDaysOfWeek =  {[Op.like]: `%${currentDay}%`};
+    schedulequery.scheduledDay =  {[Op.like]: `%${currentDay}%`};
     query.isPaused = false;
     let config = await AppConfig.findAll();
     let chargePerBagRoll = config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;
@@ -26,7 +29,13 @@ exports.generateDailyTasks = async (scheduledDate) => {
     // Fetch schedules matching today's day
     const schedules = await CommunityServiceSchedule.findAll({
       where: query,
-      include: [{ model: Community }],
+      include: [
+        { model: Community },
+        {
+          model: ScheduledDays, 
+          where: schedulequery
+        },
+      ],
     });
     if (schedules.length === 0) {
       logger.info("Job Execution Log", {
@@ -40,10 +49,19 @@ exports.generateDailyTasks = async (scheduledDate) => {
 
     let jobOrders = [];
     let currentTasks = [];
-
+    let filteredCommuntyByFrequency = await commonService.getFilteredCommunityBasedOnFrequency(schedules);
+    if (filteredCommuntyByFrequency.length === 0) {
+      logger.info("Job Execution Log", {
+            job_name: "Job Scheduler",
+            job_type: "Scheduler",
+            status: "Scheduler Stopped",
+            error_message: `No scheduled services for This Week`,
+          });
+      return [];
+    }
     // Sort communities by distance (assume each community has a distance field)
     let sortedSchedule = await commonService.getSortedScheduledListByDistance(
-      schedules
+      filteredCommuntyByFrequency
     );
 
     for (const schedule of sortedSchedule) {
@@ -79,15 +97,6 @@ exports.generateDailyTasks = async (scheduledDate) => {
         noOfPetStation: communitySchedule.noOfPetStation,
         taskStatus: "Pending",
       });
-      if (currentTasks.length === 4) {
-        let jobOrder = await JobOrder.create({ date: taskDate });
-        for (let task of currentTasks) {
-          task.jobOrderId = jobOrder.id;
-          await Task.create(task);
-        }
-        jobOrders.push(jobOrder);
-        currentTasks = [];
-      }
     }
     // Create remaining tasks if any
     if (currentTasks.length > 0) {
@@ -244,9 +253,3 @@ const calculateTotalBill = async (task,payload) => {
   return petStationCost + garbageBinCost + bagRollCost + binReplacementCost + petStationInstallmentCost + handSanitizerCost;
 };
 
-const setToMidnightUTC = async (date) => {
-  if (!date) return null;
-  let dt = new Date(date);
-  dt.setUTCHours(18, 0, 0, 0); // Set to 00:00:00 UTC
-  return dt;
-};

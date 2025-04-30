@@ -18,7 +18,7 @@ export class CommunityDTO {
     noOfGarbageBin?: number;
     chargePerPetStation?: number;
     chargePerGarbageBin?: number;
-    frequency?: string;
+    frequency: number = 1;
     scheduledDaysOfWeek?: string;
 }
 

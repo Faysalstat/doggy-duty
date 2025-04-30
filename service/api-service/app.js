@@ -63,9 +63,9 @@ const eventRoute = require("./src/router/event-route");
 // Run every day at 06:00 AM in Florida (Eastern Time)
 // Task Generator 
 cron.schedule(
-  "38 6 * * *", // Runs at 6.00 AM EDT/EST
+  "58 6 * * *", // Runs at 6.00 AM EDT/EST
   async () => {
-    const todayEDT = moment().tz("America/New_York").format("MM-DD-YYYY");
+    const todayEDT = moment().tz("America/New_York").format("YYYY-MM-DD");
     logger.info("Cron job started for daily task generation", {
       date: todayEDT, // Date in EDT/EST
     });
@@ -77,19 +77,19 @@ cron.schedule(
 );
 
 // Event Generator 
-// cron.schedule(
-//   "0 7 * * *", // Runs at 7.00 AM EDT/EST
-//   async () => {
-//     const todayEDT = moment().tz("America/New_York").format("MM-DD-YYYY");
-//     logger.info("Cron job started for daily Event generation", {
-//       date: todayEDT, // Date in EDT/EST
-//     });
-//     await scheduleService.generateDailyEvent(todayEDT);
-//   }, 
-//   {
-//     timezone: "America/New_York" // EDT/EST handled automatically
-//   }
-// );
+cron.schedule(
+  "0 7 * * *", // Runs at 7.00 AM EDT/EST
+  async () => {
+    const todayEDT = moment().tz("America/New_York").format("YYYY-MM-DD");
+    logger.info("Cron job started for daily Event generation", {
+      date: todayEDT, // Date in EDT/EST
+    });
+    await scheduleService.generateDailyEvent(todayEDT);
+  }, 
+  {
+    timezone: "America/New_York" // EDT/EST handled automatically
+  }
+);
 app.get("/api", (req, res) => {
   res.send("Welcome to my Node API!");
 });
