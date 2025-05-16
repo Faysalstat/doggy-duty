@@ -20,6 +20,7 @@ exports.generateDailyTasks = async (scheduledDate) => {
     let taskDate = moment().tz("America/New_York").format("MM-DD-YYYY");
     let currentDay = moment().tz("America/New_York").format("dddd").toLowerCase();
     schedulequery.scheduledDay =  {[Op.like]: `%${currentDay}%`};
+    schedulequery.isSelected =  true;
     query.isPaused = false;
     let config = await AppConfig.findAll();
     let chargePerBagRoll = config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;

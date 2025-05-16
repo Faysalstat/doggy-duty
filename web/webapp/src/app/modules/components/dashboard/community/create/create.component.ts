@@ -26,7 +26,7 @@ export class CreateComponent implements OnInit {
   lastServedDate?: any;
   scheduledDate?: any;
   selectedDays: string[] = [];
-  isPaused: boolean = true;
+  isPaused: boolean = false;
   frequencies:any[] = [];
   constructor(
     private formBuilder: FormBuilder,
@@ -152,7 +152,7 @@ export class CreateComponent implements OnInit {
           summary: 'Created',
           detail: 'Successfully Created',
         });
-        this.prepareForm(null);
+        this.router.navigate(['community/list']);
       },
       error: (err) => {
         this.messageService.add({

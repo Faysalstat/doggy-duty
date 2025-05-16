@@ -140,6 +140,10 @@ const ScheduledDays = require("../model/scheduled-days");
         const lastServedDate = schedule.scheduledDays[0]?.lastServedDate;
         if (!lastServedDate) {
           // No last served date, ready to serve
+          await ScheduledDays.update(
+            { lastServedDate: today.format("YYYY-MM-DD") },
+            { where: { id: schedule.scheduledDays[0].id } }
+          );
           return { schedule, include: true };
         }
 

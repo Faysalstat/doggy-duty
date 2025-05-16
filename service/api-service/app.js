@@ -63,7 +63,7 @@ const eventRoute = require("./src/router/event-route");
 // Run every day at 06:00 AM in Florida (Eastern Time)
 // Task Generator 
 cron.schedule(
-  "58 6 * * *", // Runs at 6.00 AM EDT/EST
+  "45 0 * * *", // Runs at 6.00 AM EDT/EST
   async () => {
     const todayEDT = moment().tz("America/New_York").format("YYYY-MM-DD");
     logger.info("Cron job started for daily task generation", {

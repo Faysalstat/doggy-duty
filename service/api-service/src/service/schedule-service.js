@@ -16,7 +16,7 @@ exports.generateDailyTasks = async (today) => {
   try {
     let tasksForEmail = await taskService.generateDailyTasks(today);
     if (tasksForEmail.length && tasksForEmail.length > 0) {
-      // await generateMail(today,tasksForEmail);
+      await generateMail(today,tasksForEmail);
       logger.info("Job Execution Log", {
         job_name: "Job Scheduler",
         job_type: "SMS & Mail",
@@ -41,11 +41,11 @@ exports.generateDailyTasks = async (today) => {
 const generateMail = async (today, response) => {
   try {
     const emailBody = generateTaskListEmailBody(response);
-    sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
-    sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
+    // sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
+    // sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
     sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
     logger.info(`Mail sent successfully`);
-    await smsService.sendSms();
+    // await smsService.sendSms();
     logger.info(`SMS sent successfully`);
   } catch (error) {
     logger.error(`Error occurred on SMS: ${error.message}`, { stack: error.stack });
