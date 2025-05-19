@@ -54,7 +54,12 @@ exports.getAllInvoices = async (req, res, next) => {
     if (params.endDate || params.endDate != "") {
       endDate = new Date(params.endDate);
     }
-    query.invoiceDate = { [Op.between]: [startDate, endDate] };
+    query.invoiceDate = { 
+      [Op.between]: [
+        startDate.toISOString().split('T')[0], 
+        endDate.toISOString().split('T')[0]
+      ] 
+    };
     let invoices = await Invoice.findAll({
       where: query,
       include: [

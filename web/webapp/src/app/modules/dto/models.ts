@@ -18,8 +18,8 @@ export class CommunityDTO {
     noOfGarbageBin?: number;
     chargePerPetStation?: number;
     chargePerGarbageBin?: number;
-    frequency?: string;
-
+    frequency: number = 1;
+    scheduledDaysOfWeek?: string;
 }
 
 export enum TaskStatus {
@@ -33,4 +33,13 @@ export enum AppConfigNames {
   PRICE_PER_NEW_STATION_INSTALLMENT = 'PRICE_PER_NEW_STATION_INSTALLMENT',
   PRICE_PER_BIN_REPLACEMENT = 'PRICE_PER_BIN_REPLACEMENT',
   PRICE_PER_HAND_SANITIZER = 'PRICE_PER_HAND_SANITIZER',
+}
+
+export class EventData{
+  id?: number;
+  title?: string;
+  scheduledDate?:string;
+  description?: string;
+  communityName?: string;
+  status?: string;
 }

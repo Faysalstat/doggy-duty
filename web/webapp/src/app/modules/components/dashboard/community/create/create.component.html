@@ -2,8 +2,11 @@
     <p-toast  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
     <div class="mt-4 p-5 rounded">
         <div class="d-flex align-items-center justify-content-between">
-            <h4>Add Community</h4>
+            <h2>Add Community</h2>
+            <div>
             <button (click)="goBack()" class="btn btn-default">Go to List</button>
+            <!-- <button (click)="addSchedule()" class="btn add-schedule-btn ms-2">Add Schedule</button> -->
+            </div>
         </div>
         <hr>
         <div class="row">
@@ -106,30 +109,52 @@
                         </mat-form-field>
                     </div>
                     <div class="col-md-12">
-                        <h4>Add Schedule</h4>
+                        <h2>Add Schedule</h2>
                         <hr>
                     </div>
                     <div class="col-md-4">
                         <mat-form-field class="input-field" appearance="outline">
-                            <mat-label>Frequency</mat-label>
-                            <input type="number" placeholder="Frequency" formControlName="frequency" matInput>
-                        </mat-form-field>
-                    </div>
-                    <div *ngIf="!isEdit" class="col-md-4">
-                        <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Start Date</mat-label>
-                            <input (dateChange)="onSelectStartingDate()" [ngModelOptions]="{standalone:true}" [(ngModel)]="startingDate" matInput [matDatepicker]="startDate">
+                            <input 
+                                (dateChange)="onDateChange($event)" 
+                                [ngModelOptions]="{standalone:true}" 
+                                [(ngModel)]="startingDate" 
+                                matInput 
+                                [matDatepicker]="startDate" 
+                                required>
                             <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
                             <mat-datepicker #startDate></mat-datepicker>
                         </mat-form-field>
+                        <div *ngIf="!startingDate" class="text-danger">
+                            Start Date is required.
+                        </div>
                     </div>
-                    <div *ngIf="isEdit" class="col-md-4">
+                    <div class="col-md-4">
                         <mat-form-field class="input-field" appearance="outline">
-                            <mat-label>Next Scheduled Date</mat-label>
-                            <input (dateChange)="onDateChange($event)" [ngModelOptions]="{standalone:true}" [(ngModel)]="scheduledDate" matInput [matDatepicker]="nextScheduleDate">
-                            <mat-datepicker-toggle matIconSuffix [for]="nextScheduleDate"></mat-datepicker-toggle>
-                            <mat-datepicker #nextScheduleDate></mat-datepicker>
+                          <mat-label>Frequency</mat-label>
+                          <mat-select formControlName="frequency">
+                            <mat-option *ngFor="let freq of frequencies" [value]="freq.value">
+                              {{ freq.label }}
+                            </mat-option>
+                          </mat-select>
                         </mat-form-field>
+                      </div>
+                    <div class="col-md-4 d-flex align-items-center justify-content-end">
+                        <mat-slide-toggle class="custom-toggle" [(ngModel)]="isPaused" [ngModelOptions]="{standalone: true}">
+                            Is Paused
+                        </mat-slide-toggle>
+                    </div>
+                    <div class="col-md-12">
+                        <h4 style="font-weight: bold; color: #ff5722; margin-bottom: 10px;">Days of the Week</h4>
+                        <p>Click on the buttons below to select the days of the week.</p>
+                        <div class="button-group">
+                            <button 
+                              *ngFor="let day of daysOfWeek" 
+                              [ngClass]="{'selected': selectedDays.includes(day)}" 
+                              (click)="toggleDay(day)">
+                              {{ day }}
+                            </button>
+                          </div>
                     </div>
                     <!-- Submit Button Positioned to the Right -->
                     <div class="col-12 d-flex justify-content-end mt-3" style="width: 100%;">
@@ -139,3 +164,4 @@
             </form>
         </div>
     </div>
+    

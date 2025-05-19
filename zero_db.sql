@@ -6,7 +6,5 @@ INSERT INTO `appconfig` (`id`, `configName`, `value`, `createdAt`, `updatedAt`) 
 (5, 'PRICE_PER_BIN_REPLACEMENT', '20', '2025-03-15 12:59:49', '2025-03-15 12:59:49'),
 (6, 'PRICE_PER_HAND_SANITIZER', '18.5', '2025-03-25 12:14:47', '2025-03-25 12:14:47'),
 (7, 'USER_EMAIL', 'pinnacleserviceboard@gmail.com', '2025-03-25 12:14:47', '2025-03-25 12:14:47');
-UPDATE communityServiceSchedules sc
-SET sc.scheduledDate = '2025-03-25'
 INSERT INTO `user` (`id`, `username`, `password`, `userrole`, `email`, `createdAt`, `updatedAt`) VALUES
 (1, 'admin', '$2b$10$73oH.w4ZyLHxoqAPikA.OukEEgnbmxK2SG1OeMukwYmT9HQT/jzqi', NULL, NULL, '2025-03-14 21:01:35', '2025-03-14 21:01:35');

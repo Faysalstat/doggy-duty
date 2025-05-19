@@ -8,11 +8,16 @@ const JobOrder = require("../model/job-order");
 const AppConfig = require("../model/app-config");
 const moment = require("moment-timezone");
 const logger = require("../../logger");
+const ScheduledDays = require("../model/scheduled-days");
+const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 exports.addCommunity = async (req, res) => {
+  let createdSchedules;
+  let newCommunityServiceSchedule;
+  let newCommunity;
   try {
     let payload = req.body;
-    const lastServedDateUTC = new Date(); // Always store as UTC
-
+    const today = moment().tz("America/New_York");
+    
     // Create Community entity
     let communityEntity = {
       communityName: payload.communityName,
@@ -27,27 +32,48 @@ exports.addCommunity = async (req, res) => {
       specialRequest: payload.specialRequest,
     };
 
-    let newCommunity = await Community.create(communityEntity);
+    newCommunity = await Community.create(communityEntity);
 
     // Create Community Service Schedule
     let communityServiceScheduleModel = {
       frequency: payload.frequency,
       startingDate: payload.startingDate,
-      scheduledDate: payload.scheduledDate,
-      lastServedDate: lastServedDateUTC,
+      lastServedDate: moment().tz("America/New_York").format("MM-DD-YYYY"),
       lastInvoiceGenerated: payload.startingDate,
       noOfPetStation: payload.noOfPetStation,
       noOfGarbageBin: payload.noOfGarbageBin,
       communityId: newCommunity.id,
       chargePerPetStation: payload.chargePerPetStation,
       chargePerGarbageBin: payload.chargePerGarbageBin,
+      isPaused: payload.isPaused
     };
-
-    let newCommunityServiceSchedule = await CommunityServiceSchedule.create(communityServiceScheduleModel);
+    newCommunityServiceSchedule = await CommunityServiceSchedule.create(communityServiceScheduleModel);
+    if (payload.scheduledDaysOfWeek.length > 0) {
+      let scheduledDaysArray = daysOfWeek.map((day) => {
+        let isSelected = payload.scheduledDaysOfWeek.includes(day);
+        let scheduledDayData = {
+          scheduledDay: day,
+          isSelected: isSelected,
+          communityServiceScheduleId:newCommunityServiceSchedule.id
+        };
+        return scheduledDayData;
+      });
+      createdSchedules = await ScheduledDays.bulkCreate(scheduledDaysArray);
+    }
     return {newCommunity,newCommunityServiceSchedule};
 
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
+    
+    if(newCommunity){
+      if(newCommunityServiceSchedule){
+        if(createdSchedules){
+          let deletedDays = await ScheduledDays.destroy({where:{communityServiceScheduleId:newCommunityServiceSchedule.id}});
+        }
+        let deletedSchedule = await CommunityServiceSchedule.destroy({where:{communityId:newCommunity.id}});
+      }
+      let deletedCommunity = await Community.destroy({where:{id:newCommunity}});
+    }
     throw new Error("Error Occurred:", error);
   }
 };
@@ -92,11 +118,12 @@ exports.updateCommunity = async (req, res) => {
     // Update Community Service Schedule
     let communityServiceScheduleModel = {
       frequency: payload.frequency,
-      scheduledDate: payload.scheduledDate,
+      startingDate: payload.startingDate,
       noOfPetStation: payload.noOfPetStation,
       noOfGarbageBin: payload.noOfGarbageBin,
       chargePerPetStation: payload.chargePerPetStation,
       chargePerGarbageBin: payload.chargePerGarbageBin,
+      isPaused: payload.isPaused
     };
 
     let updatedSchedule = await CommunityServiceSchedule.update(
@@ -128,10 +155,25 @@ exports.updateCommunity = async (req, res) => {
       noOfGarbageBin: payload.noOfGarbageBin,
       chargePerGarbageBin: payload.chargePerGarbageBin,
       startingDate: payload.startingDate,
-      scheduledDate: payload.scheduledDate,
+      scheduledDaysOfWeek: payload.scheduledDaysOfWeek,
       frequency: payload.frequency,
     };
+    if (payload.scheduledDaysOfWeek.length > 0) {
+      // Create an array of scheduled days
+      let existingScheduledDays = await ScheduledDays.findAll({ where: { communityServiceScheduleId: community.communityServiceSchedule.id } });
+      let updatedScheduledDays = existingScheduledDays.map((day) => {
+        let isSelected = payload.scheduledDaysOfWeek.includes(day.scheduledDay);
+        if (isSelected !== day.isSelected) {
+          day.isSelected = isSelected;
+        }
+        return day;
+      });
 
+      // Update only the modified scheduled days
+      for (let day of updatedScheduledDays) {
+        await day.save();
+      }
+    }
     return communityData;
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
@@ -164,9 +206,9 @@ exports.getAllCommunitiesWithDistanceFromBase = async (req, res) => {
         noOfGarbageBin: community.communityServiceSchedule.noOfGarbageBin || 0,
         chargePerGarbageBin: community.communityServiceSchedule.chargePerGarbageBin || 0 ,
         startingDate: community.communityServiceSchedule.startingDate ,
-        scheduledDate: community.communityServiceSchedule.scheduledDate ,
         frequency: community.communityServiceSchedule.frequency || 0,
         distance: community.distance.toFixed(3),
+        isPaused:community.communityServiceSchedule.isPaused
       };
       return communityData;
     });
@@ -184,7 +226,7 @@ exports.getAllJobOrderByDate = async (params) => {
   if(params.date && params.date != ""){
     jobquery.date = params.date;
   }else{
-    jobquery.date = moment.tz("America/New_York").format('YYYY-MM-DD');
+    jobquery.date = moment.tz("America/New_York").format('MM-DD-YYYY');
   }
 
   if(params.status && params.status != ""){
@@ -219,8 +261,8 @@ exports.getAllJobOrderByDate = async (params) => {
     }
     sortedCommunities = await CommonService.orderCommunitiesByProximity(JSON.parse(JSON.stringify(communities)));
     const result = sortedCommunities.map(community => {
-      let scheduledDate;
-      scheduledDate = community.communityServiceSchedule.scheduledDate;
+      let scheduledDaysOfWeek;
+      scheduledDaysOfWeek = community.communityServiceSchedule.scheduledDaysOfWeek;
       const communityData = {
         jobOrderId: community.tasks[0].jobOrderId, // Get jobOrderId from the first task or set to null
         taskId:community.tasks[0].id,
@@ -254,7 +296,7 @@ exports.getAllJobOrderByDate = async (params) => {
         totalBinReplacementPrice: 0,
         totalStationInstallationPrice: 0,
         totalHandSanitizerPrice: 0,
-        scheduledDate:  scheduledDate ,
+        scheduledDate: community.tasks[0].scheduledDate,
         distance: community.distance.toFixed(3),
       };
       return communityData;
@@ -262,7 +304,6 @@ exports.getAllJobOrderByDate = async (params) => {
     return result;
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
-    throw new Error("Error Occurred: " + error.message);
   }
 };
 
@@ -270,13 +311,13 @@ exports.getCommunityById = async (req, res) => {
   let params = req.query;
   const userTimeZone = req.headers['timezone'] || 'UTC'; // Get timezone from header
   try {
-    let community = await Community.findOne({where:{id:params.id},include:CommunityServiceSchedule});
+    let community = await Community.findOne({where:{id:params.id},include:{model:CommunityServiceSchedule,include:ScheduledDays}});
     const communityData = {
       communityId: community.id,
       communityName: community.communityName,
       communityAddress: community.communityAddress,
-      latitude:community.latitude,
-      longitude:community.longitude,
+      latitude: community.latitude,
+      longitude: community.longitude,
       gateCode: community.gateCode,
       camOfcommunity: community.camOfcommunity,
       phone: community.phone,
@@ -284,11 +325,14 @@ exports.getCommunityById = async (req, res) => {
       lockBoxCode: community.lockBoxCode,
       specialRequest: community.specialRequest,
       noOfPetStation: community.communityServiceSchedule.noOfPetStation,
-      chargePerPetStation : community.communityServiceSchedule.chargePerPetStation ,
+      chargePerPetStation: community.communityServiceSchedule.chargePerPetStation,
       noOfGarbageBin: community.communityServiceSchedule.noOfGarbageBin,
-      chargePerGarbageBin: community.communityServiceSchedule.chargePerGarbageBin ,
+      chargePerGarbageBin: community.communityServiceSchedule.chargePerGarbageBin,
       startingDate: community.communityServiceSchedule.startingDate,
-      scheduledDate: community.communityServiceSchedule.scheduledDate,
+      scheduledDaysOfWeek: community.communityServiceSchedule.scheduledDays
+      .filter(day => day.isSelected)
+      .map(day => day.scheduledDay),
+      isPaused: community.communityServiceSchedule.isPaused,
       frequency: community.communityServiceSchedule.frequency
     };
     return communityData;

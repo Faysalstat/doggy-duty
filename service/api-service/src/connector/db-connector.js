@@ -14,8 +14,7 @@ exports.sequelize = new Sequelize('doggy_duty_db', 'root', 'root', {
   host: 'localhost',
   port: '3306',
   dialect: 'mysql',
-  pool: pool,
-  timezone: "America/New_York", // Ensures Sequelize treats times in EDT
+  pool: pool
 });
 
 // dev 
@@ -26,10 +25,10 @@ exports.sequelize = new Sequelize('doggy_duty_db', 'root', 'root', {
 //   pool: pool
 // });
 
-// exports.sequelize = new Sequelize('vatasolu_doggy_duty', 'vatasolu_doggy_duty_admin', 'h!*kq.CO=.3@', {
-//   host: 's813.bom1.mysecurecloudhost.com',
-//   port: '3306',
-//   dialect: 'mysql',
-//   pool: pool,
-//   // timezone: "America/New_York", // Ensures Sequelize treats times in EDT
-// });
+exports.sequelize = new Sequelize('vatasolu_doggy_duty', 'vatasolu_doggy_duty_admin', 'h!*kq.CO=.3@', {
+  host: 's813.bom1.mysecurecloudhost.com',
+  port: '3306',
+  dialect: 'mysql',
+  pool: pool,
+  // timezone: "America/New_York", // Ensures Sequelize treats times in EDT
+});

@@ -1,34 +1,49 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import * as moment from 'moment-timezone';
 import { MessageService } from 'primeng/api';
 import { CommunityDTO } from 'src/app/modules/dto/models';
 import { CommunityService } from 'src/app/services/community.service';
+import { DialogService } from 'primeng/dynamicdialog';
+import { MatDialog } from '@angular/material/dialog';
+import { DaySelectorComponent } from '../day-selector/day-selector.component';
 
 @Component({
   selector: 'app-create',
   templateUrl: './create.component.html',
   styleUrls: ['./create.component.scss'],
-  providers: [DatePipe]
+  providers: [DatePipe],
+  encapsulation: ViewEncapsulation.None,
 })
 export class CreateComponent implements OnInit {
+  daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   communityId!: number;
   communityCreateForm!: FormGroup;
   serviceList!: CommunityDTO[];
   isEdit: boolean = false;
-  startingDate?: any;
+  startingDate: string = this.datePipe.transform(new Date(), 'yyyy-MM-dd')?.toString()!;
   lastServedDate?: any;
   scheduledDate?: any;
+  selectedDays: string[] = [];
+  isPaused: boolean = false;
+  frequencies:any[] = [];
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
     private communityService: CommunityService,
     private messageService: MessageService,
-    private datePipe: DatePipe
-  ) {}
+    private datePipe: DatePipe,
+    private dialog: MatDialog,
+  ) {
+    this.frequencies = [
+      { value: 1, label: 'Every Week' },
+      { value: 2, label: 'Every 2 Weeks' },
+      { value: 3, label: 'Every 3 Weeks' },
+      { value: 4, label: 'Every 4 Weeks' }
+    ];
+  }
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
@@ -47,7 +62,11 @@ export class CreateComponent implements OnInit {
       next: (res) => {
         console.log(res);
         let communityDetails = res.body;
-        this.scheduledDate = communityDetails.scheduledDate;
+        this.isPaused = communityDetails.isPaused;
+        if(res.body && res.body.scheduledDaysOfWeek){
+          this.selectedDays = res.body.scheduledDaysOfWeek;
+        }
+        this.startingDate = this.datePipe.transform(res.body.startingDate, 'yyyy-MM-dd')?.toString()!;
         this.prepareForm(communityDetails);
       },
       error: (err) => {
@@ -88,15 +107,22 @@ export class CreateComponent implements OnInit {
       noOfGarbageBin: [communityData.noOfGarbageBin],
       chargePerPetStation: [communityData.chargePerPetStation],
       chargePerGarbageBin: [communityData.chargePerGarbageBin],
-      frequency: [communityData.frequency],
+      frequency: [communityData.frequency || 1,Validators.required],
       startingDate: [communityData.startingDate],
+      scheduledDaysOfWeek: [communityData.scheduledDaysOfWeek?communityData.scheduledDaysOfWeek:[]],
     });
   }
 
   goBack() {
     this.router.navigate(['community/list']);
   }
-
+  toggleDay(day: string): void {
+    if (this.selectedDays.includes(day)) {
+      this.selectedDays = this.selectedDays.filter(d => d !== day); // Unselect
+    } else {
+      this.selectedDays.push(day); // Select
+    }
+  }
   onSubmit() {
     if (this.communityCreateForm.invalid) {
       this.messageService.add({
@@ -107,8 +133,9 @@ export class CreateComponent implements OnInit {
       return;
     }
     let payload = this.communityCreateForm.value;
-    // Convert local datepicker values to UTC before sending
-    // payload.startingDate = this.startingDate;
+    payload.startingDate = this.startingDate;
+    payload.scheduledDaysOfWeek = this.selectedDays;
+    payload.isPaused = this.isPaused;
     if (this.isEdit) {
       this.onUpdate(payload);
     } else {
@@ -117,7 +144,6 @@ export class CreateComponent implements OnInit {
   }
 
   onSave(payload: any) {
-    payload.scheduledDate = this.datePipe.transform(payload.startingDate, 'yyyy-MM-dd');
     this.communityService.createCommunityService(payload).subscribe({
       next: (res) => {
         console.log(res);
@@ -126,7 +152,7 @@ export class CreateComponent implements OnInit {
           summary: 'Created',
           detail: 'Successfully Created',
         });
-        this.prepareForm(null);
+        this.router.navigate(['community/list']);
       },
       error: (err) => {
         this.messageService.add({
@@ -140,7 +166,6 @@ export class CreateComponent implements OnInit {
 
   onUpdate(payload: any) {
     payload.id = this.communityId;
-    payload.scheduledDate = this.scheduledDate;
     this.communityService.updateCommunityService(payload).subscribe({
       next: (res) => {
         console.log(res);
@@ -161,17 +186,24 @@ export class CreateComponent implements OnInit {
     });
   }
 
-  onSelectStartingDate() {
-    this.communityCreateForm
-      .get('startingDate')
-      ?.setValue(this.startingDate);
-  }
   onDateChange(event:any) {
     if (event.value) {
-      // Convert to YYYY-MM-DD format
-      this.scheduledDate = this.datePipe.transform(event.value, 'yyyy-MM-dd');
+      this.startingDate = this.datePipe.transform(event.value, 'yyyy-MM-dd')?.toString()!;
       console.log("Raw Date From Picker", event.value);
       console.log("Formatted Date:", this.scheduledDate);
     }
+  }
+  addSchedule() {
+    const ref = this.dialog.open(DaySelectorComponent, {
+      width: '50%',
+    });
+
+    ref.afterClosed().subscribe((selectedDays: any) => {
+      console.log('Dialog closed with selected days:', selectedDays);
+      if (selectedDays.days && selectedDays.days.length > 0) {
+        console.log('Selected Days:', selectedDays.days);
+        // Handle the selected days here
+      }
+    });
   }
 }

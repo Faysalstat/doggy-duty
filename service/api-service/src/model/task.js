@@ -11,7 +11,7 @@ const Task = db.sequelize.define(
       primaryKey: true,
     },
     status: Sequelize.STRING,
-    scheduledDate: Sequelize.DATEONLY,
+    scheduledDate: Sequelize.STRING,
     isBagRollReplaced:Sequelize.BOOLEAN,
     isBinReplaced:Sequelize.BOOLEAN,
     isNewStationInstalled:Sequelize.BOOLEAN,

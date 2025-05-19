@@ -10,6 +10,8 @@ const AppConfig = require("./app-config");
 const SchedulerLog = require("./scheduler-log");
 const Invoice = require("./invoice");
 const InvoiceBillMapping = require("./invoice-bill");
+const EventSchedule = require("./event-schedule");
+const ScheduledDays = require("./scheduled-days");
 // Define Relationships
 Community.hasOne(CommunityServiceSchedule);
 CommunityServiceSchedule.belongsTo(Community);
@@ -32,6 +34,8 @@ InvoiceBillMapping.belongsTo(Billing);
 
 Invoice.hasMany(InvoiceBillMapping);
 Billing.hasMany(InvoiceBillMapping);
+CommunityServiceSchedule.hasMany(ScheduledDays);
+ScheduledDays.belongsTo(CommunityServiceSchedule);
 module.exports = {
   User,
   Community,
@@ -41,5 +45,6 @@ module.exports = {
   Task,
   Billing,
   AppConfig,
-  SchedulerLog
+  SchedulerLog,
+  EventSchedule
 };

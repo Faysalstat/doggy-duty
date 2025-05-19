@@ -16,6 +16,7 @@ import { MaterialModule } from 'src/material.module';
 import { DateOnlyDirective } from './directives/date-only.directive';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RequestInterceptor } from './interseptor/request.interceptor';
+import { UIkitModule } from './modules/components/uikit/uikit.module';
 
 @NgModule({
     declarations: [
@@ -25,7 +26,8 @@ import { RequestInterceptor } from './interseptor/request.interceptor';
         AppRoutingModule,
         AppLayoutModule,
         BrowserAnimationsModule,
-        MaterialModule
+        MaterialModule,
+        UIkitModule,
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },

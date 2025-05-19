@@ -1,0 +1,14 @@
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE `appconfig`;
+TRUNCATE TABLE `billing`;
+TRUNCATE TABLE `community`;
+TRUNCATE TABLE `communityServiceSchedules`;
+TRUNCATE TABLE `eventSchedule`;
+TRUNCATE TABLE `invoice`;
+TRUNCATE TABLE `invoice_bill_mapping`;
+TRUNCATE TABLE `job_order`;
+TRUNCATE TABLE `scheduler_logs`;
+TRUNCATE TABLE `service`;
+TRUNCATE TABLE `task`;
+TRUNCATE TABLE `user`; 
+SET FOREIGN_KEY_CHECKS = 1;

@@ -11,14 +11,13 @@ const CommunityServiceSchedule = db.sequelize.define(
       primaryKey: true,
     },
     frequency:Sequelize.INTEGER,
-    startingDate:Sequelize.DATE,
-    lastServedDate:Sequelize.DATE,
-    lastInvoiceGenerated:Sequelize.DATE,
-    scheduledDate:Sequelize.STRING,
+    startingDate:Sequelize.STRING,
+    lastInvoiceGenerated:Sequelize.STRING,
     noOfPetStation:Sequelize.INTEGER,
     noOfGarbageBin:Sequelize.INTEGER,
     chargePerPetStation:Sequelize.DOUBLE,
     chargePerGarbageBin:Sequelize.DOUBLE,
+    isPaused:Sequelize.BOOLEAN
   },
   {
     freezeTableName: true,

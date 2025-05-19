@@ -2,13 +2,13 @@
     <p-toast  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
     <div class="mt-4 p-5 rounded">
         <div class="d-flex align-items-center justify-content-between">
-            <h3>Community List</h3>
+            <h2>Community List</h2>
             <button (click)="addNew()" class="btn-bg-primary">Add New</button>
         </div>
         <hr>
         <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
+            <table class="table">
+                <thead class="table-secondary">
                     <tr>
                         <th>SN</th>
                         <th>Community Name</th>
@@ -25,10 +25,9 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr *ngFor="let community of communityList; let i = index">
+                    <tr *ngFor="let community of communityList; let i = index"  [ngClass]="{ 'paused-row': community.isPaused }">
                         <td>{{ i + 1 }}</td>
-                        <td>{{ community.communityName }}</td>
+                        <td class="community-font">{{ community.communityName }}</td>
                         <td>{{ community.communityAddress }}</td>
                         <td>{{ community.camOfcommunity }}</td>
                         <!-- <td>{{ community.gateCode }}</td> -->
@@ -40,11 +39,10 @@
                         <td>{{ community.noOfGarbageBin }}</td>
                         <td appCurrency>${{ community.chargePerGarbageBin }}</td>
                         <td>
-                            <button (click)="editCommunity(community.id)" class="btn btn-sm btn-warning">Edit</button>
+                            <button (click)="editCommunity(community.id)" class="bg-dd-primary btn btn-sm btn-warning">Edit</button>
                             <!-- <button (click)="deleteCommunity(community)" class="btn btn-sm btn-danger">Delete</button> -->
                         </td>
                     </tr>
-                </tbody>
             </table>
         </div>
     </div>

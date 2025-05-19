@@ -87,6 +87,18 @@ hr{
   cursor: pointer;
   transition: 0.3s;
 }
+.btn-bg-secondary {
+  background-color: #00bfff; /* Custom blue */
+  color: white; /* Text color */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-bg-secondary:hover {
+  background-color: #0099cc; /* Darker shade on hover */
+}
 .btn-bg-warn{
   background-color: #ff0000; /* Custom red */
   color: white; /* Text color */
@@ -108,4 +120,59 @@ hr{
 }
 table{
   overflow-x: auto;
+}
+.community-font{
+  color: #0025f5;
+}
+
+/* Checked thumb color */
+.custom-toggle.mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+  background-color: #ff5722 !important;
+}
+
+/* Checked bar color */
+.custom-toggle.mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
+  background-color: #ffc1a1 !important;
+}
+
+/* Unchecked thumb */
+.custom-toggle .mat-slide-toggle-thumb {
+  background-color: #757575 !important;
+}
+
+/* Unchecked bar */
+.custom-toggle .mat-slide-toggle-bar {
+  background-color: #c7c7c7 !important;
+}
+
+.notification-wrapper {
+  position: relative;
+  margin-right: 20px;
+  margin-top: 16px;
+  cursor: pointer;
+}
+
+.notification-bell {
+  font-size: 1.5rem;
+  color: #444;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+}
+h2{
+  font-size: 2rem;
+  font-weight: 600;
+  color: #1e1e1e;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+thead{
+  background-color: #4d4d4d !important;
 }

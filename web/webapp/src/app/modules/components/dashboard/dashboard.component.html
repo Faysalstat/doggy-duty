@@ -3,7 +3,7 @@
     <h2>WORK ORDERS</h2>
     <button (click)="downloadWorkOrder()" class="btn-bg-primary">Download</button>
 </div>
-<h4>{{ getFormattedDate() }}</h4>
+<h4 style="font-size: 1.2rem; color: #555; margin-top: 10px;">{{ getFormattedDate() }}</h4>
 <hr />
 <app-task-details (fetchListEmmiter)="fetchJobOrder()" [communityList]="communityList"></app-task-details>
 <!-- </div> -->

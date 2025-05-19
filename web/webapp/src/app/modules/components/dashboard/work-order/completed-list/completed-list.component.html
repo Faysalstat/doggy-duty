@@ -2,7 +2,7 @@
     <p-toast  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
     <div class="mt-4 p-5 rounded">
         <div class="d-flex align-items-center justify-content-between">
-            <h3>Completed Task History</h3>
+            <h2>Completed Task History</h2>
         </div>
         <hr>
         <div class="table-responsive">
@@ -22,7 +22,7 @@
                         <th>New Installation</th>
                         <th>Price/Unit</th>
                         <th>Completed Date</th>
-                        <th>status</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -31,7 +31,7 @@
                     </tr>
                     <tr *ngFor="let community of communityList; let i = index">
                         <td>{{ i + 1 }}</td>
-                        <td>{{ community.communityName }}</td>
+                        <td class="community-font">{{ community.communityName }}</td>
                         <!-- <td>{{ community.communityAddress }}</td> -->
                         <td>{{ community.noOfPetStation }}</td>
                         <td appCurrency>${{ community.chargePerPetStation }}</td>
@@ -43,7 +43,7 @@
                         <td appCurrency>${{ community.chargePerBinReplacement }}</td>
                         <td>{{ community.noOfStationInstalled }}</td>
                         <td appCurrency>${{ community.chargePerNewStationInstallment }}</td>
-                        <td>{{ applyFilter(community.scheduledDate) }}</td>
+                        <td>{{community.scheduledDate}}</td>
                         <td>{{ community.taskStatus }}</td>
                     </tr>
                 </tbody>

@@ -1,0 +1,62 @@
+.add-schedule-btn {
+  background-color: #1a1a1a; /* Blue for primary action */
+  color: white; /* Text color */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.add-schedule-btn:hover {
+  background-color: #000000; /* Darker shade of default blue */
+}
+
+/* day-selector.component.css */
+
+
+.day-selector h3 {
+    margin-bottom: 10px;
+  }
+  
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Space between buttons */
+  }
+  
+  .button-group button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #c1cdfb;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .button-group button.selected {
+    background-color: #ff6600; /* Selected button color */
+    color: white;
+  }
+  
+  .button-group button:hover {
+    background-color: #e0e0e0; /* Hover effect */
+  }
+  
+  .day-selector button[type="button"] {
+    margin-top: 10px;
+  }
+  .update-schedule-btn {
+    background-color: #28a745; /* Green for success */
+    color: white; /* Text color */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .update-schedule-btn:hover {
+    background-color: #1e7e34; /* Darker shade of default green */
+  }
+
+
+  

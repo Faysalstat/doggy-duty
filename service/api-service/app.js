@@ -8,8 +8,10 @@ const cron = require("node-cron");
 var http = require("http").Server(app);
 app.use(bodyParser.json());
 const dbModels = require("./src/model/init-model");
-
+const scheduleService = require("./src/service/schedule-service");
 const cors = require("cors");
+const moment = require("moment-timezone");
+const logger = require("./logger");
 app.use(
   cors({
     origin: "*",
@@ -55,20 +57,34 @@ const serviceRoute = require("./src/router/service-route");
 const communityRoute = require("./src/router/community-route");
 const taskRoute = require("./src/router/task-rote");
 const jobOrderRoute = require("./src/router/job-order-route");
-const scheduleService = require("./src/service/schedule-service");
 const billingRoute = require("./src/router/billing-route");
 const smsRoute = require("./src/router/sms-route");
-const moment = require("moment-timezone");
-const logger = require("./logger");
-// Run every day at 07:00 AM in Florida (Eastern Time)
+const eventRoute = require("./src/router/event-route");
+// Run every day at 06:00 AM in Florida (Eastern Time)
+// Task Generator 
 cron.schedule(
-  "0 6 * * *", // Runs at 2:30 PM EDT/EST
+  "45 0 * * *", // Runs at 6.00 AM EDT/EST
   async () => {
     const todayEDT = moment().tz("America/New_York").format("YYYY-MM-DD");
     logger.info("Cron job started for daily task generation", {
       date: todayEDT, // Date in EDT/EST
     });
     await scheduleService.generateDailyTasks(todayEDT);
+  }, 
+  {
+    timezone: "America/New_York" // EDT/EST handled automatically
+  }
+);
+
+// Event Generator 
+cron.schedule(
+  "0 7 * * *", // Runs at 7.00 AM EDT/EST
+  async () => {
+    const todayEDT = moment().tz("America/New_York").format("YYYY-MM-DD");
+    logger.info("Cron job started for daily Event generation", {
+      date: todayEDT, // Date in EDT/EST
+    });
+    await scheduleService.generateDailyEvent(todayEDT);
   }, 
   {
     timezone: "America/New_York" // EDT/EST handled automatically
@@ -85,3 +101,8 @@ app.use("/api/task", taskRoute);
 app.use("/api/job-order", jobOrderRoute);
 app.use("/api/billing", billingRoute);
 app.use("/api/sms", smsRoute);
+app.use("/api/event", eventRoute);
+app.get("/api/stayawake", (req, res) => {
+  const now = moment().tz("America/New_York").format("MM-DD-YYYY HH:mm:ss");
+  res.send("I am Awake at " + now);
+});

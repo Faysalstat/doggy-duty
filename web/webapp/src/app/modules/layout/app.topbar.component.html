@@ -7,12 +7,54 @@
         <i class="pi pi-bars"></i>
     </button>
 
-    <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button" (click)="layoutService.showProfileSidebar()">
+    <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button"
+        (click)="layoutService.showProfileSidebar()">
         <i class="pi pi-ellipsis-v"></i>
     </button>
 
-    <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
-        <img src="assets/img/doggy-icon.png" class="rounded-circle" alt="doggy-duty" style="width: 50px; height: 50px;margin-right: 20px;">
+    <div #topbarmenu class="layout-topbar-menu"
+        [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
+
+        <!-- Notification Bell -->
+
+
+        <img src="assets/img/doggy-icon.png" class="rounded-circle" alt="doggy-duty"
+            style="width: 50px; height: 50px;margin-right: 20px;">
+        <div class="notification-wrapper" data-bs-toggle="modal" data-bs-target="#myModal">
+            <i class="pi pi-bell notification-bell"></i>
+            <span *ngIf="notificationCount > 0" class="notification-badge">{{ notificationCount }}</span>
+        </div>
         <button type="button" (click)="logout()" class="btn btn-danger">Logout</button>
     </div>
 </div>
+<div class="modal" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+  
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title" style="font-size: 1.5rem; font-weight: bold; color: #007bff; display: flex; justify-content: space-between; align-items: center;">
+              Today's Event <span style="font-size: 1rem; font-weight: normal; color: #6c757d; margin-left: 10px;">Date: {{today}}</span>
+          </h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body">
+            <ul class="list-group list-group-flush">
+                <p *ngIf="eventList?.length == 0" class="text-center">No Event Scheduled</p>
+                <li *ngFor="let event of eventList" class="list-group-item event-item">
+                    <h4 style="margin: 0; font-weight: bold; color: #28a745;">{{event.title}}</h4>
+                    <p style="margin: 5px 0 0; color: #555;">{{event.description}}</p>
+                </li>
+            </ul>
+        </div>
+  
+        <!-- Modal footer -->
+        <!-- <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+        </div> -->
+  
+      </div>
+    </div>
+  </div>

@@ -1,5 +1,5 @@
-// const BASE_URL = "http://localhost:3000/api";
-const BASE_URL = "https://doggyduty.live/api";
+const BASE_URL = "http://localhost:3000/api";
+// const BASE_URL = "https://doggyduty.live/api";
 
 
 export const AuthenticationUrls = {
@@ -45,4 +45,11 @@ export const ConfigUrls = {
   GET_ALL_BY_NAME : BASE_URL + "/config/getallbyname",
   ADD : BASE_URL + "/config/create",
   UPDATE : BASE_URL + "/config/update",
+}
+export const EventScheduleUrls = {
+  CREATE : BASE_URL + "/event/create",
+  GET_ALL : BASE_URL + "/event/getall",
+  GET_BY_ID : BASE_URL + "/event/getbyid",
+  UPDATE : BASE_URL + "/event/update",
+  DELETE : BASE_URL + "/event/delete",
 }

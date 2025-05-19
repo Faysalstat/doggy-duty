@@ -1,0 +1,8 @@
+<div class="button-group">
+  <button 
+    *ngFor="let day of daysOfWeek" 
+    [ngClass]="{'selected': selectedDays.includes(day)}" 
+    (click)="toggleDay(day)">
+    {{ day }}
+  </button>
+</div>
