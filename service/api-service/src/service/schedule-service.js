@@ -79,11 +79,13 @@ const generateInvoice = async (today) => {
             totalBinReplaced: 0,
             totalHandSanitizerReplaced: 0,
             totalNewInstallment: 0,
+            totalTrashBagReplaced: 0,
             costPerGarbageBins: 0,
             costPerPetStations: 0,
             costPerBagReplaced: 0,
             costPerBinReplaced: 0,
             costPerNewStationInstalled: 0,
+            costPerTrashBag: 0,
             invoiceDate: moment(today).format("MM-DD-YYYY"),
           };
           let bills = await Billing.findAll({
@@ -97,6 +99,7 @@ const generateInvoice = async (today) => {
               invoiceModel.totalPetStations += bill.task.noOfPetStation;
               invoiceModel.totalBagReplaced += bill.task.noOfBagRollReplaced;
               invoiceModel.totalBinReplaced += bill.task.noOfBinReplacement;
+              invoiceModel.totalTrashBagReplaced += bill.task.totalTrashBagReplaced;
               invoiceModel.totalNewInstallment +=
                 bill.task.noOfStationInstalled;
               invoiceModel.totalHandSanitizerReplaced +=
@@ -105,6 +108,7 @@ const generateInvoice = async (today) => {
               invoiceModel.costPerGarbageBins = bill.task.chargePerGarbageBin;
               invoiceModel.costPerPetStations = bill.task.chargePerPetStation;
               invoiceModel.costPerBagReplaced = bill.task.chargePerBagRoll;
+              invoiceModel.costPerTrashBag = bill.task.chargePerTrashBag;
               invoiceModel.costPerBinReplaced =
                 bill.task.chargePerBinReplacement;
               invoiceModel.costPerHandSanitizer =

@@ -43,3 +43,50 @@ export class EventData{
   communityName?: string;
   status?: string;
 }
+export const TASK_CONFIG = [
+  {
+    toggleKey: 'isBagRollReplaced',
+    toggleLabel: 'Replace Bag',
+    numberKey: 'noOfBagRollReplaced',
+    numberLabel: 'Number of Roll Replaced',
+    priceKey: 'chargePerBagRoll',
+    priceLabel: 'Price Per Rolls',
+    totalKey: 'totalBagReplacementPrice'
+  },
+  {
+    toggleKey: 'isBinReplaced',
+    toggleLabel: 'Replace 10 Gal. Bin',
+    numberKey: 'noOfBinReplacement',
+    numberLabel: 'Number Bin Replaced',
+    priceKey: 'chargePerBinReplacement',
+    priceLabel: 'Price Per Bins',
+    totalKey: 'totalBinReplacementPrice'
+  },
+  {
+    toggleKey: 'isNewStationInstalled',
+    toggleLabel: 'Install new Station',
+    numberKey: 'noOfStationInstalled',
+    numberLabel: 'Number of Station Installed',
+    priceKey: 'chargePerNewStationInstallment',
+    priceLabel: 'Price Per Station',
+    totalKey: 'totalStationInstallationPrice'
+  },
+  {
+    toggleKey: 'isHandSanitizerReplaced',
+    toggleLabel: 'Replace Hand Sanitizer',
+    numberKey: 'noOfHandSanitizerReplacement',
+    numberLabel: 'Number of Sanitizer Replaced',
+    priceKey: 'chargePerHandSanitizer',
+    priceLabel: 'Price Per Sanitizer',
+    totalKey: 'totalHandSanitizerReplacedPrice'
+  },
+  {
+    toggleKey: 'isTrashBagReplaced',
+    toggleLabel: 'Replace Trash Bag',
+    numberKey: 'noOfTrashBagReplacement',
+    numberLabel: 'Number of Trash Bag Replaced',
+    priceKey: 'chargePerTrashBag',
+    priceLabel: 'Price Per Trash Bag',
+    totalKey: 'totalTrashBagReplacedPrice'
+  }
+];

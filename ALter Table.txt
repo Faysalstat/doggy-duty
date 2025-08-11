@@ -1,0 +1,10 @@
+//invoice
+ALTER TABLE invoice 
+ADD COLUMN totalTrashBagReplaced INT DEFAULT 0,
+ADD COLUMN costPerTrashBag FLOAT DEFAULT 0;
+
+//task
+ALTER TABLE task
+ADD COLUMN isTrashBagReplaced BOOLEAN DEFAULT FALSE,
+ADD COLUMN noOfTrashBagReplacement INT DEFAULT 0,
+ADD COLUMN chargePerTrashBag DOUBLE DEFAULT 0;

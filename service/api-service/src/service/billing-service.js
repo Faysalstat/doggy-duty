@@ -5,6 +5,8 @@ const InvoiceBillMapping = require("../model/invoice-bill");
 const Task = require("../model/task");
 const { Op } = require("sequelize");
 const logger = require("../../logger");
+const AppConfig = require("../model/app-config");
+const { CONFIG_NAMES } = require("../model/enums");
 exports.getBillByCommunityId = async (req, res, next) => {
   let params = req.query;
   let query = {};
@@ -41,6 +43,13 @@ exports.getAllInvoices = async (req, res, next) => {
   let query = {};
   let billingQuery = {};
   let startDate = new Date("2025-03-01");
+
+  let config = await AppConfig.findAll();
+  let chargePerBagRoll = config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;
+  let chargePerBinReplacement = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_BIN_REPLACEMENT).value;
+  let chargePerNewStationInstallment = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_NEW_STATION_INSTALLMENT).value;
+  let chargePerHandSanitizer = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_HAND_SANITIZER).value;
+  let chargePerTrashBag = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_TRASH_BAG).value;
   try {
     if (params.communityId && params.communityId != "") {
       billingQuery.communityId = params.communityId;
@@ -89,19 +98,22 @@ exports.getAllInvoices = async (req, res, next) => {
         totalBinReplaced: invoice.totalBinReplaced,
         totalNewInstallment: invoice.totalNewInstallment,
         totalHandSanitizerReplaced: invoice.totalHandSanitizerReplaced,
+        totalTrashBagReplaced: invoice.totalTrashBagReplaced,
         costPerGarbageBins: invoice.costPerGarbageBins,
         costPerPetStations: invoice.costPerPetStations,
-        costPerBagReplaced: invoice.costPerBagReplaced,
-        costPerBinReplaced: invoice.costPerBinReplaced,
-        costPerNewStationInstalled: invoice.costPerNewStationInstalled,
-        costPerHandSanitizer: invoice.costPerHandSanitizer,
+        costPerBagReplaced: chargePerBagRoll,
+        costPerBinReplaced: chargePerBinReplacement,
+        costPerNewStationInstalled: chargePerNewStationInstallment,
+        costPerHandSanitizer: chargePerHandSanitizer,
+        costPerTrashBag: chargePerTrashBag,
         status: invoice.status,
         invoiceDate: invoice.invoiceDate,
         totalAmount:
           invoice.totalGarbageBins * invoice.costPerGarbageBins +
           invoice.totalPetStations * invoice.costPerPetStations +
-          invoice.totalBagReplaced * invoice.costPerBagReplaced +
-          invoice.costPerHandSanitizer * invoice.totalHandSanitizerReplaced,
+          invoice.totalBagReplaced * chargePerBagRoll +
+          invoice.costPerHandSanitizer * invoice.totalHandSanitizerReplaced +
+          invoice.costPerTrashBag * invoice.totalTrashBagReplaced
       };
       // Extract community details (assuming communities are the same for the invoice)
       const billings = invoice.invoice_bill_mappings

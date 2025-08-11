@@ -120,6 +120,7 @@ export class PdfMakeService {
       ['Replacement of 10 Gal. Bin', '$' + invoiceData.costPerBinReplaced, invoiceData.totalBinReplaced, '$' + (invoiceData.costPerBinReplaced * invoiceData.totalBinReplaced).toFixed(2)],
       ['Hand Sanitizer Bottle Refill', '$' + invoiceData.costPerHandSanitizer, invoiceData.totalHandSanitizerReplaced, '$' + (invoiceData.costPerHandSanitizer * invoiceData.totalHandSanitizerReplaced).toFixed(2)],
       ['Pet Waste Station Dispenser Bag Refills (200 rolls)', '$' + invoiceData.costPerBagReplaced, invoiceData.totalBagReplaced, '$' + (invoiceData.costPerBagReplaced * invoiceData.totalBagReplaced).toFixed(2)],
+      ['40 Gal Trash Bag', '$' + invoiceData.costPerTrashBag, invoiceData.totalTrashBagReplaced, '$' + (invoiceData.costPerTrashBag * invoiceData.totalTrashBagReplaced).toFixed(2)],
       ['Tax (7%)', '--', '--', '$' + invoiceData.taxAmount.toFixed(2)],
       ],
       theme: 'striped',

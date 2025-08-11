@@ -239,6 +239,7 @@ exports.getAllJobOrderByDate = async (params) => {
     let chargePerBinReplacement = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_BIN_REPLACEMENT).value;
     let chargePerNewStationInstallment = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_NEW_STATION_INSTALLMENT).value;
     let chargePerHandSanitizer = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_HAND_SANITIZER).value;
+    let chargePerTrashBag = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_TRASH_BAG).value;
     let communities = await Community.findAll({
       include: [
         { model: CommunityServiceSchedule },
@@ -282,20 +283,24 @@ exports.getAllJobOrderByDate = async (params) => {
         noOfBinReplacement: 0,
         noOfHandSanitizerReplacement: 0,
         noOfStationInstalled: 0,
+        noOfTrashBagReplacement: 0,
         chargePerPetStation: community.communityServiceSchedule.chargePerPetStation,
         chargePerGarbageBin: community.communityServiceSchedule.chargePerGarbageBin,
         chargePerBagRoll: chargePerBagRoll || 0,
         chargePerBinReplacement: chargePerBinReplacement || 0,
         chargePerNewStationInstallment: chargePerNewStationInstallment || 0,
         chargePerHandSanitizer: chargePerHandSanitizer || 0,
+        chargePerTrashBag: chargePerTrashBag || 0,
         isBagRollReplaced: false, // Add your first extra property
         isBinReplaced: false, // Add your first extra property
         isHandSanitizerReplaced: false, // Add your first extra property
         isNewStationInstalled: false, // Add your first extra property
+        isTrashBagReplaced: false, // Add your first extra property
         totalBagReplacementPrice: 0,
         totalBinReplacementPrice: 0,
         totalStationInstallationPrice: 0,
         totalHandSanitizerPrice: 0,
+        totalTrashBagReplacedPrice: 0,
         scheduledDate: community.tasks[0].scheduledDate,
         distance: community.distance.toFixed(3),
       };
