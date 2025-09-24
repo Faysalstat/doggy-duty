@@ -42,12 +42,13 @@ export class InvoiceComponent {
     this.pdfMakeService.generateInvoicePDF(this.invoice);
   }
   payInvoice() {
-    this.communityService.payInvoice(this.invoice.id).subscribe({
+    let status = this.invoice.status == 'pending' ? 'sent' : 'paid';
+    this.communityService.payInvoice(this.invoice.id,status).subscribe({
       next: (response) => {
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
-          detail: 'Invoice paid successfully',
+          detail: 'Invoice ' + status + ' successfully',
         });
         this.communityService.fetchInvoiceList.emit();
         this.dialogRef.close();

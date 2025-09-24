@@ -19,15 +19,16 @@ exports.generateDailyTasks = async (scheduledDate) => {
     let tasksForEmail = [];
     let taskDate = moment().tz("America/New_York").format("MM-DD-YYYY");
     let currentDay = moment().tz("America/New_York").format("dddd").toLowerCase();
+    // let currentDay = 'monday'; // For testing only, comment this line for production
     schedulequery.scheduledDay =  {[Op.like]: `%${currentDay}%`};
     schedulequery.isSelected =  true;
     query.isPaused = false;
     let config = await AppConfig.findAll();
-    let chargePerBagRoll = config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;
-    let chargePerBinReplacement = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_BIN_REPLACEMENT).value;
-    let chargePerNewStationInstallment = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_NEW_STATION_INSTALLMENT).value;
-    let chargePerHandSanitizer = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_HAND_SANITIZER).value;
-    let chargePerTrashBag = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_TRASH_BAG).value;
+    let chargePerBagRoll = (config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL) || {}).value || 0;
+    let chargePerBinReplacement = (config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_BIN_REPLACEMENT) || {}).value || 0;
+    let chargePerNewStationInstallment = (config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_NEW_STATION_INSTALLMENT) || {}).value || 0;
+    let chargePerHandSanitizer = (config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_HAND_SANITIZER) || {}).value || 0;
+    let chargePerTrashBag = (config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_TRASH_BAG) || {}).value || 0;
     // Fetch schedules matching today's day
     const schedules = await CommunityServiceSchedule.findAll({
       where: query,
@@ -39,7 +40,7 @@ exports.generateDailyTasks = async (scheduledDate) => {
         },
       ],
     });
-    if (schedules.length === 0) {
+    if (schedules && schedules.length === 0) {
       logger.info("Job Execution Log", {
             job_name: "Job Scheduler",
             job_type: "Scheduler",
@@ -51,8 +52,8 @@ exports.generateDailyTasks = async (scheduledDate) => {
 
     let jobOrders = [];
     let currentTasks = [];
-    let filteredCommuntyByFrequency = await commonService.getFilteredCommunityBasedOnFrequency(schedules);
-    if (filteredCommuntyByFrequency.length === 0) {
+    let filteredCommunityByFrequency = await commonService.getFilteredCommunityBasedOnFrequency(schedules);
+    if (filteredCommunityByFrequency && filteredCommunityByFrequency.length === 0) {
       logger.info("Job Execution Log", {
             job_name: "Job Scheduler",
             job_type: "Scheduler",
@@ -63,7 +64,7 @@ exports.generateDailyTasks = async (scheduledDate) => {
     }
     // Sort communities by distance (assume each community has a distance field)
     let sortedSchedule = await commonService.getSortedScheduledListByDistance(
-      filteredCommuntyByFrequency
+      filteredCommunityByFrequency
     );
 
     for (const schedule of sortedSchedule) {
@@ -76,6 +77,7 @@ exports.generateDailyTasks = async (scheduledDate) => {
         isBinReplaced: false,
         isNewStationInstalled: false,
         isHandSanitizerReplaced: false,
+        isTrashBagReplaced: false,
         noOfPetStation: communitySchedule.noOfPetStation,
         noOfGarbageBin: communitySchedule.noOfGarbageBin,
         noOfBagRollReplaced: 0,
@@ -105,6 +107,10 @@ exports.generateDailyTasks = async (scheduledDate) => {
     // Create remaining tasks if any
     if (currentTasks.length > 0) {
       let jobOrder = await JobOrder.create({ date: taskDate });
+      if (!jobOrder) {
+        logger.error("Failed to create job order");
+        return [];
+      }
       for (let task of currentTasks) {
         task.jobOrderId = jobOrder.id;
         await Task.create(task);
@@ -119,6 +125,7 @@ exports.generateDailyTasks = async (scheduledDate) => {
     return tasksForEmail;
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
+    return [];
   }
 };
 
@@ -245,7 +252,11 @@ exports.completeTask = async (req, res) => {
     return createdBill;
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
-    throw new Error("Error Occured " + error.message);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while processing your request.",
+      error: error.message
+    });
   }
 };
 

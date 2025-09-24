@@ -77,8 +77,8 @@ export class CommunityService {
     params = params.append('configNames',queryParams.get('configNames'));
     return this.http.get(ConfigUrls.GET_ALL_BY_NAME,{params:params});
   }
-  public payInvoice(invoiceId:any): Observable<any> {
-    return this.http.post(BillingUrls.PAY_INVOICE,{invoiceId:invoiceId});
+  public payInvoice(invoiceId:any,status:string): Observable<any> {
+    return this.http.post(BillingUrls.PAY_INVOICE,{invoiceId:invoiceId,status:status});
   }
 
   public getSummary(queryParams: Map<string, any>):Observable<any>{

@@ -15,8 +15,8 @@ const EventSchedule = require("../model/event-schedule");
 exports.generateDailyTasks = async (today) => {
   try {
     let tasksForEmail = await taskService.generateDailyTasks(today);
-    if (tasksForEmail.length && tasksForEmail.length > 0) {
-      await generateMail(today,tasksForEmail);
+    if (tasksForEmail.length > 0) {
+      await generateMail(today, tasksForEmail);
       logger.info("Job Execution Log", {
         job_name: "Job Scheduler",
         job_type: "SMS & Mail",
@@ -31,27 +31,31 @@ exports.generateDailyTasks = async (today) => {
         error_message: `SMS & Mail Not Sent for ${today}`,
       });
     }
-    // await generateInvoice(today);
-    return "SUCCESS"
+    
+    return "SUCCESS";
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
+    throw new Error("Error Occured " + error.message);
   }
 };
 
 const generateMail = async (today, response) => {
   try {
     const emailBody = generateTaskListEmailBody(response);
-    // sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
-    // sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
+    sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
+    sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
     sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
     logger.info(`Mail sent successfully`);
-    // await smsService.sendSms();
+    await smsService.sendSms();
     logger.info(`SMS sent successfully`);
   } catch (error) {
-    logger.error(`Error occurred on SMS: ${error.message}`, { stack: error.stack });
+    logger.error(`Error occurred on SMS: ${error.message}`, {
+      stack: error.stack,
+    });
   }
 };
-const generateInvoice = async (today) => {
+exports.generateInvoice = async () => {
+  const today = moment().tz("America/New_York").format("YYYY-MM-DD");
   try {
     let communities = await Community.findAll({
       include: [{ model: CommunityServiceSchedule }],
@@ -61,7 +65,8 @@ const generateInvoice = async (today) => {
       // Proper logging of community details
       logger.info(`Processing community: ${community.communityName}`);
       if (community.communityServiceSchedule?.lastInvoiceGenerated) {
-        const lastGenerated = community.communityServiceSchedule.lastInvoiceGenerated;
+        const lastGenerated =
+          community.communityServiceSchedule.lastInvoiceGenerated;
         const diff = moment(today).diff(moment(lastGenerated), "days");
         logger.info("Job Execution Log", {
           job_name: "Job Scheduler",
@@ -70,7 +75,9 @@ const generateInvoice = async (today) => {
           error_message: `Days since last invoice generated for ${community.communityName} : ${diff}`,
         });
         if (diff >= 28) {
-          logger.info(`Generating invoice for community: ${community.communityName}`);
+          logger.info(
+            `Generating invoice for community: ${community.communityName}`
+          );
           let invoiceModel = {
             totalAmount: 0,
             totalGarbageBins: 0,
@@ -99,7 +106,8 @@ const generateInvoice = async (today) => {
               invoiceModel.totalPetStations += bill.task.noOfPetStation;
               invoiceModel.totalBagReplaced += bill.task.noOfBagRollReplaced;
               invoiceModel.totalBinReplaced += bill.task.noOfBinReplacement;
-              invoiceModel.totalTrashBagReplaced += bill.task.totalTrashBagReplaced;
+              invoiceModel.totalTrashBagReplaced +=
+                bill.task.totalTrashBagReplaced;
               invoiceModel.totalNewInstallment +=
                 bill.task.noOfStationInstalled;
               invoiceModel.totalHandSanitizerReplaced +=
@@ -135,9 +143,9 @@ const generateInvoice = async (today) => {
           }
 
           // Update lastInvoiceGenerated to today
-          community.communityServiceSchedule.lastInvoiceGenerated =today;
+          community.communityServiceSchedule.lastInvoiceGenerated = today;
           await CommunityServiceSchedule.update(
-            { lastInvoiceGenerated: today},
+            { lastInvoiceGenerated: today },
             { where: { id: community.id } }
           );
         }
@@ -153,22 +161,22 @@ const generateInvoice = async (today) => {
     });
   }
 };
-exports.generateDailyEvent = async (today) => { 
+exports.generateDailyEvent = async (today) => {
   try {
     let events = await EventSchedule.findAll({
       where: {
         scheduledDate: today,
-        status:'active'
+        status: "active",
       },
     });
-    if(events.length && events.length > 0){
+    if (events.length && events.length > 0) {
       logger.info("Job Execution Log", {
         job_name: "Job Scheduler",
         job_type: "Event Generation",
         status: "SUCCESS", // SUCCESS or FAILURE
         message: `Event Found for ${today}`,
       });
-      for(let i=0;i<events.length;i++){
+      for (let i = 0; i < events.length; i++) {
         let event = events[i].dataValues;
         let emailBody = await generateEventMail(event);
         sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
@@ -178,7 +186,7 @@ exports.generateDailyEvent = async (today) => {
         const smsResponse = await smsService.sendEventSms(event);
         logger.info(`SMS sent successfully`);
         let eventScheduleModel = {
-          status: "completed"
+          status: "completed",
         };
         await EventSchedule.update(eventScheduleModel, {
           where: { id: event.id },
@@ -190,7 +198,7 @@ exports.generateDailyEvent = async (today) => {
           message: `Event Completed for ${today}`,
         });
       }
-    }else{
+    } else {
       logger.info("Job Execution Log", {
         job_name: "Job Scheduler",
         job_type: "Event Generation",
@@ -265,9 +273,8 @@ const notifyDev = (today) => {
   sendMail("faysalstat04@gmail.com", "Scheduler Running", emailBody);
 };
 
-const generateEventMail = async (event) => {  
-
-let emailBody = "";
+const generateEventMail = async (event) => {
+  let emailBody = "";
   if (event) {
     emailBody = `
     <h1>Reminder for your upcomming Event</h1>
@@ -275,7 +282,9 @@ let emailBody = "";
     <p>This is a reminder for your upcoming event:</p>
     <h2>${event.title}</h2>
     <p><strong>Date:</strong> ${event.scheduledDate}</p>
-    <p><strong>Description:</strong> ${event.description}  ${event.communityName ? ` at ${event.communityName}</p>` : ""}`;
+    <p><strong>Description:</strong> ${event.description}  ${
+      event.communityName ? ` at ${event.communityName}</p>` : ""
+    }`;
 
     emailBody += `
     <p>Thank you!</p>
@@ -283,4 +292,4 @@ let emailBody = "";
   `;
   }
   return emailBody;
-}
+};

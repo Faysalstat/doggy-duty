@@ -1,10 +1,16 @@
 //invoice
 ALTER TABLE invoice 
 ADD COLUMN totalTrashBagReplaced INT DEFAULT 0,
-ADD COLUMN costPerTrashBag FLOAT DEFAULT 0;
+ADD COLUMN costPerTrashBag FLOAT DEFAULT 0.5;
 
 //task
 ALTER TABLE task
 ADD COLUMN isTrashBagReplaced BOOLEAN DEFAULT FALSE,
 ADD COLUMN noOfTrashBagReplacement INT DEFAULT 0,
 ADD COLUMN chargePerTrashBag DOUBLE DEFAULT 0;
+
+
+INSERT INTO appconfig 
+(`configName`, `value`) VALUES
+
+('PRICE_PER_TRASH_BAG', '0.5');

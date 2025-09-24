@@ -20,6 +20,7 @@
                     <mat-select (selectionChange)="fetchAllInvoice()" [ngModelOptions]="{standalone:true}" [(ngModel)]="queryBody.status">
                         <mat-option value="">All</mat-option>
                         <mat-option value="paid">Paid</mat-option>
+                        <mat-option value="sent">Sent</mat-option>
                         <mat-option value="pending">Pending</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -85,7 +86,15 @@
                                 <td>{{ invoice.totalHandSanitizerReplaced }}</td>
                                 <td appCurrency>${{ invoice.costPerHandSanitizer }}</td>
                                 <td appCurrency>${{ invoice.totalAmount }}</td>
-                                <td>{{ invoice.status }}</td>
+                                <td>
+                                    <span [ngStyle]="{
+                                            'text-transform': 'uppercase',
+                                            'font-weight': 'bold',
+                                            'color': invoice.status === 'paid' ? 'green' : (invoice.status === 'pending' ? '#cc5200' : 'red')
+                                        }">
+                                        {{ invoice.status }}
+                                    </span>
+                                </td>
                                 <td>
                                     <button class="btn-default" (click)="showInvoice(invoice)" style="color: #cc5200" mat-flat-button>
                                         <i class="fas fa-eye

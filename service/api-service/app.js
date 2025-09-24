@@ -63,7 +63,7 @@ const eventRoute = require("./src/router/event-route");
 // Run every day at 06:00 AM in Florida (Eastern Time)
 // Task Generator 
 cron.schedule(
-  "45 0 * * *", // Runs at 6.00 AM EDT/EST
+  "44 0 * * *", // Runs at 6.00 AM EDT/EST
   async () => {
     const todayEDT = moment().tz("America/New_York").format("YYYY-MM-DD");
     logger.info("Cron job started for daily task generation", {
@@ -76,6 +76,20 @@ cron.schedule(
   }
 );
 
+// invoice generator 
+cron.schedule(
+  "30 6 * * *", // Runs at 6.00 AM EDT/EST
+  async () => {
+    const todayEDT = moment().tz("America/New_York").format("YYYY-MM-DD");
+    logger.info("Cron job started for Invoice generation", {
+      date: todayEDT, // Date in EDT/EST
+    });
+    await scheduleService.generateInvoice();
+  }, 
+  {
+    timezone: "America/New_York" // EDT/EST handled automatically
+  }
+);
 // Event Generator 
 cron.schedule(
   "0 7 * * *", // Runs at 7.00 AM EDT/EST
