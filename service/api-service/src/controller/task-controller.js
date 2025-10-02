@@ -18,15 +18,10 @@ exports.getAllTasks = async (req, res, next) => {
 
 exports.generateDailyTasks = async (req, res, next) => {
   try {
-    let today;
-    let response;
-    if(req.query.scheduledDate){
-        today = req.query.scheduledDate;
-    }else{
-        today = moment().tz("America/New_York").format("YYYY-MM-DD");
-    }
+    let todayEDT = req.query.date;
+    let currentDay = req.query.day;
     const currentHour = moment().tz("America/New_York").format("HH");
-    response = await scheduleService.generateDailyTasks(today);
+    response = await scheduleService.generateDailyTasks(todayEDT,currentDay);
     return res.status(200).json({
       message: response
     });

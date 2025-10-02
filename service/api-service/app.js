@@ -61,22 +61,46 @@ const billingRoute = require("./src/router/billing-route");
 const smsRoute = require("./src/router/sms-route");
 const eventRoute = require("./src/router/event-route");
 // Run every day at 06:00 AM in Florida (Eastern Time)
-// Task Generator 
+// Task Generator
 cron.schedule(
   "44 0 * * *", // Runs at 6.00 AM EDT/EST
   async () => {
-    const todayEDT = moment().tz("America/New_York").format("YYYY-MM-DD");
+    const todayEDT = moment().tz("America/New_York").format("MM-DD-YYYY");
+    const currentDay = moment()
+      .tz("America/New_York")
+      .format("dddd")
+      .toLowerCase();
+
     logger.info("Cron job started for daily task generation", {
-      date: todayEDT, // Date in EDT/EST
+      date: todayEDT,
     });
-    await scheduleService.generateDailyTasks(todayEDT);
-  }, 
+
+    try {
+      let response = await scheduleService.generateDailyTasks(
+        todayEDT,
+        currentDay
+      );
+      logger.info("Cron job completed for daily task generation", {
+        date: todayEDT,
+        status: response,
+      });
+    } catch (error) {
+      logger.error("Cron job failed for daily task generation", {
+        date: todayEDT,
+        error: error.message,
+        stack: error.stack,
+      });
+
+      // Don't re-throw the error to prevent the cron from stopping
+    }
+  },
   {
-    timezone: "America/New_York" // EDT/EST handled automatically
+    timezone: "America/New_York",
+    scheduled: true,
   }
 );
 
-// invoice generator 
+// invoice generator
 cron.schedule(
   "30 6 * * *", // Runs at 6.00 AM EDT/EST
   async () => {
@@ -84,13 +108,26 @@ cron.schedule(
     logger.info("Cron job started for Invoice generation", {
       date: todayEDT, // Date in EDT/EST
     });
-    await scheduleService.generateInvoice();
-  }, 
+    try {
+      const response = await scheduleService.generateInvoice();
+      logger.info("Cron job completed for invoice generation", {
+        date: todayEDT,
+        status: response,
+      });
+    } catch (error) {
+      logger.error("Cron job failed for invoice generation", {
+        date: todayEDT,
+        error: error.message,
+        stack: error.stack,
+      });
+    }
+  },
   {
-    timezone: "America/New_York" // EDT/EST handled automatically
+    timezone: "America/New_York", // EDT/EST handled automatically
+    scheduled: true,
   }
 );
-// Event Generator 
+// Event Generator
 cron.schedule(
   "0 7 * * *", // Runs at 7.00 AM EDT/EST
   async () => {
@@ -98,10 +135,23 @@ cron.schedule(
     logger.info("Cron job started for daily Event generation", {
       date: todayEDT, // Date in EDT/EST
     });
-    await scheduleService.generateDailyEvent(todayEDT);
-  }, 
+    try {
+      const response = await scheduleService.generateDailyEvent(todayEDT);
+      logger.info("Cron job completed for daily Event generation", {
+        date: todayEDT,
+        status: response,
+      });
+    } catch (error) {
+      logger.error("Cron job failed for daily Event generation", {
+        date: todayEDT,
+        error: error.message,
+        stack: error.stack,
+      });
+    }
+  },
   {
-    timezone: "America/New_York" // EDT/EST handled automatically
+    timezone: "America/New_York", // EDT/EST handled automatically
+    scheduled: true,
   }
 );
 app.get("/api", (req, res) => {

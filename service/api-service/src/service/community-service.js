@@ -38,7 +38,7 @@ exports.addCommunity = async (req, res) => {
     let communityServiceScheduleModel = {
       frequency: payload.frequency,
       startingDate: payload.startingDate,
-      lastServedDate: moment().tz("America/New_York").format("MM-DD-YYYY"),
+      lastServedDate: moment().tz("America/New_York").format("YYYY-MM-DD"),
       lastInvoiceGenerated: payload.startingDate,
       noOfPetStation: payload.noOfPetStation,
       noOfGarbageBin: payload.noOfGarbageBin,
@@ -54,7 +54,8 @@ exports.addCommunity = async (req, res) => {
         let scheduledDayData = {
           scheduledDay: day,
           isSelected: isSelected,
-          communityServiceScheduleId:newCommunityServiceSchedule.id
+          communityServiceScheduleId:newCommunityServiceSchedule.id,
+          lastServedDate: "2025-01-01"
         };
         return scheduledDayData;
       });
@@ -226,7 +227,7 @@ exports.getAllJobOrderByDate = async (params) => {
   if(params.date && params.date != ""){
     jobquery.date = params.date;
   }else{
-    jobquery.date = moment.tz("America/New_York").format('MM-DD-YYYY');
+    jobquery.date = moment.tz("America/New_York").format('YYYY-MM-DD');
   }
 
   if(params.status && params.status != ""){

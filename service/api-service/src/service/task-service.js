@@ -12,14 +12,11 @@ const moment = require("moment-timezone");
 const { model } = require("mongoose");
 const ScheduledDays = require("../model/scheduled-days");
 // Function to generate job orders and tasks
-exports.generateDailyTasks = async (scheduledDate) => {
+exports.generateDailyTasks = async (taskDate,currentDay) => {
   try {
     let query = {};
     let schedulequery = {};
     let tasksForEmail = [];
-    let taskDate = moment().tz("America/New_York").format("MM-DD-YYYY");
-    let currentDay = moment().tz("America/New_York").format("dddd").toLowerCase();
-    // let currentDay = 'monday'; // For testing only, comment this line for production
     schedulequery.scheduledDay =  {[Op.like]: `%${currentDay}%`};
     schedulequery.isSelected =  true;
     query.isPaused = false;
@@ -52,7 +49,7 @@ exports.generateDailyTasks = async (scheduledDate) => {
 
     let jobOrders = [];
     let currentTasks = [];
-    let filteredCommunityByFrequency = await commonService.getFilteredCommunityBasedOnFrequency(schedules);
+    let filteredCommunityByFrequency = await commonService.getFilteredCommunityBasedOnFrequency(taskDate,schedules);
     if (filteredCommunityByFrequency && filteredCommunityByFrequency.length === 0) {
       logger.info("Job Execution Log", {
             job_name: "Job Scheduler",

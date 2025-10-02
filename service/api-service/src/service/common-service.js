@@ -132,8 +132,8 @@ const ScheduledDays = require("../model/scheduled-days");
     return sortedSchedule;
   }
 
-  exports.getFilteredCommunityBasedOnFrequency = async (schedules) => {
-    const today = moment().tz("America/New_York");
+  exports.getFilteredCommunityBasedOnFrequency = async (currentDate,schedules) => {
+    const today = moment(currentDate).tz("America/New_York");
     const filteredSchedules = await Promise.all(
       schedules.map(async (schedule) => {
         const frequency = schedule.frequency ?? 1; // Default to weekly

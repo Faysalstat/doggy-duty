@@ -1,7 +1,5 @@
 const taskService = require("../service/task-service");
-const communityService = require("../service/community-service");
 const sendMail = require("../mail/mailer");
-const { TASK_STATUS } = require("../model/enums");
 const Community = require("../model/community");
 const smsService = require("../service/smsService");
 const Billing = require("../model/billing");
@@ -12,11 +10,11 @@ const InvoiceBillMapping = require("../model/invoice-bill");
 const moment = require("moment-timezone");
 const logger = require("../../logger");
 const EventSchedule = require("../model/event-schedule");
-exports.generateDailyTasks = async (today) => {
+exports.generateDailyTasks = async (today,currentDay) => {
   try {
-    let tasksForEmail = await taskService.generateDailyTasks(today);
+    let tasksForEmail = await taskService.generateDailyTasks(today,currentDay);
     if (tasksForEmail.length > 0) {
-      await generateMail(today, tasksForEmail);
+      // await generateMail(today, tasksForEmail);
       logger.info("Job Execution Log", {
         job_name: "Job Scheduler",
         job_type: "SMS & Mail",
@@ -34,7 +32,7 @@ exports.generateDailyTasks = async (today) => {
     
     return "SUCCESS";
   } catch (error) {
-    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
+    logger.info(`Error occurred: ${error.message}`, { stack: error.stack });
     throw new Error("Error Occured " + error.message);
   }
 };
@@ -49,7 +47,7 @@ const generateMail = async (today, response) => {
     await smsService.sendSms();
     logger.info(`SMS sent successfully`);
   } catch (error) {
-    logger.error(`Error occurred on SMS: ${error.message}`, {
+    logger.info(`Error occurred on SMS: ${error.message}`, {
       stack: error.stack,
     });
   }
@@ -62,18 +60,10 @@ exports.generateInvoice = async () => {
     });
     for (let i = 0; i < communities.length; i++) {
       let community = communities[i].dataValues;
-      // Proper logging of community details
-      logger.info(`Processing community: ${community.communityName}`);
       if (community.communityServiceSchedule?.lastInvoiceGenerated) {
         const lastGenerated =
-          community.communityServiceSchedule.lastInvoiceGenerated;
+        community.communityServiceSchedule.lastInvoiceGenerated;
         const diff = moment(today).diff(moment(lastGenerated), "days");
-        logger.info("Job Execution Log", {
-          job_name: "Job Scheduler",
-          job_type: "Invoice Generation",
-          status: "INFO",
-          error_message: `Days since last invoice generated for ${community.communityName} : ${diff}`,
-        });
         if (diff >= 28) {
           logger.info(
             `Generating invoice for community: ${community.communityName}`
@@ -93,7 +83,7 @@ exports.generateInvoice = async () => {
             costPerBinReplaced: 0,
             costPerNewStationInstalled: 0,
             costPerTrashBag: 0,
-            invoiceDate: moment(today).format("MM-DD-YYYY"),
+            invoiceDate: moment(today).format("YYYY-MM-DD"),
           };
           let bills = await Billing.findAll({
             where: { invoiceGenerated: false, communityId: community.id },
@@ -152,7 +142,7 @@ exports.generateInvoice = async () => {
       }
     }
   } catch (error) {
-    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
+    logger.info(`Error occurred: ${error.message}`, { stack: error.stack });
     logger.info("Job Execution Log", {
       job_name: "Job Scheduler",
       job_type: "Invoice Generation",
@@ -208,7 +198,7 @@ exports.generateDailyEvent = async (today) => {
     }
     return "SUCCESS";
   } catch (error) {
-    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
+    logger.info(`Error occurred: ${error.message}`, { stack: error.stack });
     return "FAILURE";
   }
 };
