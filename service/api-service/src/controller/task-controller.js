@@ -27,12 +27,24 @@ exports.generateDailyTasks = async (req, res, next) => {
     });
   } catch (error) {
     return res.status(404).json({
-      message: "Not Found: " + error.message,
+      message: "Operation  Failed: " + error.message,
       isSuccess: false,
     });
   }
 };
-
+exports.generateInvoice = async (req, res, next) => {
+  try {
+    response = await scheduleService.generateInvoice();
+    return res.status(200).json({
+      message: response
+    });
+  } catch (error) {
+    return res.status(404).json({
+      message: "Operation  Failed: " + error.message,
+      isSuccess: false,
+    });
+  }
+};
 exports.completeTask = async (req, res, next) => {
   try {
     let response = await taskService.completeTask(req, res, next);

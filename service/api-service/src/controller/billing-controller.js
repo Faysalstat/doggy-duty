@@ -35,7 +35,7 @@ exports.getBillByCommunityId = async (req, res, next) => {
     let response = await billingService.getBillByCommunityId(req, res, next);
     return res.status(200).json({
       message: "Invoice Retrieved",
-      count:response.length,
+      count: response.length,
       body: response,
     });
   } catch (error) {
@@ -59,9 +59,9 @@ exports.payInvoice = async (req, res, next) => {
       isSuccess: false,
     });
   }
-}
+};
 
-exports.getSummary = async (req,res,next) =>{
+exports.getSummary = async (req, res, next) => {
   try {
     let response = await billingService.getSumamry(req, res, next);
     return res.status(200).json({
@@ -74,6 +74,6 @@ exports.getSummary = async (req,res,next) =>{
       isSuccess: false,
     });
   }
-}
+};
 
 

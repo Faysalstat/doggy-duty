@@ -5,7 +5,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { CommunityDTO } from 'src/app/modules/dto/models';
 import { CommunityService } from 'src/app/services/community.service';
-import { DialogService } from 'primeng/dynamicdialog';
 import { MatDialog } from '@angular/material/dialog';
 import { DaySelectorComponent } from '../day-selector/day-selector.component';
 
@@ -17,17 +16,48 @@ import { DaySelectorComponent } from '../day-selector/day-selector.component';
   encapsulation: ViewEncapsulation.None,
 })
 export class CreateComponent implements OnInit {
-  daysOfWeek: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  daysOfWeek: string[] = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ];
   communityId!: number;
   communityCreateForm!: FormGroup;
   serviceList!: CommunityDTO[];
   isEdit: boolean = false;
-  startingDate: string = this.datePipe.transform(new Date(), 'yyyy-MM-dd')?.toString()!;
+  startingDate: string = this.datePipe
+    .transform(new Date(), 'yyyy-MM-dd')
+    ?.toString()!;
   lastServedDate?: any;
   scheduledDate?: any;
   selectedDays: string[] = [];
   isPaused: boolean = false;
-  frequencies:any[] = [];
+  frequencies: any[] = [];
+  today = new Date();
+  day: string = new Date().getDate().toString();
+  month: string = (new Date().getMonth() + 1).toString();
+  year: string = new Date().getFullYear().toString();
+  months: any[] = [
+    { value: '01', label: 'January' },
+    { value: '02', label: 'February' },
+    { value: '03', label: 'March' },
+    { value: '04', label: 'April' },
+    { value: '05', label: 'May' },
+    { value: '06', label: 'June' },
+    { value: '07', label: 'July' },
+    { value: '08', label: 'August' },
+    { value: '09', label: 'September' },
+    { value: '10', label: 'October' },
+    { value: '11', label: 'November' },
+    { value: '12', label: 'December' },
+  ];
+  years: string[] = Array.from({ length: 6 }, (_, i) =>
+    (new Date().getFullYear() + i).toString()
+  );
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
@@ -35,13 +65,13 @@ export class CreateComponent implements OnInit {
     private communityService: CommunityService,
     private messageService: MessageService,
     private datePipe: DatePipe,
-    private dialog: MatDialog,
+    private dialog: MatDialog
   ) {
     this.frequencies = [
       { value: 1, label: 'Every Week' },
       { value: 2, label: 'Every 2 Weeks' },
       { value: 3, label: 'Every 3 Weeks' },
-      { value: 4, label: 'Every 4 Weeks' }
+      { value: 4, label: 'Every 4 Weeks' },
     ];
   }
 
@@ -63,10 +93,13 @@ export class CreateComponent implements OnInit {
         console.log(res);
         let communityDetails = res.body;
         this.isPaused = communityDetails.isPaused;
-        if(res.body && res.body.scheduledDaysOfWeek){
+        if (res.body && res.body.scheduledDaysOfWeek) {
           this.selectedDays = res.body.scheduledDaysOfWeek;
         }
-        this.startingDate = this.datePipe.transform(res.body.startingDate, 'yyyy-MM-dd')?.toString()!;
+        this.startingDate = res.body.startingDate;
+        this.day = this.startingDate ? this.startingDate.split('-')[2] : '';
+        this.month = this.startingDate ? this.startingDate.split('-')[1] : '';
+        this.year = this.startingDate ? this.startingDate.split('-')[0] : '';
         this.prepareForm(communityDetails);
       },
       error: (err) => {
@@ -107,9 +140,13 @@ export class CreateComponent implements OnInit {
       noOfGarbageBin: [communityData.noOfGarbageBin],
       chargePerPetStation: [communityData.chargePerPetStation],
       chargePerGarbageBin: [communityData.chargePerGarbageBin],
-      frequency: [communityData.frequency || 1,Validators.required],
+      frequency: [communityData.frequency || 1, Validators.required],
       startingDate: [communityData.startingDate],
-      scheduledDaysOfWeek: [communityData.scheduledDaysOfWeek?communityData.scheduledDaysOfWeek:[]],
+      scheduledDaysOfWeek: [
+        communityData.scheduledDaysOfWeek
+          ? communityData.scheduledDaysOfWeek
+          : [],
+      ],
     });
   }
 
@@ -118,7 +155,7 @@ export class CreateComponent implements OnInit {
   }
   toggleDay(day: string): void {
     if (this.selectedDays.includes(day)) {
-      this.selectedDays = this.selectedDays.filter(d => d !== day); // Unselect
+      this.selectedDays = this.selectedDays.filter((d) => d !== day); // Unselect
     } else {
       this.selectedDays.push(day); // Select
     }
@@ -186,11 +223,13 @@ export class CreateComponent implements OnInit {
     });
   }
 
-  onDateChange(event:any) {
+  onDateChange(event: any) {
     if (event.value) {
-      this.startingDate = this.datePipe.transform(event.value, 'yyyy-MM-dd')?.toString()!;
-      console.log("Raw Date From Picker", event.value);
-      console.log("Formatted Date:", this.scheduledDate);
+      this.startingDate = this.datePipe
+        .transform(event.value, 'yyyy-MM-dd')
+        ?.toString()!;
+      console.log('Raw Date From Picker', event.value);
+      console.log('Formatted Date:', this.scheduledDate);
     }
   }
   addSchedule() {
@@ -205,5 +244,8 @@ export class CreateComponent implements OnInit {
         // Handle the selected days here
       }
     });
+  }
+  prepareDate(){
+    this.startingDate = (this.year ? this.year : '0000') + '-' + (this.month ? this.month : '00') + '-' + (this.day ? ('0' + this.day).slice(-2) : '00');
   }
 }

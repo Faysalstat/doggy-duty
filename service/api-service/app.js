@@ -12,6 +12,7 @@ const scheduleService = require("./src/service/schedule-service");
 const cors = require("cors");
 const moment = require("moment-timezone");
 const logger = require("./logger");
+const path = require("path");
 app.use(
   cors({
     origin: "*",
@@ -63,9 +64,9 @@ const eventRoute = require("./src/router/event-route");
 // Run every day at 06:00 AM in Florida (Eastern Time)
 // Task Generator
 cron.schedule(
-  "44 0 * * *", // Runs at 6.00 AM EDT/EST
+  "58 0 * * *", // Runs at 6.00 AM EDT/EST
   async () => {
-    const todayEDT = moment().tz("America/New_York").format("MM-DD-YYYY");
+    const todayEDT = moment().tz("America/New_York").format("YYYY-MM-DD");
     const currentDay = moment()
       .tz("America/New_York")
       .format("dddd")
@@ -74,7 +75,7 @@ cron.schedule(
     logger.info("Cron job started for daily task generation", {
       date: todayEDT,
     });
-
+    
     try {
       let response = await scheduleService.generateDailyTasks(
         todayEDT,
@@ -102,7 +103,7 @@ cron.schedule(
 
 // invoice generator
 cron.schedule(
-  "30 6 * * *", // Runs at 6.00 AM EDT/EST
+  "56 11 * * *", // Runs at 7.00 PM EDT/EST
   async () => {
     const todayEDT = moment().tz("America/New_York").format("YYYY-MM-DD");
     logger.info("Cron job started for Invoice generation", {
@@ -154,9 +155,7 @@ cron.schedule(
     scheduled: true,
   }
 );
-app.get("/api", (req, res) => {
-  res.send("Welcome to my Node API!");
-});
+
 app.use("/api/auth", authRoute);
 app.use("/api/config", configRoute);
 app.use("/api/service", serviceRoute);
@@ -170,3 +169,5 @@ app.get("/api/stayawake", (req, res) => {
   const now = moment().tz("America/New_York").format("MM-DD-YYYY HH:mm:ss");
   res.send("I am Awake at " + now);
 });
+// Serve static uploaded files
+app.use("/api/images", express.static(path.join(__dirname, "images")));

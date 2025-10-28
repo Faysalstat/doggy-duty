@@ -30,6 +30,7 @@
     "mysql2": "^2.3.3",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.10.0",
+    "puppeteer": "^24.23.0",
     "request": "^2.88.2",
     "sequelize": "^6.20.1",
     "socket.io": "^4.4.1",

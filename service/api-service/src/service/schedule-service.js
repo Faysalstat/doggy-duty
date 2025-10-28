@@ -1,4 +1,5 @@
 const taskService = require("../service/task-service");
+const invoiceService = require("../service/invoice-service");
 const sendMail = require("../mail/mailer");
 const Community = require("../model/community");
 const smsService = require("../service/smsService");
@@ -10,9 +11,17 @@ const InvoiceBillMapping = require("../model/invoice-bill");
 const moment = require("moment-timezone");
 const logger = require("../../logger");
 const EventSchedule = require("../model/event-schedule");
-exports.generateDailyTasks = async (today,currentDay) => {
+const SchedulerLog = require("../model/scheduler-log");
+const { Address } = require("clicksend");
+exports.generateDailyTasks = async (today, currentDay) => {
   try {
-    let tasksForEmail = await taskService.generateDailyTasks(today,currentDay);
+    await SchedulerLog.create({
+      job_name: "Task Scheduler Started for " + today,
+      job_type: "Task Scheduler",
+      status: "Started",
+      error_message: "Task Started",
+    });
+    let tasksForEmail = await taskService.generateDailyTasks(today, currentDay);
     if (tasksForEmail.length > 0) {
       // await generateMail(today, tasksForEmail);
       logger.info("Job Execution Log", {
@@ -29,11 +38,22 @@ exports.generateDailyTasks = async (today,currentDay) => {
         error_message: `SMS & Mail Not Sent for ${today}`,
       });
     }
-    
+    await SchedulerLog.create({
+      job_name: "Task Scheduler Completed for " + tasksForEmail.length,
+      job_type: "Task Scheduler",
+      status: "Completed",
+      error_message: "Task Completed",
+    });
     return "SUCCESS";
   } catch (error) {
     logger.info(`Error occurred: ${error.message}`, { stack: error.stack });
-    throw new Error("Error Occured " + error.message);
+    await SchedulerLog.create({
+      job_name: "Task Scheduler Completed for " + tasksForEmail.length,
+      job_type: "Task Scheduler",
+      status: "Failed",
+      error_message: `${error.message}` + `${error.stack}`,
+    });
+    return "Failed";
   }
 };
 
@@ -62,9 +82,12 @@ exports.generateInvoice = async () => {
       let community = communities[i].dataValues;
       if (community.communityServiceSchedule?.lastInvoiceGenerated) {
         const lastGenerated =
-        community.communityServiceSchedule.lastInvoiceGenerated;
-        const diff = moment(today).diff(moment(lastGenerated), "days");
-        if (diff >= 28) {
+          community.communityServiceSchedule.lastInvoiceGenerated;
+        const lastGeneratedFormated = moment(lastGenerated)
+          .tz("America/New_York")
+          .format("YYYY-MM-DD");
+        const diff = moment(today).diff(moment(lastGeneratedFormated), "days");
+        if (diff >= 21) {
           logger.info(
             `Generating invoice for community: ${community.communityName}`
           );
@@ -130,6 +153,26 @@ exports.generateInvoice = async () => {
                 invoiceBillMappingModel
               );
             }
+            await invoiceService.designInvoice(
+              { name:community.communityName,
+                address:community.communityAddress,
+                phone:community.phone,
+                email:community.email,
+                invoiceId:createdInvoice.id,
+                invoiceDate:createdInvoice.invoiceDate,
+                totalAmount:createdInvoice.totalAmount,
+                tax:createdInvoice.totalAmount * 0.07,
+                total:createdInvoice.totalAmount + (createdInvoice.totalAmount * 0.07),
+                status:createdInvoice.status,
+                items:[
+                  {name: "Service of Pet Waste Station", rate: createdInvoice.costPerPetStations, qty: createdInvoice.totalGarbageBins, amount: createdInvoice.costPerPetStations * createdInvoice.totalGarbageBins},
+                  {name: "Garbage Bin", rate: createdInvoice.costPerGarbageBins, qty: createdInvoice.totalGarbageBins, amount: createdInvoice.costPerGarbageBins * createdInvoice.totalGarbageBins},
+                  {name: "Replacement of 10 Gal. Bin", rate: createdInvoice.costPerBinReplaced, qty: createdInvoice.totalGarbageBins, amount: createdInvoice.costPerBinReplaced * createdInvoice.totalGarbageBins},
+                  {name: "Hand Sanitizer Bottole Refill", rate: createdInvoice.costPerHandSanitizer, qty: createdInvoice.totalGarbageBins, amount: createdInvoice.costPerHandSanitizer * createdInvoice.totalGarbageBins},
+                  {name: "Pet Waste Station Dispenser Bag Refills (200 rolls)", rate: createdInvoice.costPerBagReplaced, qty: createdInvoice.totalGarbageBins, amount: createdInvoice.costPerBagReplaced * createdInvoice.totalGarbageBins},
+                  {name: "40 Gal Trash Bag", rate: createdInvoice.costPerTrashBag, qty: createdInvoice.totalGarbageBins, amount: createdInvoice.costPerTrashBag * createdInvoice.totalGarbageBins},
+                ]
+              });
           }
 
           // Update lastInvoiceGenerated to today
@@ -141,6 +184,13 @@ exports.generateInvoice = async () => {
         }
       }
     }
+    logger.info("Job Execution Log", {
+        job_name: "Scheduler",
+        job_type: "Invoice generator",
+        status: `Success`,
+        error_message: `Invoice Scheduler Run for ${today}`,
+      });
+    return `Invoice Scheduler Run for ${today}`
   } catch (error) {
     logger.info(`Error occurred: ${error.message}`, { stack: error.stack });
     logger.info("Job Execution Log", {
@@ -149,6 +199,7 @@ exports.generateInvoice = async () => {
       status: "FAILED",
       error_message: error.message,
     });
+    throw new Error(error.message);
   }
 };
 exports.generateDailyEvent = async (today) => {

@@ -1,17 +1,8 @@
 require("dotenv").config();
 const nodemailer = require("nodemailer");
-
-// Create a transporter object using your mail server details
-// const transporter = nodemailer.createTransport({
-//   host: 'mail.exeyezone.com',
-//   port: 465, // Port 465 is typically used for secure SMTP
-//   secure: true, // Set to true for port 465
-//   auth: {
-//     user: 'doggy.duty@exeyezone.com', // Your email address
-//     pass: '?E}c;$}GL.bZ', // Your email password
-//   },
-// });
-
+const dotenv = require("dotenv");
+dotenv.config();
+// Transporter 1: Business domain (for System emails)
 const transporter = nodemailer.createTransport({
   host: 'doggyduty.live',
   port: 465, // Port 465 is typically used for secure SMTP
@@ -22,7 +13,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-
+// Transporter 2: Personal domain (for customer emails)
+const personalTransporter = nodemailer.createTransport({
+  host: process.env.MAIL_HOST,
+  port: parseInt(process.env.MAIL_PORT),
+  secure: process.env.MAIL_SECURE === "true", // true for 465, false for 587
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS,
+  },
+});
 /**
  * Send an email
  * @param {string} to - Recipient email
@@ -49,4 +49,25 @@ const sendMail = async (to, subject, html) => {
     }
   };
 
-module.exports = sendMail;
+const sendInvoice = async(model)=>{
+  try {
+      model.from =  `"Invoice Generated" <${personalTransporter.options.auth.user}>`
+      const info = await personalTransporter.sendMail(model);
+      console.log("Email and invoice sent: ", info.messageId);
+      return {
+        isSuccess:true,
+        info: info
+      };
+    } catch (error) {
+      console.error("Error sending email:", error);
+      return 
+    }
+}
+personalTransporter.verify(function (error, success) {
+  if (error) {
+    console.error("❌ Personal Mail Transport Error:", error);
+  } else {
+    console.log("✅ Personal Mail Transport Ready");
+  }
+});
+module.exports = {sendMail,sendInvoice};

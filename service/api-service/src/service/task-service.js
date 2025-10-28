@@ -17,6 +17,7 @@ exports.generateDailyTasks = async (taskDate,currentDay) => {
     let query = {};
     let schedulequery = {};
     let tasksForEmail = [];
+  
     schedulequery.scheduledDay =  {[Op.like]: `%${currentDay}%`};
     schedulequery.isSelected =  true;
     query.isPaused = false;

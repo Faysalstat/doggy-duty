@@ -134,10 +134,19 @@ const ScheduledDays = require("../model/scheduled-days");
 
   exports.getFilteredCommunityBasedOnFrequency = async (currentDate,schedules) => {
     const today = moment(currentDate).tz("America/New_York");
+    if(schedules && schedules.length == 0){
+      return [];
+    }
     const filteredSchedules = await Promise.all(
       schedules.map(async (schedule) => {
         const frequency = schedule.frequency ?? 1; // Default to weekly
         const lastServedDate = schedule.scheduledDays[0]?.lastServedDate;
+        const startingDate =moment(schedule.startingDate).tz("America/New_York");
+        console.log(moment(startingDate).isAfter(today));
+        if (moment(startingDate).isAfter(today)) {
+          // Starting date is in the future, skip this schedule
+          return { schedule, include: false };
+        }
         if (!lastServedDate) {
           // No last served date, ready to serve
           await ScheduledDays.update(
@@ -165,3 +174,7 @@ const ScheduledDays = require("../model/scheduled-days");
       .filter((result) => result.include)
       .map((result) => result.schedule);
   };
+
+
+
+  

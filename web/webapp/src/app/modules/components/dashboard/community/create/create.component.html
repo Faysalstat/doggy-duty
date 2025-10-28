@@ -1,11 +1,11 @@
 <div class="container bg-white mt-4">
-    <p-toast  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
+    <p-toast [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
     <div class="mt-4 p-5 rounded">
         <div class="d-flex align-items-center justify-content-between">
             <h2>Add Community</h2>
             <div>
-            <button (click)="goBack()" class="btn btn-default">Go to List</button>
-            <!-- <button (click)="addSchedule()" class="btn add-schedule-btn ms-2">Add Schedule</button> -->
+                <button (click)="goBack()" class="btn btn-default">Go to List</button>
+                <!-- <button (click)="addSchedule()" class="btn add-schedule-btn ms-2">Add Schedule</button> -->
             </div>
         </div>
         <hr>
@@ -56,7 +56,7 @@
                         </mat-form-field>
                     </div>
 
-                    
+
 
                     <div class="col-md-4">
                         <mat-form-field class="input-field" appearance="outline">
@@ -74,7 +74,7 @@
                     <div class="col-md-3">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Number of Pet Stations</mat-label>
-                            <input  placeholder="Number of Pet Stations" formControlName="noOfPetStation" matInput
+                            <input placeholder="Number of Pet Stations" formControlName="noOfPetStation" matInput
                                 type="number">
                         </mat-form-field>
                     </div>
@@ -112,35 +112,59 @@
                         <h2>Add Schedule</h2>
                         <hr>
                     </div>
-                    <div class="col-md-4">
-                        <mat-form-field class="input-field" appearance="outline">
-                            <mat-label>Start Date</mat-label>
-                            <input 
-                                (dateChange)="onDateChange($event)" 
-                                [ngModelOptions]="{standalone:true}" 
-                                [(ngModel)]="startingDate" 
-                                matInput 
-                                [matDatepicker]="startDate" 
-                                required>
-                            <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
-                            <mat-datepicker #startDate></mat-datepicker>
-                        </mat-form-field>
-                        <div *ngIf="!startingDate" class="text-danger">
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <mat-form-field class="input-field" appearance="outline">
+                                    <mat-label>Day</mat-label>
+                                    <input type="number" min="1" max="31" placeholder="DD" (change)="prepareDate()"
+                                        [(ngModel)]="day"
+                                        (ngModelChange)="startingDate = (year ? year : '0000') + '-' + (month ? month : '00') + '-' + (day ? ('0' + day).slice(-2) : '00')"
+                                        [ngModelOptions]="{standalone:true}" matInput>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-4">
+                                <mat-form-field class="input-field" appearance="outline">
+                                    <mat-label>Month</mat-label>
+                                    <mat-select (onSelectionChange)="prepareDate()" [(ngModel)]="month"
+                                        (ngModelChange)="startingDate = (year ? year : '0000') + '-' + (month ? month : '00') + '-' + (day ? ('0' + day).slice(-2) : '00')"
+                                        [ngModelOptions]="{standalone:true}">
+                                        <mat-option *ngFor="let month of months" [value]="month.value">{{ month.label
+                                            }}</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-4">
+                                <mat-form-field class="input-field" appearance="outline">
+                                    <mat-label>Year</mat-label>
+                                    <mat-select (onSelectionChange)="prepareDate()" [(ngModel)]="year"
+                                        (ngModelChange)="startingDate = (year ? year : '0000') + '-' + (month ? month : '00') + '-' + (day ? ('0' + day).slice(-2) : '00')"
+                                        [ngModelOptions]="{standalone:true}">
+                                        <mat-option *ngFor="let year of years" [value]="year">{{ year }}</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <div *ngIf="!startingDate || startingDate.startsWith('0000')" class="text-danger">
                             Start Date is required.
                         </div>
                     </div>
                     <div class="col-md-4">
                         <mat-form-field class="input-field" appearance="outline">
-                          <mat-label>Frequency</mat-label>
-                          <mat-select formControlName="frequency">
-                            <mat-option *ngFor="let freq of frequencies" [value]="freq.value">
-                              {{ freq.label }}
-                            </mat-option>
-                          </mat-select>
+                            <mat-label>Frequency</mat-label>
+                            <mat-select formControlName="frequency">
+                                <mat-option *ngFor="let freq of frequencies" [value]="freq.value">
+                                    {{ freq.label }}
+                                </mat-option>
+                            </mat-select>
                         </mat-form-field>
-                      </div>
+                    </div>
                     <div class="col-md-4 d-flex align-items-center justify-content-end">
-                        <mat-slide-toggle class="custom-toggle" [(ngModel)]="isPaused" [ngModelOptions]="{standalone: true}">
+                        <mat-slide-toggle class="custom-toggle" [(ngModel)]="isPaused"
+                            [ngModelOptions]="{standalone: true}">
                             Is Paused
                         </mat-slide-toggle>
                     </div>
@@ -148,20 +172,18 @@
                         <h4 style="font-weight: bold; color: #ff5722; margin-bottom: 10px;">Days of the Week</h4>
                         <p>Click on the buttons below to select the days of the week.</p>
                         <div class="button-group">
-                            <button 
-                              *ngFor="let day of daysOfWeek" 
-                              [ngClass]="{'selected': selectedDays.includes(day)}" 
-                              (click)="toggleDay(day)">
-                              {{ day }}
+                            <button *ngFor="let day of daysOfWeek" [ngClass]="{'selected': selectedDays.includes(day)}"
+                                (click)="toggleDay(day)">
+                                {{ day }}
                             </button>
-                          </div>
+                        </div>
                     </div>
                     <!-- Submit Button Positioned to the Right -->
                     <div class="col-12 d-flex justify-content-end mt-3" style="width: 100%;">
-                        <button (click)="onSubmit()" class="btn-bg-primary">{{isEdit?"Update Community":"Add Community"}}</button>
+                        <button (click)="onSubmit()" class="btn-bg-primary">{{isEdit?"Update Community":"Add
+                            Community"}}</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
-    
