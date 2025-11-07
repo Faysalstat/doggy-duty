@@ -1,4 +1,3 @@
-require("dotenv").config();
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -63,6 +62,13 @@ const sendInvoice = async(model)=>{
       return 
     }
 }
+transporter.verify(function (error, success) {
+  if (error) {
+    console.error("❌ General Mail Transport Error:", error);
+  } else {
+    console.log("✅ General Mail Transport Ready");
+  }
+});
 personalTransporter.verify(function (error, success) {
   if (error) {
     console.error("❌ Personal Mail Transport Error:", error);

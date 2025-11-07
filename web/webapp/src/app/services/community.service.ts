@@ -77,13 +77,23 @@ export class CommunityService {
     params = params.append('configNames',queryParams.get('configNames'));
     return this.http.get(ConfigUrls.GET_ALL_BY_NAME,{params:params});
   }
-  public payInvoice(invoiceId:any,status:string): Observable<any> {
-    return this.http.post(BillingUrls.PAY_INVOICE,{invoiceId:invoiceId,status:status});
+  public payInvoice(invoiceId:any,status:string,pdfData: any): Observable<any> {
+    const formData = new FormData();
+    formData.append('invoiceId', invoiceId);
+    formData.append('status', status);
+    if(pdfData){
+      formData.append('file', pdfData, `workOrder_${invoiceId}.pdf`);
+    }
+    return this.http.post(BillingUrls.PAY_INVOICE, formData);
   }
 
   public getSummary(queryParams: Map<string, any>):Observable<any>{
     let params = new HttpParams();
     params = params.append('selectedYear',queryParams.get('selectedYear'));
     return this.http.get(BillingUrls.GET_SUMMARY,{params:params});
+  }
+
+  public addAdditionalTask(payload:any):Observable<any>{
+    return this.http.post(TaskUrls.ADD_ADDITIONAL_TASK,payload);
   }
 }

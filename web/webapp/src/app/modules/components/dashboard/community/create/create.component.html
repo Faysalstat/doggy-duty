@@ -1,10 +1,18 @@
 <div class="container bg-white mt-4">
     <p-toast [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
     <div class="mt-4 p-5 rounded">
+        <button type="button" (click)="goBack()" class="btn btn-link d-flex align-items-center"
+            style="background:none; border:none; color:#0b84ff; text-decoration:none;">
+            <span aria-hidden="true" style="font-size:1.1rem; margin-right:8px;">&#8592;</span>
+            Go to List
+        </button>
         <div class="d-flex align-items-center justify-content-between">
+
             <h2>Add Community</h2>
             <div>
-                <button (click)="goBack()" class="btn btn-default">Go to List</button>
+                <mat-slide-toggle class="custom-toggle" [(ngModel)]="isFlatRate" [ngModelOptions]="{standalone: true}">
+                    Is Flat Rate
+                </mat-slide-toggle>
                 <!-- <button (click)="addSchedule()" class="btn add-schedule-btn ms-2">Add Schedule</button> -->
             </div>
         </div>
@@ -71,14 +79,33 @@
                             <input placeholder="Email" formControlName="email" matInput type="email">
                         </mat-form-field>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-12">
+                        <h2>Service Details</h2>
+                        <hr>
+                    </div>
+                    <div *ngIf="isFlatRate" class="col-md-9">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Name of the Service</mat-label>
+                            <input placeholder="Name of the Service" formControlName="serviceName" matInput
+                                type="text">
+                        </mat-form-field>
+                    </div>
+                    <div *ngIf="isFlatRate" class="col-md-3">
+                        <mat-form-field class="input-field" appearance="outline">
+                            <mat-label>Flat Rate Amount / Month</mat-label>
+                            <span appCurrency matTextPrefix>$ &nbsp;</span>
+                            <input appCurrency placeholder="Flat Rate Amount" formControlName="flatRateAmount" matInput
+                                type="number">
+                        </mat-form-field>
+                    </div>
+                    <div *ngIf="!isFlatRate" class="col-md-3">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Number of Pet Stations</mat-label>
                             <input placeholder="Number of Pet Stations" formControlName="noOfPetStation" matInput
                                 type="number">
                         </mat-form-field>
                     </div>
-                    <div class="col-md-3">
+                    <div *ngIf="!isFlatRate" class="col-md-3">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Price per Pet Stations</mat-label>
                             <span appCurrency matTextPrefix>$ &nbsp;</span>
@@ -86,14 +113,14 @@
                                 type="number">
                         </mat-form-field>
                     </div>
-                    <div class="col-md-3">
+                    <div *ngIf="!isFlatRate" class="col-md-3">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Number of Garbage Bins</mat-label>
                             <input placeholder="Number of Garbage Bins" formControlName="noOfGarbageBin" matInput
                                 type="number">
                         </mat-form-field>
                     </div>
-                    <div class="col-md-3">
+                    <div *ngIf="!isFlatRate" class="col-md-3">
                         <mat-form-field class="input-field" appearance="outline">
                             <mat-label>Price per Garbage Bin</mat-label>
                             <span appCurrency matTextPrefix>$ &nbsp;</span>
@@ -101,7 +128,7 @@
                                 type="number">
                         </mat-form-field>
                     </div>
-                    <div class="col-md-12">
+                    <div *ngIf="!isFlatRate" class="col-md-12">
                         <mat-form-field class="input-field full-width" appearance="outline">
                             <mat-label>Special Request</mat-label>
                             <textarea placeholder="Special Request" formControlName="specialRequest" matInput
@@ -112,7 +139,7 @@
                         <h2>Add Schedule</h2>
                         <hr>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-8">
                         <div class="row">
                             <div class="col-md-4">
                                 <mat-form-field class="input-field" appearance="outline">
@@ -162,14 +189,27 @@
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="col-md-4 d-flex align-items-center justify-content-end">
-                        <mat-slide-toggle class="custom-toggle" [(ngModel)]="isPaused"
-                            [ngModelOptions]="{standalone: true}">
-                            Is Paused
-                        </mat-slide-toggle>
+                    <div class="col-md-12">
+                        <h4 style="font-weight: bold; color: #ff5722; margin-bottom: 10px;">Community Settings</h4>
+                        <hr>
+                        <div class="row">
+                            <div class="col-12 mt-2 d-flex justify-content-start">
+                                <mat-slide-toggle class="custom-toggle" [(ngModel)]="isPaused"
+                                    [ngModelOptions]="{standalone: true}">
+                                    Is Paused
+                                </mat-slide-toggle>
+                            </div>
+                            <div class="col-12 mt-2 d-flex justify-content-start">
+                                <mat-slide-toggle class="custom-toggle" [(ngModel)]="isTaxApplicable"
+                                    [ngModelOptions]="{standalone: true}">
+                                    Tax Applicable
+                                </mat-slide-toggle>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-12">
-                        <h4 style="font-weight: bold; color: #ff5722; margin-bottom: 10px;">Days of the Week</h4>
+                        <h4 style="font-weight: bold; color: #ff5722; margin-bottom: 10px;margin-top:10px">Days of the
+                            Week</h4>
                         <p>Click on the buttons below to select the days of the week.</p>
                         <div class="button-group">
                             <button *ngFor="let day of daysOfWeek" [ngClass]="{'selected': selectedDays.includes(day)}"
@@ -180,8 +220,8 @@
                     </div>
                     <!-- Submit Button Positioned to the Right -->
                     <div class="col-12 d-flex justify-content-end mt-3" style="width: 100%;">
-                        <button (click)="onSubmit()" class="btn-bg-primary">{{isEdit?"Update Community":"Add
-                            Community"}}</button>
+                        <button (click)="onSubmit()" class="btn-bg-primary">
+                            {{isEdit?"Update Community":"Add Community"}}</button>
                     </div>
                 </div>
             </form>

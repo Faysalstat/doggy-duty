@@ -1,97 +1,115 @@
-    <div class="card shadow p-4 mb-4 modal-content">
-        <div class="header">
-            <span class="download-text">Download Invoice</span>
-            <button mat-icon-button color="default" (click)="downloadInvoice()" matTooltip="Download">
-                <mat-icon>download</mat-icon>
-            </button>
+<div class="card shadow p-4 mb-4 modal-content">
+    <div class="header">
+        <span class="download-text">Download Invoice</span>
+        <button mat-icon-button color="default" (click)="downloadInvoice()" matTooltip="Download">
+            <mat-icon>download</mat-icon>
+        </button>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <h2 class="text-primary">Invoice</h2>
+            <p><strong>Date:</strong> {{ applyFilter(invoice.invoiceDate) }}</p>
         </div>
-        <div class="row">
-            <div class="col-6">
-                <h2 class="text-primary">Invoice</h2>
-                <p><strong>Date:</strong> {{ applyFilter(invoice.invoiceDate) }}</p>
-            </div>
-            <div class="col-6 text-end">
-                <h4 class="text-secondary community-font">{{ invoice.community.communityName }}</h4>
-                <p>{{ invoice.community.communityAddress }}</p>
-                <p><strong>Phone:</strong> {{ invoice.community.phone }}</p>
-                <p><strong>Email:</strong> {{ invoice.community.email }}</p>
-            </div>
-        </div>
-
-        <hr>
-
-        <h5 class="text-dark">Task Details</h5>
-        <table class="table table-bordered mt-3">
-            <thead class="table-dark">
-                <tr>
-                    <th>Name of the Service</th>
-                    <th>Rate</th>
-                    <th>QTY</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th>Service of pet waste station</th>
-                    <td appCurrency>${{ invoice.costPerPetStations }}</td>
-                    <td>{{ invoice.totalPetStations }}</td>
-                    <td appCurrency>${{ (invoice.totalPetStations * invoice.costPerPetStations).toFixed(2) }}</td>
-                </tr>
-                <tr>
-                    <th>Garbage Bin</th>
-                    <td appCurrency>${{ invoice.costPerGarbageBins }}</td>
-                    <td>{{ invoice.totalGarbageBins }}</td>
-                    <td appCurrency>${{ (invoice.totalGarbageBins * invoice.costPerGarbageBins).toFixed(2) }}</td>
-                </tr>
-                <tr>
-                    <th>Replacement of 10 Gal. Bin</th>
-                    <td appCurrency>${{ invoice.costPerBinReplaced }}</td>
-                    <td>{{ invoice.totalBinReplaced }}</td>
-                    <td appCurrency>${{ (invoice.totalBinReplaced * invoice.costPerBinReplaced).toFixed(2) }}</td>
-                </tr>
-                
-                <tr>
-                    <th>Hand Sanitizer Bottole Refill</th>
-                    <td appCurrency>${{ invoice.costPerHandSanitizer }}</td>
-                    <td>{{ invoice.totalHandSanitizerReplaced }}</td>
-                    <td appCurrency>${{ (invoice.totalHandSanitizerReplaced * invoice.costPerHandSanitizer).toFixed(2) }}</td>
-                </tr>
-                <tr>
-                    <th>Pet Waste Station Dispenser Bag Refills (200 rolls) </th>
-                    <td appCurrency>${{ invoice.costPerBagReplaced }}</td>
-                    <td>{{ invoice.totalBagReplaced }}</td>
-                    <td appCurrency>${{ (invoice.totalBagReplaced * invoice.costPerBagReplaced).toFixed(2) }}</td>
-                </tr>
-                
-                <tr>
-                    <th>40 Gal Trash Bag</th>
-                    <td appCurrency>${{ invoice.costPerTrashBag }}</td>
-                    <td>{{ invoice.totalTrashBagReplaced }}</td>
-                    <td appCurrency>${{ (invoice.totalTrashBagReplaced * invoice.costPerTrashBag).toFixed(2) }}</td>
-                </tr>
-                <tr>
-                    <th colspan="3" style="text-align: left;">Tax Amount (7%) </th>
-                    <td appCurrency>${{ invoice.taxAmount.toFixed(2) }}</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="row mt-3">
-            <div class="col-6">
-                <p><strong>Gate Code:</strong> {{ invoice.community.gateCode }}</p>
-                <p><strong>Lock Box Code:</strong> {{ invoice.community.lockBoxCode }}</p>
-            </div>
-            <div class="col-6 text-end">
-                <h4 class="text-dark">Total Amount: <span appCurrency class="text-success">${{ (invoice.totalAmount + invoice.taxAmount).toFixed(2) }}</span></h4>
-                <p><strong>Status:</strong> <span class="badge" [ngClass]="getStatusClass(invoice.status)">{{ invoice.status
-                        }}</span></p>
-            </div>
-        </div>
-        <div class="row mt-3 align-items-center">
-            <div class="col-md-12 d-flex justify-content-end">
-                <button *ngIf="invoice.status!='paid'" (click)="payInvoice()" class="mr-3 btn-bg-primary">
-                   {{invoice.status=='pending'?'Send Invoice':'Mark as Paid'}}
-                </button>
-            </div>
+        <div class="col-6 text-end">
+            <h4 class="text-secondary community-font">{{ invoice.community.communityName }}</h4>
+            <p>{{ invoice.community.communityAddress }}</p>
+            <p><strong>Phone:</strong> {{ invoice.community.phone }}</p>
+            <p><strong>Email:</strong> {{ invoice.community.email }}</p>
         </div>
     </div>
+
+    <hr>
+
+    <h5 class="text-dark">Task Details</h5>
+    <table class="table table-bordered mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th *ngIf="invoice.isFlatRate">Service Type</th>
+                <th *ngIf="invoice.isFlatRate">Date</th>
+                <th>Name of the Service</th>
+                <th>Rate</th>
+                <th>QTY</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        <tbody *ngIf="!invoice.isFlatRate">
+            <tr>
+                <th>Service of pet waste station</th>
+                <td appCurrency>${{ invoice.costPerPetStations }}</td>
+                <td>{{ invoice.totalPetStations }}</td>
+                <td appCurrency>${{ (invoice.totalPetStations * invoice.costPerPetStations).toFixed(2) }}</td>
+            </tr>
+            <tr>
+                <th>Garbage Bin</th>
+                <td appCurrency>${{ invoice.costPerGarbageBins }}</td>
+                <td>{{ invoice.totalGarbageBins }}</td>
+                <td appCurrency>${{ (invoice.totalGarbageBins * invoice.costPerGarbageBins).toFixed(2) }}</td>
+            </tr>
+            <tr>
+                <th>Replacement of 10 Gal. Bin</th>
+                <td appCurrency>${{ invoice.costPerBinReplaced }}</td>
+                <td>{{ invoice.totalBinReplaced }}</td>
+                <td appCurrency>${{ (invoice.totalBinReplaced * invoice.costPerBinReplaced).toFixed(2) }}</td>
+            </tr>
+
+            <tr>
+                <th>Hand Sanitizer Bottole Refill</th>
+                <td appCurrency>${{ invoice.costPerHandSanitizer }}</td>
+                <td>{{ invoice.totalHandSanitizerReplaced }}</td>
+                <td appCurrency>${{ (invoice.totalHandSanitizerReplaced * invoice.costPerHandSanitizer).toFixed(2)
+                    }}</td>
+            </tr>
+            <tr>
+                <th>Pet Waste Station Dispenser Bag Refills (200 rolls) </th>
+                <td appCurrency>${{ invoice.costPerBagReplaced }}</td>
+                <td>{{ invoice.totalBagReplaced }}</td>
+                <td appCurrency>${{ (invoice.totalBagReplaced * invoice.costPerBagReplaced).toFixed(2) }}</td>
+            </tr>
+
+            <tr>
+                <th>40 Gal Trash Bag</th>
+                <td appCurrency>${{ invoice.costPerTrashBag }}</td>
+                <td>{{ invoice.totalTrashBagReplaced }}</td>
+                <td appCurrency>${{ (invoice.totalTrashBagReplaced * invoice.costPerTrashBag).toFixed(2) }}</td>
+            </tr>
+
+            <tr *ngIf="invoice.isTaxApplicable">
+                <th colspan="3" style="text-align: left;">Tax Amount (7%) </th>
+                <td appCurrency>${{ invoice.taxAmount.toFixed(2) }}</td>
+            </tr>
+        </tbody>
+        <tbody *ngIf="invoice.isFlatRate">
+            <tr *ngFor="let task of invoice?.additionalTasks">
+                <td>{{task.additionalTask? 'Additional Task': 'Regular Task'}}</td>
+                <td>{{task.serviceDate}}</td>
+                <th>{{task.serviceName}}</th>
+                <td appCurrency>${{ task.serviceCharge }}</td>
+                <td>{{task.quantity}}</td>
+            </tr>
+            <tr *ngIf="invoice.isTaxApplicable">
+                <th colspan="3" style="text-align: left;">Tax Amount (7%) </th>
+                <td appCurrency>${{ invoice.taxAmount.toFixed(2) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="row mt-3">
+        <div class="col-6">
+            <p><strong>Gate Code:</strong> {{ invoice.community.gateCode }}</p>
+            <p><strong>Lock Box Code:</strong> {{ invoice.community.lockBoxCode }}</p>
+        </div>
+        <div class="col-6 text-end">
+            <h4 class="text-dark">Total Amount: <span appCurrency class="text-success">${{ (invoice.totalAmount +
+                    invoice.taxAmount).toFixed(2) }}</span></h4>
+            <p><strong>Status:</strong> <span class="badge" [ngClass]="getStatusClass(invoice.status)">{{ invoice.status
+                    }}</span></p>
+        </div>
+    </div>
+    <div class="row mt-3 align-items-center">
+        <div class="col-md-12 d-flex justify-content-end">
+            <button *ngIf="invoice.status!='paid'" (click)="payInvoice()" class="mr-3 btn-bg-primary">
+                {{invoice.status=='pending'?'Send Invoice':'Mark as Paid'}}
+            </button>
+        </div>
+    </div>
+</div>

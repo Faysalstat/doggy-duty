@@ -30,6 +30,7 @@ export const CommunityUrls = {
 
 export const TaskUrls = {
   COMPLETE_TASK : BASE_URL + "/task/complete",
+  ADD_ADDITIONAL_TASK : BASE_URL + "/task/add-additional-task",
   GETALL : BASE_URL + "/task/getall",
 }
 

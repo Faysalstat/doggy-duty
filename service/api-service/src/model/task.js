@@ -1,5 +1,6 @@
 const Sequelize = require("sequelize");
 const db = require("../connector/db-connector");
+const { add } = require("winston");
 
 const Task = db.sequelize.define(
   "task",
@@ -31,6 +32,10 @@ const Task = db.sequelize.define(
     chargePerNewStationInstallment: Sequelize.DOUBLE,
     chargePerHandSanitizer: Sequelize.DOUBLE,
     chargePerTrashBag: Sequelize.DOUBLE,
+    additionalTask:Sequelize.BOOLEAN,
+    serviceName:Sequelize.STRING,
+    serviceCharge:Sequelize.DOUBLE,
+    serviceDetails:Sequelize.STRING,
   },
   {
     freezeTableName: true,

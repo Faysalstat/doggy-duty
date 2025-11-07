@@ -9,8 +9,18 @@ ADD COLUMN isTrashBagReplaced BOOLEAN DEFAULT FALSE,
 ADD COLUMN noOfTrashBagReplacement INT DEFAULT 0,
 ADD COLUMN chargePerTrashBag DOUBLE DEFAULT 0;
 
+//Flat Rate Feature
 
-INSERT INTO appconfig 
-(`configName`, `value`) VALUES
+//communityServiceSchedules
 
-('PRICE_PER_TRASH_BAG', '0.5');
+ALTER TABLE communityServiceSchedules 
+ADD COLUMN isFlatRate TINYINT DEFAULT 0 NOT NULL,
+ADD COLUMN flatRateAmount DOUBLE DEFAULT 0 NULL,
+ADD COLUMN isFlatRate serviceName varchar(100) NULL;
+
+//Task
+ALTER TABLE task 
+ADD COLUMN additionalTask TINYINT DEFAULT 0 NULL,
+ADD COLUMN additionalServiceName varchar(100) NULL,
+ADD COLUMN additionalServiceDetails TEXT NULL,
+ADD COLUMN additionalServiceCharge DOUBLE NULL;

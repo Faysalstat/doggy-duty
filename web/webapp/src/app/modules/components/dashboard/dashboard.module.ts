@@ -14,6 +14,9 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { AppConfigComponent } from './app-config/app-config.component';
 import { SharedCompsModule } from './shared-comps/shared-comps.module';
+import { DialogModule } from 'primeng/dialog';
+import { AdditionalTaskCreationComponent } from './additional-task-creation/additional-task-creation.component';
+import { DropdownModule } from 'primeng/dropdown';
 @NgModule({
     imports: [
         CommonModule,
@@ -28,9 +31,11 @@ import { SharedCompsModule } from './shared-comps/shared-comps.module';
         DashboardsRoutingModule,
         MaterialModule,
         ToastModule,
-        SharedCompsModule
+        SharedCompsModule,
+        DialogModule,
+        DropdownModule
     ],
-    declarations: [DashboardComponent, AppConfigComponent],
+    declarations: [DashboardComponent, AppConfigComponent, AdditionalTaskCreationComponent],
     providers:[MessageService]
 })
 export class DashboardModule { }

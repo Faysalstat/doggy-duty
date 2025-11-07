@@ -6,6 +6,12 @@ import autoTable from 'jspdf-autotable';
 })
 export class PdfMakeService {
   constructor() {}
+  public async getPDF(workOrder: any, date: string) {
+    const doc = new jsPDF();
+    await this.buildWorkOrder(doc, workOrder);
+    const base64PDF = doc.output('datauristring');
+    return base64PDF;
+  }
   public async downloadWorkOrder(workOrder: any, date: string) {
     const doc = new jsPDF();
     await this.buildWorkOrder(doc, workOrder);
@@ -50,7 +56,7 @@ export class PdfMakeService {
     });
   }
 
-  generateInvoicePDF(invoiceData: any) {
+  generateInvoicePDF(invoiceData: any, print: boolean,tableData:any[]) {
     const doc = new jsPDF();
     doc.addImage("assets/img/logo.png", "PNG", 5, 5, 50, 30); // Increased the size of the logo
     doc.line(5, 40, 200,40); // Adjusted the line position to be below the larger logo
@@ -114,15 +120,7 @@ export class PdfMakeService {
 
     autoTable(doc, {
       head: [['Name of the Service', 'Rate', { content: 'Quantity', styles: { halign: 'center' } }, { content: 'Amount', styles: { halign: 'right' } }]],
-      body: [
-      ['Service of Pet Waste Station', '$' + invoiceData.costPerPetStations, invoiceData.totalPetStations, '$' + (invoiceData.costPerPetStations * invoiceData.totalPetStations).toFixed(2)],
-      ['Garbage Bins', '$' + invoiceData.costPerGarbageBins, invoiceData.totalGarbageBins, '$' + (invoiceData.costPerGarbageBins * invoiceData.totalGarbageBins).toFixed(2)],
-      ['Replacement of 10 Gal. Bin', '$' + invoiceData.costPerBinReplaced, invoiceData.totalBinReplaced, '$' + (invoiceData.costPerBinReplaced * invoiceData.totalBinReplaced).toFixed(2)],
-      ['Hand Sanitizer Bottle Refill', '$' + invoiceData.costPerHandSanitizer, invoiceData.totalHandSanitizerReplaced, '$' + (invoiceData.costPerHandSanitizer * invoiceData.totalHandSanitizerReplaced).toFixed(2)],
-      ['Pet Waste Station Dispenser Bag Refills (200 rolls)', '$' + invoiceData.costPerBagReplaced, invoiceData.totalBagReplaced, '$' + (invoiceData.costPerBagReplaced * invoiceData.totalBagReplaced).toFixed(2)],
-      ['40 Gal Trash Bag', '$' + invoiceData.costPerTrashBag, invoiceData.totalTrashBagReplaced, '$' + (invoiceData.costPerTrashBag * invoiceData.totalTrashBagReplaced).toFixed(2)],
-      ['Tax (7%)', '--', '--', '$' + invoiceData.taxAmount.toFixed(2)],
-      ],
+      body: tableData,
       theme: 'striped',
       headStyles: {
       fillColor: '#343a40',
@@ -165,7 +163,11 @@ export class PdfMakeService {
       ],
       theme: 'plain',
     });
-    doc.save(`Invoice_${invoiceData.id}.pdf`);
+    const pdfBlob = doc.output('blob');
+    if(print){
+      doc.save(`Invoice_${invoiceData.id}.pdf`);
+    }
+    return pdfBlob;
   }
 
   // getTotalAmount(invoices:any[]): number {

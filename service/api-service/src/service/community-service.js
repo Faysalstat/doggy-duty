@@ -1,7 +1,6 @@
 const Community = require("../model/community");
 const {CONFIG_NAMES } = require("../model/enums");
 const CommonService = require("../service/common-service");
-const db = require("../connector/db-connector");
 const CommunityServiceSchedule = require("../model/communityServiceSchedule");
 const Task = require("../model/task");
 const JobOrder = require("../model/job-order");
@@ -9,6 +8,7 @@ const AppConfig = require("../model/app-config");
 const moment = require("moment-timezone");
 const logger = require("../../logger");
 const ScheduledDays = require("../model/scheduled-days");
+const { is } = require("bluebird");
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 exports.addCommunity = async (req, res) => {
   let createdSchedules;
@@ -45,7 +45,11 @@ exports.addCommunity = async (req, res) => {
       communityId: newCommunity.id,
       chargePerPetStation: payload.chargePerPetStation,
       chargePerGarbageBin: payload.chargePerGarbageBin,
-      isPaused: payload.isPaused
+      isPaused: payload.isPaused,
+      isTaxApplicable: payload.isTaxApplicable,
+      isFlatRate: payload.isFlatRate,
+      flatRateAmount: payload.flatRateAmount,
+      serviceName: payload.serviceName,
     };
     newCommunityServiceSchedule = await CommunityServiceSchedule.create(communityServiceScheduleModel);
     if (payload.scheduledDaysOfWeek.length > 0) {
@@ -124,7 +128,11 @@ exports.updateCommunity = async (req, res) => {
       noOfGarbageBin: payload.noOfGarbageBin,
       chargePerPetStation: payload.chargePerPetStation,
       chargePerGarbageBin: payload.chargePerGarbageBin,
-      isPaused: payload.isPaused
+      isPaused: payload.isPaused,
+      isTaxApplicable: payload.isTaxApplicable,
+      isFlatRate: payload.isFlatRate,
+      flatRateAmount: payload.flatRateAmount,
+      serviceName: payload.serviceName,
     };
 
     let updatedSchedule = await CommunityServiceSchedule.update(
@@ -158,6 +166,7 @@ exports.updateCommunity = async (req, res) => {
       startingDate: payload.startingDate,
       scheduledDaysOfWeek: payload.scheduledDaysOfWeek,
       frequency: payload.frequency,
+      
     };
     if (payload.scheduledDaysOfWeek.length > 0) {
       // Create an array of scheduled days
@@ -209,7 +218,11 @@ exports.getAllCommunitiesWithDistanceFromBase = async (req, res) => {
         startingDate: community.communityServiceSchedule.startingDate ,
         frequency: community.communityServiceSchedule.frequency || 0,
         distance: community.distance.toFixed(3),
-        isPaused:community.communityServiceSchedule.isPaused
+        isPaused: community.communityServiceSchedule.isPaused,
+        isTaxApplicable: community.communityServiceSchedule.isTaxApplicable,
+        isFlatRate: community.communityServiceSchedule.isFlatRate,
+        flatRateAmount: community.communityServiceSchedule.flatRateAmount,
+        serviceName: community.communityServiceSchedule.serviceName,
       };
       return communityData;
     });
@@ -304,6 +317,10 @@ exports.getAllJobOrderByDate = async (params) => {
         totalTrashBagReplacedPrice: 0,
         scheduledDate: community.tasks[0].scheduledDate,
         distance: community.distance.toFixed(3),
+        isTaxApplicable: community.communityServiceSchedule.isTaxApplicable,
+        isFlatRate: community.communityServiceSchedule.isFlatRate,
+        flatRateAmount: community.communityServiceSchedule.flatRateAmount,
+        serviceName: community.communityServiceSchedule.serviceName,  
       };
       return communityData;
     });
@@ -339,6 +356,10 @@ exports.getCommunityById = async (req, res) => {
       .filter(day => day.isSelected)
       .map(day => day.scheduledDay),
       isPaused: community.communityServiceSchedule.isPaused,
+      isTaxApplicable: community.communityServiceSchedule.isTaxApplicable,
+      isFlatRate: community.communityServiceSchedule.isFlatRate,
+      flatRateAmount: community.communityServiceSchedule.flatRateAmount,
+      serviceName: community.communityServiceSchedule.serviceName,
       frequency: community.communityServiceSchedule.frequency
     };
     return communityData;

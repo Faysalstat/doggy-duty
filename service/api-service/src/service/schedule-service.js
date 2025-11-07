@@ -12,7 +12,6 @@ const moment = require("moment-timezone");
 const logger = require("../../logger");
 const EventSchedule = require("../model/event-schedule");
 const SchedulerLog = require("../model/scheduler-log");
-const { Address } = require("clicksend");
 exports.generateDailyTasks = async (today, currentDay) => {
   try {
     await SchedulerLog.create({
@@ -60,11 +59,11 @@ exports.generateDailyTasks = async (today, currentDay) => {
 const generateMail = async (today, response) => {
   try {
     const emailBody = generateTaskListEmailBody(response);
-    sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
-    sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
+    // sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
+    // sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
     sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
     logger.info(`Mail sent successfully`);
-    await smsService.sendSms();
+    // await smsService.sendSms();
     logger.info(`SMS sent successfully`);
   } catch (error) {
     logger.info(`Error occurred on SMS: ${error.message}`, {
@@ -105,6 +104,7 @@ exports.generateInvoice = async () => {
             costPerBagReplaced: 0,
             costPerBinReplaced: 0,
             costPerNewStationInstalled: 0,
+            isFlatRateCommunity: false,
             costPerTrashBag: 0,
             invoiceDate: moment(today).format("YYYY-MM-DD"),
           };
@@ -153,26 +153,6 @@ exports.generateInvoice = async () => {
                 invoiceBillMappingModel
               );
             }
-            await invoiceService.designInvoice(
-              { name:community.communityName,
-                address:community.communityAddress,
-                phone:community.phone,
-                email:community.email,
-                invoiceId:createdInvoice.id,
-                invoiceDate:createdInvoice.invoiceDate,
-                totalAmount:createdInvoice.totalAmount,
-                tax:createdInvoice.totalAmount * 0.07,
-                total:createdInvoice.totalAmount + (createdInvoice.totalAmount * 0.07),
-                status:createdInvoice.status,
-                items:[
-                  {name: "Service of Pet Waste Station", rate: createdInvoice.costPerPetStations, qty: createdInvoice.totalGarbageBins, amount: createdInvoice.costPerPetStations * createdInvoice.totalGarbageBins},
-                  {name: "Garbage Bin", rate: createdInvoice.costPerGarbageBins, qty: createdInvoice.totalGarbageBins, amount: createdInvoice.costPerGarbageBins * createdInvoice.totalGarbageBins},
-                  {name: "Replacement of 10 Gal. Bin", rate: createdInvoice.costPerBinReplaced, qty: createdInvoice.totalGarbageBins, amount: createdInvoice.costPerBinReplaced * createdInvoice.totalGarbageBins},
-                  {name: "Hand Sanitizer Bottole Refill", rate: createdInvoice.costPerHandSanitizer, qty: createdInvoice.totalGarbageBins, amount: createdInvoice.costPerHandSanitizer * createdInvoice.totalGarbageBins},
-                  {name: "Pet Waste Station Dispenser Bag Refills (200 rolls)", rate: createdInvoice.costPerBagReplaced, qty: createdInvoice.totalGarbageBins, amount: createdInvoice.costPerBagReplaced * createdInvoice.totalGarbageBins},
-                  {name: "40 Gal Trash Bag", rate: createdInvoice.costPerTrashBag, qty: createdInvoice.totalGarbageBins, amount: createdInvoice.costPerTrashBag * createdInvoice.totalGarbageBins},
-                ]
-              });
           }
 
           // Update lastInvoiceGenerated to today
@@ -299,20 +279,6 @@ const generateTaskListEmailBody = (tasks) => {
   return emailBody;
 };
 
-const notifyDev = (today) => {
-  let emailBody = `
-    <h2>Scheduler Run Successfully for ${today} </h2>
-    <p>Dear Dev Team,</p>
-    <p>Please find below the task list for today:</p>
-  `;
-  emailBody += `
-      </tbody>
-    </table>
-    <p>Thank you!</p>
-    <p>Best regards,<br>Doggy Duty</p>
-  `;
-  sendMail("faysalstat04@gmail.com", "Scheduler Running", emailBody);
-};
 
 const generateEventMail = async (event) => {
   let emailBody = "";

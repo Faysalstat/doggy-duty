@@ -64,7 +64,7 @@ const eventRoute = require("./src/router/event-route");
 // Run every day at 06:00 AM in Florida (Eastern Time)
 // Task Generator
 cron.schedule(
-  "58 0 * * *", // Runs at 6.00 AM EDT/EST
+  "24 8 * * *", // Runs at 6.00 AM EDT/EST
   async () => {
     const todayEDT = moment().tz("America/New_York").format("YYYY-MM-DD");
     const currentDay = moment()
@@ -110,7 +110,7 @@ cron.schedule(
       date: todayEDT, // Date in EDT/EST
     });
     try {
-      const response = await scheduleService.generateInvoice();
+      // const response = await scheduleService.generateInvoice();
       logger.info("Cron job completed for invoice generation", {
         date: todayEDT,
         status: response,

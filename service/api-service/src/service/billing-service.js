@@ -7,6 +7,8 @@ const { Op } = require("sequelize");
 const logger = require("../../logger");
 const AppConfig = require("../model/app-config");
 const { CONFIG_NAMES } = require("../model/enums");
+const invoiceservice = require("./invoice-service");
+const CommunityServiceSchedule = require("../model/communityServiceSchedule");
 exports.getBillByCommunityId = async (req, res, next) => {
   let params = req.query;
   let query = {};
@@ -45,11 +47,21 @@ exports.getAllInvoices = async (req, res, next) => {
   let startDate = new Date("2025-03-01");
 
   let config = await AppConfig.findAll();
-  let chargePerBagRoll = config.find(c => c.configName  === CONFIG_NAMES.PRICE_PER_BAG_ROLL).value;
-  let chargePerBinReplacement = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_BIN_REPLACEMENT).value;
-  let chargePerNewStationInstallment = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_NEW_STATION_INSTALLMENT).value;
-  let chargePerHandSanitizer = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_HAND_SANITIZER).value;
-  let chargePerTrashBag = config.find(c => c.configName === CONFIG_NAMES.PRICE_PER_TRASH_BAG).value;
+  let chargePerBagRoll = config.find(
+    (c) => c.configName === CONFIG_NAMES.PRICE_PER_BAG_ROLL
+  ).value;
+  let chargePerBinReplacement = config.find(
+    (c) => c.configName === CONFIG_NAMES.PRICE_PER_BIN_REPLACEMENT
+  ).value;
+  let chargePerNewStationInstallment = config.find(
+    (c) => c.configName === CONFIG_NAMES.PRICE_PER_NEW_STATION_INSTALLMENT
+  ).value;
+  let chargePerHandSanitizer = config.find(
+    (c) => c.configName === CONFIG_NAMES.PRICE_PER_HAND_SANITIZER
+  ).value;
+  let chargePerTrashBag = config.find(
+    (c) => c.configName === CONFIG_NAMES.PRICE_PER_TRASH_BAG
+  ).value;
   try {
     if (params.communityId && params.communityId != "") {
       billingQuery.communityId = params.communityId;
@@ -63,11 +75,11 @@ exports.getAllInvoices = async (req, res, next) => {
     if (params.endDate || params.endDate != "") {
       endDate = new Date(params.endDate);
     }
-    query.invoiceDate = { 
+    query.invoiceDate = {
       [Op.between]: [
-        startDate.toISOString().split('T')[0], 
-        endDate.toISOString().split('T')[0]
-      ] 
+        startDate.toISOString().split("T")[0],
+        endDate.toISOString().split("T")[0],
+      ],
     };
     let invoices = await Invoice.findAll({
       where: query,
@@ -79,7 +91,7 @@ exports.getAllInvoices = async (req, res, next) => {
             {
               model: Billing,
               where: billingQuery, // Filter Billing by communityId = 1
-              include: [Task, Community],
+              include: [Task, {model: Community, include: CommunityServiceSchedule}],
               required: true,
             },
           ],
@@ -91,7 +103,7 @@ exports.getAllInvoices = async (req, res, next) => {
       // Extract required properties
       const invoiceData = {
         id: invoice.id,
-        totalAmount: invoice.totalAmount,
+        additionalTasks:[],
         totalGarbageBins: invoice.totalGarbageBins,
         totalPetStations: invoice.totalPetStations,
         totalBagReplaced: invoice.totalBagReplaced,
@@ -113,12 +125,11 @@ exports.getAllInvoices = async (req, res, next) => {
           invoice.totalPetStations * invoice.costPerPetStations +
           invoice.totalBagReplaced * chargePerBagRoll +
           invoice.costPerHandSanitizer * invoice.totalHandSanitizerReplaced +
-          invoice.costPerTrashBag * invoice.totalTrashBagReplaced
+          invoice.costPerTrashBag * invoice.totalTrashBagReplaced,
       };
       // Extract community details (assuming communities are the same for the invoice)
       const billings = invoice.invoice_bill_mappings
         ?.map((mapping) => {
-          console.log(mapping);
           return mapping.billing;
         })
         .filter(Boolean); // Remove null/undefined values
@@ -127,6 +138,46 @@ exports.getAllInvoices = async (req, res, next) => {
         let bill = billings[0].dataValues;
         invoiceData.isBagRollReplaced = bill.task.isBagRollReplaced;
         invoiceData.community = billings[0].community; // Take the first one since they're all the same
+        invoiceData.isTaxApplicable =
+          billings[0].community.communityServiceSchedule.isTaxApplicable;
+        invoiceData.isFlatRate =
+          billings[0].community.communityServiceSchedule.isFlatRate;
+        invoiceData.flatRateAmount =
+          billings[0].community.communityServiceSchedule.flatRateAmount;
+        if (invoiceData.isFlatRate) {
+          invoiceData.additionalTasks = billings
+            .filter((bill) => bill.task.additionalTask === true)
+            .map((bill) => ({
+              additionalTask: true,
+              serviceName: bill.task.serviceName,
+              serviceDate: bill.task.scheduledDate,
+              serviceDetails: bill.task.serviceDetails,
+              serviceCharge: bill.task.serviceCharge,
+              quantity: 1,
+            }));
+          let totalFlatRateJob = billings.filter(
+            (bill) => bill.task.additionalTask === false
+          ).length;
+          invoiceData.additionalTasks.unshift({
+            additionalTask: false,
+            serviceName:
+              billings[0].community.communityServiceSchedule.serviceName,
+            serviceDate: "",
+            serviceDetails: "",
+            serviceCharge:
+              billings[0].community.communityServiceSchedule.flatRateAmount,
+            quantity: totalFlatRateJob,
+          });
+          // Calculate total amount
+          invoiceData.totalAmount = invoiceData.additionalTasks.reduce(
+            (sum, task) => {
+              const charge = Number(task.serviceCharge) || 0;
+              // const qty = Number(task.quantity) || 0;
+              return sum + charge;
+            },
+            0
+          );
+        }
       }
       return invoiceData;
     });
@@ -135,12 +186,26 @@ exports.getAllInvoices = async (req, res, next) => {
     throw new Error("Error Occurred: " + error.message);
   }
 };
-exports.payInvoice = async (req, res, next) => {
+
+exports.payInvoice = async (req) => {
   let params = req.body;
+  let file = req.file;
   try {
-     let invoice = await Invoice.findOne({
+    let invoice = await Invoice.findOne({
       where: { id: params.invoiceId },
-      include: [{ model: InvoiceBillMapping, include: Billing }],
+      include: [
+        {
+          model: InvoiceBillMapping,
+          required: true,
+          include: [
+            {
+              model: Billing,
+              include: [Task, Community],
+              required: true,
+            },
+          ],
+        },
+      ],
     });
     if (invoice) {
       if (params.status && params.status == "paid") {
@@ -148,6 +213,23 @@ exports.payInvoice = async (req, res, next) => {
           let bill = invoice.invoice_bill_mappings[i].billing;
           await Billing.update({ status: "paid" }, { where: { id: bill.id } });
         }
+      } else {
+        const invoiceData = {
+          invoiceId: invoice.id,
+        };
+        // Extract community details (assuming communities are the same for the invoice)
+        const billings = invoice.invoice_bill_mappings
+          ?.map((mapping) => {
+            return mapping.billing;
+          })
+          .filter(Boolean); // Remove null/undefined values
+
+        if (billings.length > 0) {
+          let bill = billings[0].dataValues;
+          invoiceData.name = billings[0].community.communityName; // Take the first one since they're all the same
+          invoiceData.email = billings[0].community.email; // Add email
+        }
+        await invoiceservice.sendMailWithInvoice(invoiceData, file);
       }
       await Invoice.update(
         { status: params.status },
@@ -165,7 +247,6 @@ exports.getSumamry = async (req) => {
   let params = req.query;
   let totalEarning = 0;
   let totalAmountGetPaid = 0;
-  let totalAmountDue = 0;
   let totalTaxCollected = 0;
   try {
     let year = params.selectedYear || new Date().getFullYear(); // Default to the current year if no year is specified
@@ -207,3 +288,19 @@ exports.getSumamry = async (req) => {
     throw new Error("Total Amount paid fetch failed");
   }
 };
+
+const  combineFlatRateTasks = async (billings) =>{
+  let flatRateTask = {
+    serviceName:'',
+    serviceDetails:'',
+    serviceCharge:'',
+    quantity:0
+  }
+  let flatRateBillings = billings.filter((bill) => bill.task.additionalTask === false);
+  billings.forEach(bill => {
+    flatRateTask.serviceName = bill.task.serviceName;
+    flatRateTask.serviceDetails = bill.task.serviceDetails;
+    flatRateTask.serviceCharge = bill.community.communityServiceSchedule.flatRateAmount
+  });
+  return flatRateTask;
+}

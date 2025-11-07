@@ -1,5 +1,4 @@
 const CommunityServiceSchedule = require("../model/communityServiceSchedule");
-const Task = require("../model/task");
 const JobOrder = require("../model/job-order");
 const Community = require("../model/community");
 const { Op } = require("sequelize");
@@ -8,9 +7,9 @@ const AppConfig = require("../model/app-config");
 const { CONFIG_NAMES, TASK_STATUS, PAYMENT_STATUS } = require("../model/enums");
 const Billing = require("../model/billing");
 const logger = require("../../logger");
-const moment = require("moment-timezone");
-const { model } = require("mongoose");
 const ScheduledDays = require("../model/scheduled-days");
+const { sequelize } = require("../connector/db-connector");
+const Task = require("../model/task");
 // Function to generate job orders and tasks
 exports.generateDailyTasks = async (taskDate,currentDay) => {
   try {
@@ -71,6 +70,10 @@ exports.generateDailyTasks = async (taskDate,currentDay) => {
         communityId: communitySchedule.communityId,
         scheduledDate: taskDate,
         status: "pending",
+        additionalTask: false,
+        serviceName: communitySchedule.serviceName,
+        serviceCharge: 0,
+        serviceDetails: "",
         isBagRollReplaced: false,
         isBinReplaced: false,
         isNewStationInstalled: false,
@@ -139,12 +142,16 @@ exports.getAllTasks = async (req, res) => {
     }
     let tasks = await Task.findAll({
       where: query,
-      include: [Community, JobOrder],
+      include: [{model:Community, include: CommunityServiceSchedule}, JobOrder],
       order: [[Task.sequelize.fn('STR_TO_DATE', Task.sequelize.col('scheduledDate'), '%m-%d-%Y'), 'DESC']],
     });
     let taskList = JSON.parse(JSON.stringify(tasks));
     const result = taskList.map((task) => {
       const taskModel = {
+        additionalTask: task.additionalTask,
+        serviceName: task.serviceName,
+        serviceCharge: task.serviceCharge,
+        serviceDetails: task.serviceDetails,
         jobOrderId: task.jobOrder?.id, // Get jobOrderId from the first task or set to null
         communityId: task.community.id,
         communityName: task.community.communityName,
@@ -172,6 +179,9 @@ exports.getAllTasks = async (req, res) => {
         scheduledDate: task.scheduledDate,
         taskId: task.id,
         taskStatus: task.status,
+        isFlatRate: task.community.communityServiceSchedule.isFlatRate,
+        flatRateAmount: task.community.communityServiceSchedule.flatRateAmount,
+        serviceName: task.community.communityServiceSchedule.serviceName,
       };
       return taskModel;
     });
@@ -274,4 +284,79 @@ const calculateTotalBill = async (task,payload) => {
   const trashBagCost = payload.noOfTrashBagReplacement * chargePerTrashBag;
   return petStationCost + garbageBinCost + bagRollCost + binReplacementCost + petStationInstallmentCost + handSanitizerCost + trashBagCost;
 };
+
+exports.addAdditionalTask = async (req, res) => {
+  const payload = req.body;
+
+  if (!payload?.communityId || !Array.isArray(payload.additionalJobs)) {
+    return res.status(400).json({ message: "Invalid payload" });
+  }
+
+  const t = await sequelize.transaction();
+
+  try {
+    const { communityId, additionalJobs } = payload;
+
+    for (const additionalJob of additionalJobs) {
+      // Validate each job entry
+      if (!additionalJob.taskDate || !additionalJob.serviceName || !additionalJob.serviceCharge) {
+        throw new Error("Missing required fields in additional job");
+      }
+
+      // 1️⃣ Create the task
+      const taskModel = {
+        communityId,
+        scheduledDate: additionalJob.taskDate,
+        status: "completed",
+        additionalTask: true, // mark as additional
+        serviceName: additionalJob.serviceName,
+        serviceCharge: additionalJob.serviceCharge,
+        serviceDetails: additionalJob.serviceDetails || "",
+        isBagRollReplaced: false,
+        isBinReplaced: false,
+        isNewStationInstalled: false,
+        isHandSanitizerReplaced: false,
+        isTrashBagReplaced: false,
+        noOfPetStation: 0,
+        noOfGarbageBin: 0,
+        noOfBagRollReplaced: 0,
+        noOfBinReplacement: 0,
+        noOfStationInstalled: 0,
+        noOfHandSanitizerReplacement: 0,
+        noOfTrashBagReplacement: 0,
+        chargePerPetStation: 0,
+        chargePerGarbageBin: 0,
+        chargePerBagRoll: 0,
+        chargePerBinReplacement: 0,
+        chargePerNewStationInstallment: 0,
+        chargePerHandSanitizer: 0,
+        chargePerTrashBag: 0,
+      };
+
+      const createdTask = await Task.create(taskModel, { transaction: t });
+
+      // 2️⃣ Create the bill entry
+      const billModel = {
+        totalAmount: additionalJob.serviceCharge,
+        taskCompletionDate: additionalJob.taskDate,
+        status: PAYMENT_STATUS.PENDING,
+        communityId,
+        taskId: createdTask.id,
+        invoiceGenerated: false,
+      };
+
+      await Billing.create(billModel, { transaction: t });
+    }
+
+    // 3️⃣ Commit transaction
+    await t.commit();
+    return { message: "Additional tasks added successfully" };
+
+  } catch (error) {
+    await t.rollback();
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
+    throw new Error(`Error occurred: ${error.message}`, { stack: error.stack });
+  }
+};
+
 

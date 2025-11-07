@@ -3,6 +3,7 @@ import { MessageService } from 'primeng/api';
 import { CommunityService } from 'src/app/services/community.service';
 import { AppConfigNames, TaskStatus } from '../../dto/models';
 import { PdfMakeService } from 'src/app/services/pdf-make.service';
+import { Router } from '@angular/router';
 
 @Component({
   templateUrl: './dashboard.component.html',
@@ -14,10 +15,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   chargePerBinReplacement: number = 0;
   chargePerNewStationInstallment: number = 0;
   chargePerHandSanitizer: number = 0;
+  isFlatRate: boolean = false;
+  visible: boolean = false;
   constructor(
     private communityService: CommunityService,
     private messageService: MessageService,
-    private pdfMakeService: PdfMakeService
+    private pdfMakeService: PdfMakeService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -102,5 +106,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       '/' +
       today.getFullYear();
     this.pdfMakeService.downloadWorkOrder(workOrderModel, formatedDate);
+  }
+  openNewTaskDialog() {
+    this.router.navigate(['/additional-task']);
   }
 }

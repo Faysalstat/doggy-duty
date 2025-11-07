@@ -49,7 +49,7 @@
             </div>
         </div>
 
-        <div class="row mt-3">
+        <div *ngIf="!community.isFlatRate" class="row mt-3">
             <div class="col-md-6">
                 <p>
                     <strong><i class="fas fa-trash"></i> Garbage Bins:</strong>
@@ -63,7 +63,7 @@
                 </p>
             </div>
         </div>
-        <div class="row mt-3">
+        <div *ngIf="!community.isFlatRate" class="row mt-3">
             <div class="col-md-12">
                 <p class="lh-lg">
                     <strong><i class="fas fa-sticky-note"></i> Special Request:</strong>
@@ -71,43 +71,59 @@
                 </p>
             </div>
         </div>
-        <div class="row mt-3 align-items-center" *ngFor="let task of taskConfigs">
+        <div *ngIf="!community.isFlatRate" class="row mt-3">
+            <div class="row mt-3 align-items-center" *ngFor="let task of taskConfigs">
 
-            <!-- Column 1: Slide Toggle -->
-            <div class="col-md-3 d-flex align-items-center">
-                <mat-slide-toggle class="toggle-btn" color="primary" [(ngModel)]="community[task.toggleKey]"
-                    (change)="onToggleChange($event, i)">
-                    {{ task.toggleLabel }}
-                </mat-slide-toggle>
+                <!-- Column 1: Slide Toggle -->
+                <div class="col-md-3 d-flex align-items-center">
+                    <mat-slide-toggle class="toggle-btn" color="primary" [(ngModel)]="community[task.toggleKey]"
+                        (change)="onToggleChange($event, i)">
+                        {{ task.toggleLabel }}
+                    </mat-slide-toggle>
+                </div>
+
+                <!-- Column 2: Number Input -->
+                <div *ngIf="community[task.toggleKey]" class="col-md-3">
+                    <mat-form-field class="input-field" appearance="outline">
+                        <mat-label>{{ task.numberLabel }}</mat-label>
+                        <input type="number" (change)="calculateTotal(community)" placeholder="{{ task.numberLabel }}"
+                            [(ngModel)]="community[task.numberKey]" matInput />
+                    </mat-form-field>
+                </div>
+
+                <!-- Column 3: Price Input -->
+                <div *ngIf="community[task.toggleKey]" class="col-md-3">
+                    <mat-form-field class="input-field" appearance="outline">
+                        <mat-label>{{ task.priceLabel }}</mat-label>
+                        <span appCurrency matTextPrefix>$ &nbsp;</span>
+                        <input appCurrency [readonly]="true" type="number" placeholder="{{ task.priceLabel }}"
+                            [(ngModel)]="community[task.priceKey]" matInput />
+                    </mat-form-field>
+                </div>
+
+                <!-- Column 4: Total Bill -->
+                <div *ngIf="community[task.toggleKey]" class="col-md-3">
+                    <mat-form-field class="input-field" appearance="outline">
+                        <mat-label>Total Bill</mat-label>
+                        <span appCurrency matTextPrefix>$ &nbsp;</span>
+                        <input appCurrency [readonly]="true" type="number" placeholder="Total Bill"
+                            [(ngModel)]="community[task.totalKey]" matInput />
+                    </mat-form-field>
+                </div>
             </div>
-
-            <!-- Column 2: Number Input -->
-            <div *ngIf="community[task.toggleKey]" class="col-md-3">
-                <mat-form-field class="input-field" appearance="outline">
-                    <mat-label>{{ task.numberLabel }}</mat-label>
-                    <input type="number" (change)="calculateTotal(community)" placeholder="{{ task.numberLabel }}"
-                        [(ngModel)]="community[task.numberKey]" matInput />
-                </mat-form-field>
-            </div>
-
-            <!-- Column 3: Price Input -->
-            <div *ngIf="community[task.toggleKey]" class="col-md-3">
-                <mat-form-field class="input-field" appearance="outline">
-                    <mat-label>{{ task.priceLabel }}</mat-label>
-                    <span appCurrency matTextPrefix>$ &nbsp;</span>
-                    <input appCurrency [readonly]="true" type="number" placeholder="{{ task.priceLabel }}"
-                        [(ngModel)]="community[task.priceKey]" matInput />
-                </mat-form-field>
-            </div>
-
-            <!-- Column 4: Total Bill -->
-            <div *ngIf="community[task.toggleKey]" class="col-md-3">
-                <mat-form-field class="input-field" appearance="outline">
-                    <mat-label>Total Bill</mat-label>
-                    <span appCurrency matTextPrefix>$ &nbsp;</span>
-                    <input appCurrency [readonly]="true" type="number" placeholder="Total Bill"
-                        [(ngModel)]="community[task.totalKey]" matInput />
-                </mat-form-field>
+        </div>
+        <div *ngIf="community.isFlatRate" class="card mt-5 p-3">
+            <div class="row">
+                <div class="col-md-12">
+                    <p class="lh-lg">
+                        <strong><i class="fas fa-sticky-note"></i> Service Details:</strong>
+                        {{ community.serviceName }}
+                    </p>
+                    <p>
+                        <strong><i class="fas fa-dollar-sign"></i> Flat Rate Amount:</strong>
+                        ${{ community.flatRateAmount | number: '1.2-2' }}
+                    </p>
+                </div>
             </div>
         </div>
         <div class="row mt-3 align-items-center">

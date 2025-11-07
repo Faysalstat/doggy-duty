@@ -67,13 +67,14 @@ export class InvoiceListComponent implements OnInit {
     // fetch all invoices
     this.communityService.getAllInvoice(params).subscribe({
       next: (res:any) => {
+        
         this.invoiceList = res.body;
         if(res.body && res.body.length > 0){
           this.invoiceList.forEach((invoice:any) => {
-            invoice.taxAmount = invoice.totalAmount * 0.07;
-          }
-          );
+            invoice.taxAmount = invoice.isTaxApplicable ? invoice.totalAmount * 0.07 : 0;
+          });
         }
+        console.log("Invoice list data", this.invoiceList)
       },
       error: (err:any) => {
         this.messageService.add({

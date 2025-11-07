@@ -20,6 +20,10 @@ export class CommunityDTO {
     chargePerGarbageBin?: number;
     frequency: number = 1;
     scheduledDaysOfWeek?: string;
+    isFlatRate?: boolean;
+    serviceName?: string;
+    flatRateAmount?: number;
+    
 }
 
 export enum TaskStatus {

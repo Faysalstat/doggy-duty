@@ -7,6 +7,7 @@ import { CommunityDTO } from 'src/app/modules/dto/models';
 import { CommunityService } from 'src/app/services/community.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DaySelectorComponent } from '../day-selector/day-selector.component';
+import { flatMap } from 'rxjs';
 
 @Component({
   selector: 'app-create',
@@ -36,6 +37,8 @@ export class CreateComponent implements OnInit {
   scheduledDate?: any;
   selectedDays: string[] = [];
   isPaused: boolean = false;
+  isTaxApplicable: boolean = true;
+  isFlatRate: boolean = false;
   frequencies: any[] = [];
   today = new Date();
   day: string = new Date().getDate().toString();
@@ -90,9 +93,10 @@ export class CreateComponent implements OnInit {
   fetchCommunityDetails(id: number) {
     this.communityService.getCommunityById(id).subscribe({
       next: (res) => {
-        console.log(res);
         let communityDetails = res.body;
         this.isPaused = communityDetails.isPaused;
+        this.isFlatRate = communityDetails.isFlatRate || false;
+        this.isTaxApplicable = communityDetails.isTaxApplicable;
         if (res.body && res.body.scheduledDaysOfWeek) {
           this.selectedDays = res.body.scheduledDaysOfWeek;
         }
@@ -135,7 +139,10 @@ export class CreateComponent implements OnInit {
       phone: [communityData.phone, Validators.required],
       email: [communityData.email, Validators.required],
       lockBoxCode: [communityData.lockBoxCode, Validators.required],
-      specialRequest: [communityData.specialRequest, Validators.required],
+      isFlatRate: [communityData.isFlatRate || false],
+      serviceName: [communityData.serviceName],
+      flatRateAmount: [communityData.flatRateAmount],
+      specialRequest: [communityData.specialRequest],
       noOfPetStation: [communityData.noOfPetStation],
       noOfGarbageBin: [communityData.noOfGarbageBin],
       chargePerPetStation: [communityData.chargePerPetStation],
@@ -173,6 +180,9 @@ export class CreateComponent implements OnInit {
     payload.startingDate = this.startingDate;
     payload.scheduledDaysOfWeek = this.selectedDays;
     payload.isPaused = this.isPaused;
+    payload.isTaxApplicable = this.isTaxApplicable;
+    payload.isFlatRate = this.isFlatRate;
+    
     if (this.isEdit) {
       this.onUpdate(payload);
     } else {
@@ -247,5 +257,23 @@ export class CreateComponent implements OnInit {
   }
   prepareDate(){
     this.startingDate = (this.year ? this.year : '0000') + '-' + (this.month ? this.month : '00') + '-' + (this.day ? ('0' + this.day).slice(-2) : '00');
+  }
+  onToggleFlatRate(){
+    this.communityCreateForm.patchValue({isFlatRate: this.isFlatRate});
+    if(this.isFlatRate){
+      this.communityCreateForm.get('serviceName')?.setValidators([Validators.required]);
+      this.communityCreateForm.get('flatRateAmount')?.setValidators([Validators.required]);
+      this.communityCreateForm.get('noOfPetStation')?.clearValidators();
+      this.communityCreateForm.get('chargePerPetStation')?.clearValidators();
+      this.communityCreateForm.get('noOfGarbageBin')?.clearValidators();
+      this.communityCreateForm.get('chargePerGarbageBin')?.clearValidators();
+    }else{
+      this.communityCreateForm.get('serviceName')?.clearValidators();
+      this.communityCreateForm.get('flatRateAmount')?.clearValidators();
+      this.communityCreateForm.get('noOfPetStation')?.setValidators([Validators.required]);
+      this.communityCreateForm.get('chargePerPetStation')?.setValidators([Validators.required]);
+      this.communityCreateForm.get('noOfGarbageBin')?.setValidators([Validators.required]);
+      this.communityCreateForm.get('chargePerGarbageBin')?.setValidators([Validators.required]);
+    }
   }
 }

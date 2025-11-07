@@ -22,28 +22,32 @@
                         <th>New Installation</th>
                         <th>Price/Unit</th>
                         <th>Completed Date</th>
+                        <th>Service Type</th>
+                        <th>Flat Rate</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td colspan="14" class="align-items-center" *ngIf="communityList.length==0">No Completed Task</td>
+                        <td colspan="14" class="align-items-center" *ngIf="communityList?.length==0">No Completed Task</td>
                     </tr>
                     <tr *ngFor="let community of communityList; let i = index">
                         <td>{{ i + 1 }}</td>
                         <td class="community-font">{{ community.communityName }}</td>
                         <!-- <td>{{ community.communityAddress }}</td> -->
-                        <td>{{ community.noOfPetStation }}</td>
-                        <td appCurrency>${{ community.chargePerPetStation }}</td>
-                        <td>{{ community.noOfGarbageBin }}</td>
-                        <td appCurrency>${{ community.chargePerGarbageBin }}</td>
-                        <td>{{ community.noOfBagRollReplaced }}</td>
-                        <td appCurrency>${{ community.chargePerBagRoll }}</td>
-                        <td>{{ community.noOfBinReplacement }}</td>
-                        <td appCurrency>${{ community.chargePerBinReplacement }}</td>
-                        <td>{{ community.noOfStationInstalled }}</td>
-                        <td appCurrency>${{ community.chargePerNewStationInstallment }}</td>
-                        <td>{{community.scheduledDate}}</td>
+                        <td>{{ community.noOfPetStation || 0 }}</td>
+                        <td appCurrency>${{ community.isFlatRate? 0: community.chargePerPetStation || 0 }}</td>
+                        <td>{{ community.isFlatRate? 0: community.noOfGarbageBin || 0 }}</td>
+                        <td appCurrency>${{ community.isFlatRate? 0: community.chargePerGarbageBin || 0 }}</td>
+                        <td>{{ community.isFlatRate? 0: community.noOfBagRollReplaced || 0 }}</td>
+                        <td appCurrency>${{ community.isFlatRate? 0: community.chargePerBagRoll || 0 }}</td>
+                        <td>{{ community.isFlatRate? 0: community.noOfBinReplacement || 0 }}</td>
+                        <td appCurrency>${{ community.isFlatRate? 0: community.chargePerBinReplacement || 0 }}</td>
+                        <td>{{ community.isFlatRate? 0: community.noOfStationInstalled || 0 }}</td>
+                        <td appCurrency>${{ community.isFlatRate? 0: community.chargePerNewStationInstallment || 0 }}</td>
+                        <td>{{community.scheduledDate || 'N/A' }}</td>
+                        <td>{{ community.isFlatRate? 'Flat Rate' : 'Variable Rate' }}</td>
+                        <td appCurrency>${{ community.flatRateAmount || 0 }}</td>
                         <td>{{ community.taskStatus }}</td>
                     </tr>
                 </tbody>
