@@ -38,4 +38,9 @@ export class CompletedListComponent implements OnInit {
       (newDate.getMonth()+1)+"/"+(newDate.getDate()) + '/' + newDate.getFullYear()
     );
   }
+  
+  formatDate(input: string): string {
+    const [month, day, year] = input.split('-');
+    return `${day}-${month}-${year}`;
+  }
 }

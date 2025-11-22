@@ -55,6 +55,11 @@ export const MENUITEM = [
         icon: 'pi pi-fw pi-calendar',
         routerLink: ['/summary/calender'],
       },
+      {
+        label: 'Schedule Calender',
+        icon: 'pi pi-fw pi-calendar',
+        routerLink: ['/summary/schedule-calender'],
+      },
       ],
     },
   ];

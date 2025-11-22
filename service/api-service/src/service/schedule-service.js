@@ -1,6 +1,5 @@
 const taskService = require("../service/task-service");
-const invoiceService = require("../service/invoice-service");
-const sendMail = require("../mail/mailer");
+const {sendMail, sendNotificationMail} = require("../mail/mailer");
 const Community = require("../model/community");
 const smsService = require("../service/smsService");
 const Billing = require("../model/billing");
@@ -22,7 +21,7 @@ exports.generateDailyTasks = async (today, currentDay) => {
     });
     let tasksForEmail = await taskService.generateDailyTasks(today, currentDay);
     if (tasksForEmail.length > 0) {
-      // await generateMail(today, tasksForEmail);
+      await generateMail(today, tasksForEmail);
       logger.info("Job Execution Log", {
         job_name: "Job Scheduler",
         job_type: "SMS & Mail",
@@ -59,11 +58,11 @@ exports.generateDailyTasks = async (today, currentDay) => {
 const generateMail = async (today, response) => {
   try {
     const emailBody = generateTaskListEmailBody(response);
-    // sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
-    // sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
+    sendMail("doggydutypro@gmail.com", "Daily Tasks Generated", emailBody);
+    sendMail("woof@doggyduty.pet", "Daily Tasks Generated", emailBody);
     sendMail("faysalstat04@gmail.com", "Daily Tasks Generated", emailBody);
     logger.info(`Mail sent successfully`);
-    // await smsService.sendSms();
+    await smsService.sendSms();
     logger.info(`SMS sent successfully`);
   } catch (error) {
     logger.info(`Error occurred on SMS: ${error.message}`, {
@@ -73,6 +72,7 @@ const generateMail = async (today, response) => {
 };
 exports.generateInvoice = async () => {
   const today = moment().tz("America/New_York").format("YYYY-MM-DD");
+  let communityList = [];
   try {
     let communities = await Community.findAll({
       include: [{ model: CommunityServiceSchedule }],
@@ -86,10 +86,9 @@ exports.generateInvoice = async () => {
           .tz("America/New_York")
           .format("YYYY-MM-DD");
         const diff = moment(today).diff(moment(lastGeneratedFormated), "days");
-        if (diff >= 21) {
-          logger.info(
-            `Generating invoice for community: ${community.communityName}`
-          );
+        if (diff >= 28) {
+          logger.info(`Generating invoice for community: ${community.communityName}`);
+          
           let invoiceModel = {
             totalAmount: 0,
             totalGarbageBins: 0,
@@ -113,6 +112,7 @@ exports.generateInvoice = async () => {
             include: [{ model: Task, include: Community }],
           });
           if (bills && bills.length > 0) {
+            communityList.push(community.communityName);
             for (let j = 0; j < bills.length; j++) {
               let bill = bills[j].dataValues;
               invoiceModel.totalGarbageBins += bill.task.noOfGarbageBin;
@@ -170,6 +170,12 @@ exports.generateInvoice = async () => {
         status: `Success`,
         error_message: `Invoice Scheduler Run for ${today}`,
       });
+    if(communityList.length > 0){
+      logger.info(`Invoices generated for communities: ${communityList.join(", ")}`);
+      const emailBody = generateInvoiceNotificationEmailBody(communityList);
+      sendNotificationMail("doggydutypro@gmail.com", "Invoices Generated", emailBody);
+      sendNotificationMail("faysalstat04@gmail.com", "Invoices Generated", emailBody);
+    }
     return `Invoice Scheduler Run for ${today}`
   } catch (error) {
     logger.info(`Error occurred: ${error.message}`, { stack: error.stack });
@@ -300,3 +306,25 @@ const generateEventMail = async (event) => {
   }
   return emailBody;
 };
+
+const generateInvoiceNotificationEmailBody = (communities) => {
+  let emailBody = "";
+  if (communities.length && communities.length > 0) { 
+    emailBody = `
+    <h2>Invoices Generated</h2>
+    <p>Dear Team,</p>
+    <p>The following communities have had invoices generated:</p>
+    <ul>
+  `;
+    communities.forEach((community) => {
+      emailBody += `<li>${community}</li>`;
+    });
+
+    emailBody += `
+    </ul>
+    <p>Thank you!</p>
+    <p>Best regards,<br>Doggy Duty, LLC</p>
+  `;
+  }
+  return emailBody;
+}

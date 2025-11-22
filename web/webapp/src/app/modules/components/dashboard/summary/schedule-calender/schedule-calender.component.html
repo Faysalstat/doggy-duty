@@ -1,0 +1,36 @@
+<p-toast [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Scheduled Days</h2>
+            <hr>
+        </div>
+        <div class="col-md-12">
+            <div class="schedule-container">
+  <div
+    class="day-row"
+    *ngFor="let day of weekDays"
+    [class.current-day]="day === currentDay"
+  >
+    <div class="day-name">
+      {{ day | titlecase }}
+    </div>
+
+    <div class="community-list">
+      <ng-container *ngIf="schedule[day]?.length; else noCommunities">
+        <mat-chip-listbox>
+          <mat-chip *ngFor="let c of schedule[day]" color="primary" selected>
+            {{ c }}
+          </mat-chip>
+        </mat-chip-listbox>
+      </ng-container>
+
+      <ng-template #noCommunities>
+        <span class="no-data">— No communities —</span>
+      </ng-template>
+    </div>
+  </div>
+</div>
+        </div>
+    </div>
+</div>

@@ -262,7 +262,7 @@ exports.getSumamry = async (req) => {
           include: [
             {
               model: Billing,
-              include: [Task, Community],
+              include: [Task, {model:Community, include: CommunityServiceSchedule}],
             },
           ],
         },
@@ -272,6 +272,7 @@ exports.getSumamry = async (req) => {
       const invoice = totalPaidBill[index];
       if (invoice.status == "paid") {
         totalAmountGetPaid += invoice.totalAmount;
+        // if(invoice.billing.isTaxApplicable)
       }
     }
     totalEarning = totalPaidBill.reduce((sum, invoice) => {
@@ -289,18 +290,3 @@ exports.getSumamry = async (req) => {
   }
 };
 
-const  combineFlatRateTasks = async (billings) =>{
-  let flatRateTask = {
-    serviceName:'',
-    serviceDetails:'',
-    serviceCharge:'',
-    quantity:0
-  }
-  let flatRateBillings = billings.filter((bill) => bill.task.additionalTask === false);
-  billings.forEach(bill => {
-    flatRateTask.serviceName = bill.task.serviceName;
-    flatRateTask.serviceDetails = bill.task.serviceDetails;
-    flatRateTask.serviceCharge = bill.community.communityServiceSchedule.flatRateAmount
-  });
-  return flatRateTask;
-}

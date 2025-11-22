@@ -16,7 +16,7 @@ ADD COLUMN chargePerTrashBag DOUBLE DEFAULT 0;
 ALTER TABLE communityServiceSchedules 
 ADD COLUMN isFlatRate TINYINT DEFAULT 0 NOT NULL,
 ADD COLUMN flatRateAmount DOUBLE DEFAULT 0 NULL,
-ADD COLUMN isFlatRate serviceName varchar(100) NULL;
+ADD COLUMN serviceName varchar(100) NULL;
 
 //Task
 ALTER TABLE task 

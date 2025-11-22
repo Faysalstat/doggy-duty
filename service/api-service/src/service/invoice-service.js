@@ -1,28 +1,25 @@
-
-
 const path = require("path");
-const {sendInvoice} = require("../mail/mailer");
+const { sendInvoice } = require("../mail/mailer");
 const logger = require("../../logger");
-const fs = require('fs/promises'); // 👈 use promise-based fs
+const fs = require("fs/promises"); // 👈 use promise-based fs
 exports.generateInvoices = async (params) => {
   try {
     let newService = await Service.create(serviceEntity);
-    return newService
+    return newService;
   } catch (error) {
     logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
     throw new Error("Error Occured " + error.message);
   }
 };
-exports.sendMailWithInvoice = async (invoice,file) => {
+exports.sendMailWithInvoice = async (invoice, file) => {
   try {
-    const pdfPath = path.join(__dirname, '../../invoices', `${file.filename}`);
+    const pdfPath = path.join(__dirname, "../../invoices", `${file.filename}`);
     // Send mail with attachment
     await sendInvoice({
       from: '"My Company" <your_email@gmail.com>',
-      to: ["faysalstat04@gmail.com","woof@doggyduty.pet"],
+      to: ["faysalstat04@gmail.com", "woof@doggyduty.pet"],
       subject: "DOGGY DUTY, LLC - INVOICE ",
-      text:
-`Hello ${invoice.name},
+      text: `Hello ${invoice.name},
 Attached to this email is the invoice for ${invoice.name} for pet waste station service.
 Please feel free to reach out if you have any questions or need further information.
 Best Regards,
@@ -37,7 +34,7 @@ www.DoggyDuty.Pet
         {
           filename: `invoice_${file.filename}.pdf`,
           path: pdfPath, // 👈 Attach local file directly
-          contentType: 'application/pdf',
+          contentType: "application/pdf",
         },
       ],
     });

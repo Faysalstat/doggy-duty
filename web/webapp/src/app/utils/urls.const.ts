@@ -1,5 +1,5 @@
-const BASE_URL = "http://localhost:3000/api";
-// const BASE_URL = "https://doggyduty.live/api";
+// const BASE_URL = "http://localhost:3000/api";
+const BASE_URL = "https://doggyduty.live/api";
 
 
 export const AuthenticationUrls = {
@@ -21,6 +21,7 @@ export const ServiceUrls = {
 
 export const CommunityUrls = {
   GET_BY_ID : BASE_URL + "/community/getbyid",
+  GET_BY_DATE : BASE_URL + "/community/getbydays",
   GETALL : BASE_URL + "/community/getall",
   GETALL_BY_DISTANCE_ORDER : BASE_URL + "/community/getallbydistance",
   GETALL_JOB_ORDER : BASE_URL + "/job-order/getallbydate",

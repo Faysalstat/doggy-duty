@@ -45,7 +45,7 @@
                         <td appCurrency>${{ community.isFlatRate? 0: community.chargePerBinReplacement || 0 }}</td>
                         <td>{{ community.isFlatRate? 0: community.noOfStationInstalled || 0 }}</td>
                         <td appCurrency>${{ community.isFlatRate? 0: community.chargePerNewStationInstallment || 0 }}</td>
-                        <td>{{community.scheduledDate || 'N/A' }}</td>
+                        <td>{{formatDate(community.scheduledDate) }}</td>
                         <td>{{ community.isFlatRate? 'Flat Rate' : 'Variable Rate' }}</td>
                         <td appCurrency>${{ community.flatRateAmount || 0 }}</td>
                         <td>{{ community.taskStatus }}</td>

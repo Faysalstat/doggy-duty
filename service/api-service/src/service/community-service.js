@@ -386,3 +386,13 @@ exports.getAllCommunity = async (req, res) => {
   }
 };
 
+exports.getCommunityByDays = async (req)=>{
+  try {
+    let scheduledDays = await ScheduledDays.findAll({where:{isSelected:true},include:{model:CommunityServiceSchedule, include:Community}});
+    return scheduledDays;
+  } catch (error) {
+    logger.error(`Error occurred: ${error.message}`, { stack: error.stack });
+    throw new Error("Error Occurred: " + error.message);
+  }
+}
+

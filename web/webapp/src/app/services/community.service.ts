@@ -96,4 +96,7 @@ export class CommunityService {
   public addAdditionalTask(payload:any):Observable<any>{
     return this.http.post(TaskUrls.ADD_ADDITIONAL_TASK,payload);
   }
+  public getAllCommunityByDate(): Observable<any> {
+    return this.http.get(CommunityUrls.GET_BY_DATE);
+  }
 }

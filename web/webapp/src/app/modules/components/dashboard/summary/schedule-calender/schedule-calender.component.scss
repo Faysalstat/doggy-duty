@@ -1,0 +1,49 @@
+.schedule-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.day-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px dashed #e0e0e0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    background-color: #f9f9f9;
+  }
+}
+
+.day-row.current-day {
+  background-color: #e3f2fd; // light blue
+  border-left: 4px solid #1976d2;
+  transform: scale(1.01);
+}
+
+.day-name {
+  font-weight: 600;
+  min-width: 120px;
+  text-transform: capitalize;
+}
+
+.community-list {
+  flex: 1;
+}
+
+mat-chip {
+  margin-right: 6px;
+}
+
+.no-data {
+  color: #9e9e9e;
+  font-size: 0.85rem;
+  font-style: italic;
+}

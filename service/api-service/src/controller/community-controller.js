@@ -87,3 +87,17 @@ exports.getAllCommunities = async (req, res, next) => {
     });
   }
 };
+exports.getCommunityByDays = async (req, res, next) => {
+  try {
+    let response = await communityService.getCommunityByDays(req, res, next);
+    return res.status(200).json({
+      message: "Community Retrieved",
+      body: response,
+    });
+  } catch (error) {
+    return res.status(404).json({
+      message: "Not Found: " + error.message,
+      isSuccess: false,
+    });
+  }
+};

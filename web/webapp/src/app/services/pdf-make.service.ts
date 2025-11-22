@@ -58,7 +58,7 @@ export class PdfMakeService {
 
   generateInvoicePDF(invoiceData: any, print: boolean,tableData:any[]) {
     const doc = new jsPDF();
-    doc.addImage("assets/img/logo.png", "PNG", 5, 5, 50, 30); // Increased the size of the logo
+    doc.addImage("assets/img/logo.png", "PNG", 5, 5, 80, 30); // Increased the size of the logo
     doc.line(5, 40, 200,40); // Adjusted the line position to be below the larger logo
 
     // doc.text('', 10, 55); // Adding a line break before the autoTable
@@ -81,9 +81,23 @@ export class PdfMakeService {
       ],
       theme: 'plain',
     });
-
     autoTable(doc, {
       startY: 50, // Start the table below the line
+      body: [
+        [
+          {
+            content: 'Bill To:',
+            styles: {
+              halign: 'right',
+              fontSize: 12,
+            },
+          },
+        ],
+      ],
+      theme: 'plain',
+    });
+    autoTable(doc, {
+      startY: 52, // Start the table below the line
       body: [
         [
           {

@@ -30,7 +30,7 @@ const personalTransporter = nodemailer.createTransport({
  */
 const sendMail = async (to, subject, html) => {
     try {
-      const info = await transporter.sendMail({
+      const info =    await transporter.sendMail({
         from: `"New Dog Task" <${transporter.options.auth.user}>`,
         to,
         subject,
@@ -47,7 +47,25 @@ const sendMail = async (to, subject, html) => {
       return 
     }
   };
-
+const sendNotificationMail = async (to, subject, html) => {
+    try {
+      const info =    await transporter.sendMail({
+        from: `"Invoice Generated" <${transporter.options.auth.user}>`,
+        to,
+        subject,
+        html, // Send HTML content
+      });
+  
+      console.log("Email sent: ", info.messageId);
+      return {
+        isSuccess:true,
+        info: info
+      };
+    } catch (error) {
+      console.error("Error sending email:", error);
+      return 
+    }
+  };
 const sendInvoice = async(model)=>{
   try {
       model.from =  `"Invoice Generated" <${personalTransporter.options.auth.user}>`
@@ -76,4 +94,4 @@ personalTransporter.verify(function (error, success) {
     console.log("✅ Personal Mail Transport Ready");
   }
 });
-module.exports = {sendMail,sendInvoice};
+module.exports = {sendMail,sendInvoice,sendNotificationMail};

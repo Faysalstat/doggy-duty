@@ -75,7 +75,7 @@
                             <tr *ngFor="let invoice of invoiceList; let i = index">
                                 <td>{{ i + 1 }}</td>
                                 <td class="community-font">{{ invoice.community.communityName }}</td>
-                                <td>{{ invoice.invoiceDate }}</td>
+                                <td style="width: 10%;">{{ formatDate(invoice.invoiceDate) }}</td>
                                 <td>{{ invoice.community.communityAddress }}</td>
                                 <td>{{ invoice.totalPetStations }}</td>
                                 <td appCurrency>${{ invoice.costPerPetStations }}</td>
